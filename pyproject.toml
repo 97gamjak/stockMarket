@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=42", "setuptools_scm>=8"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "stockMarket"
+dynamic = [
+    "version"
+]
+authors = [
+  { name="Jakob Gamper", email="97gamjak@gmail.com" },
+]
+description = "stockMarket is a python package for retrieving and analyzing stock data."
+requires-python = ">=3.10"
+readme = "README.md"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+dependencies = [
+    "pandas",
+    "yfinance",
+    "tqdm",
+]
+
+[project.optional-dependencies]
+test = [
+]
+docs = [
+]
+
+[tool.setuptools_scm]
+version_file = "stockMarket/_version.py"
+
+[project.scripts]
+
+
+[project.urls]
+
