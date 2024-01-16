@@ -5,10 +5,11 @@ from tqdm import tqdm
 
 
 class StockData:
-    def __init__(self, index):
+    def __init__(self, index, tickers=None):
 
         self.index = index
         self.companies = []
+        self.tickers = tickers
 
         if index.lower().replace(" ", "") == 's&p500':
             self.companies = list(pd.read_html(
@@ -30,6 +31,7 @@ class StockData:
 
     def init_data(self):
         self.tickers = self.download_tickers()
+
         self.tickers = {ticker: self.tickers[ticker]
                         for ticker in self.tickers if self.tickers[ticker] is not None}
 
@@ -50,8 +52,11 @@ class StockData:
             ticker: self.tickers[ticker].balancesheet for ticker in tqdm(self.tickers)}
 
         print("Retrieve calendar data from Yahoo Finance...")
-        self.calendar = {
-            ticker: self.tickers[ticker].calendar for ticker in tqdm(self.tickers)}
+        for ticker in tqdm(self.tickers):
+            try:
+                self.tickers[ticker].calendar
+            except:
+                self.tickers[ticker] = None
 
     def download_tickers(self):
         tickers = {}

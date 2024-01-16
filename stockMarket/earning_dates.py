@@ -21,6 +21,8 @@ class EarningDates:
         self.market_caps = screening_data['marketCap']
         self.market_caps.set_data(self.tickers)
 
+        self.earning_dates = screening_data['earningsDate']
+        self.earning_dates.set_data(self.tickers)
         self.get_earning_dates()
 
         self.combine_data()
@@ -28,26 +30,21 @@ class EarningDates:
         return self.data
 
     def get_earning_dates(self):
-        self.dates = {}
-        for ticker in tqdm(self.tickers):
-            try:
-                self.dates[ticker] = self.tickers[ticker].calendar['Earnings Date']
-            except KeyError:
-                self.dates[ticker] = None
-
-        last_saturday = pd.Timestamp(self.find_last_saturday())
-        next_friday = pd.Timestamp(self.find_next_friday())
         self.nearest_earnings = {}
-        for ticker, date in self.dates.items():
-            date = date
-            if date is None or len(date) == 0:
+        last_saturday = pd.Timestamp(self.find_last_saturday()).date()
+        next_friday = pd.Timestamp(self.find_next_friday()).date()
+        for ticker, date in self.earning_dates.data.items():
+            if date is None:
                 continue
 
-            date = [pd.Timestamp(_date) for _date in date]
-            if last_saturday <= date[0] <= next_friday:
-                start_date = date[0].date()
-                end_date = date[1].date() if len(date) > 1 else start_date
-                self.nearest_earnings[ticker] = [start_date, end_date]
+            dates = date.split('::')
+            dates = [pd.Timestamp(date).date() for date in dates if date != '']
+
+            if last_saturday <= dates[0] <= next_friday:
+                if len(dates) == 1:
+                    self.nearest_earnings[ticker] = [dates[0], dates[0]]
+                else:
+                    self.nearest_earnings[ticker] = [dates[0], dates[1]]
 
     def combine_data(self):
         self.data = {}
@@ -79,8 +76,7 @@ class EarningDates:
         body = ""
         attachment = self.output_file
 
-        subject = f"Next Important Earning Dates from {
-            pd.Timestamp.today().strftime('%Y-%m-%d')}"
+        subject = f"Next Important Earning Dates from {pd.Timestamp.today().strftime('%Y-%m-%d')}"
 
         write_email(email_addresses=receiver_emails, email_body=body, email_subject=subject,
                     email_attachment=attachment)

@@ -1,39 +1,55 @@
 import pandas as pd
 
-from tqdm import tqdm
-
 from .config import screening_data
 from .emails import write_email
+from .stockData import StockData
 
 
 class StockScreener:
 
-    def __init__(self, stock_data):
+    def __init__(self, stock_data, is_stock_screener_child: bool = False):
         self.stock_data = stock_data
         self.index = stock_data.index
         self.tickers = stock_data.tickers
         self.screening_data = screening_data
+        self.is_stock_screener_child = is_stock_screener_child
+        self.discard_reasons = {}
+        self.summary = ""
+        self.summary_body = ""
 
         self.collect_data()
 
     def collect_data(self):
-        for key, value in tqdm(self.screening_data.items()):
+        for key, value in self.screening_data.items():
             value.set_data(self.tickers)
+
+    def continuous_screen(self, screen_information):
+        self.screen_information = screen_information
+        self.selected_tickers = self.tickers
+        self.tickers_without_data = {}
+
+        for screen_information in self.screen_information:
+            stock_screener = StockScreener(
+                StockData(self.index, self.selected_tickers), is_stock_screener_child=True)
+            stock_screener.screen(
+                screen_information={screen_information: self.screen_information[screen_information]})
+            self.summary_body += stock_screener.summary_body
+            self.selected_tickers = stock_screener.selected_tickers
+            for key, value in stock_screener.tickers_without_data.items():
+                self.tickers_without_data[key] = value
+
+        self._finalize_summary()
 
     def screen(self, screen_information):
         self.screen_information = screen_information
         self.selected_tickers = {}
         self.tickers_without_data = {}
 
-        self.discard_reasons = {}
         for info in self.screen_information:
             self.discard_reasons[info + '_lower_limit'] = 0
             self.discard_reasons[info + '_upper_limit'] = 0
 
-        print()
-        print("Removing companies that do not meet the screening criteria...")
-        print()
-        for company in tqdm(self.tickers):
+        for company in self.tickers:
             self.to_discard = False
             self.missing_data = False
 
@@ -47,45 +63,22 @@ class StockScreener:
             if self.missing_data:
                 self.tickers_without_data[company] = self.tickers[company]
 
-        return self._finalize_screen()
+            for reason in self.discard_reasons:
+                short_reason = reason.split('_')[0]
+                self.summary_body += f"{reason}     {self.discard_reasons[reason]} with limits [{self.screen_information[short_reason][0]}, {self.screen_information[short_reason][1]}]\n"
 
-    def _finalize_screen(self):
+        return self._finalize_summary()
 
-        self.summary = f"""
+    def _finalize_summary(self):
+        if not self.is_stock_screener_child:
+            self.summary += f"""
 A total of {len(self.selected_tickers)} out of {len(self.tickers)} companies were selected.
 For a total of {len(self.tickers_without_data)} companies, data was missing.
 
 A short summary of the reasons for discarding companies is given below:
 
 """
-
-        for reason in self.discard_reasons:
-            short_reason = reason.split('_')[0]
-            self.summary += f"{reason}     {self.discard_reasons[reason]} with limits [{
-                self.screen_information[short_reason][0]}{self.screen_information[short_reason][1]}]\n"
-
-        self.summary += """
-        
-The selected companies are:
-            
-"""
-
-        dictionary = {}
-        for info, data in self.screening_data.items():
-            dictionary[data.title] = {
-                ticker: data.data[ticker] for ticker in self.selected_tickers}
-
-        df = pd.DataFrame.from_dict(dictionary)
-        df = df.sort_values(
-            by=['Sector', 'EBITDA Margin %'], ascending=[True, False])
-
-        self.output_file = "selected_companies.csv"
-        df.to_csv(self.output_file, sep='\t', encoding='utf-8', )
-
-        print(self.summary)
-        print(df)
-
-        return self.selected_tickers
+            self.summary += self.summary_body
 
     def _screen(self, company, data, key, sector=None):
         if sector == 'Financial Services' and key == 'ebitdaMargin':
@@ -115,6 +108,18 @@ The selected companies are:
             self.screen_lower_limit(company, data, key)
 
     def write_email(self, email_addresses=None):
+        dictionary = {}
+        for info, data in self.screening_data.items():
+            dictionary[data.title] = {
+                ticker: data.data[ticker] for ticker in self.selected_tickers}
+
+        df = pd.DataFrame.from_dict(dictionary)
+        df = df.sort_values(
+            by=['Sector', 'Market Cap (B)'], ascending=[True, False])
+
+        self.output_file = "selected_companies.csv"
+        df.to_csv(self.output_file, sep='\t', encoding='utf-8', )
+
         if email_addresses is not None:
             receiver_emails = email_addresses
         else:
@@ -123,8 +128,7 @@ The selected companies are:
         body = self.summary
         attachment = self.output_file
 
-        subject = f"Financial Data for {self.index} of {
-            pd.Timestamp.today().strftime('%Y-%m-%d')}"
+        subject = f"Financial Data for {self.index} of {pd.Timestamp.today().strftime('%Y-%m-%d')}"
 
         write_email(email_addresses=receiver_emails, email_body=body, email_subject=subject,
                     email_attachment=attachment)

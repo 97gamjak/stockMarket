@@ -1,3 +1,6 @@
+import pandas as pd
+import numpy as np
+
 from tqdm import tqdm
 
 
@@ -16,24 +19,71 @@ def setup_screener(type, id, title, multiplier, exception, year=0):
         raise ValueError("Type not supported")
 
 
+class ThreeYearScreener:
+    math = {
+        'min': min,
+        'max': max,
+        'mean': np.mean,
+        'sum': sum,
+    }
+
+    def __init__(self, id, title, type='financials', math_mode='min', multiplier=1, exception=None):
+        self.id = id
+        self.title = title
+        self.multiplier = multiplier
+        self.exception = exception
+
+        if math_mode not in self.math:
+            raise ValueError("Math not supported")
+        else:
+            self.math_mode = self.math[math_mode]
+
+        self.screener1 = setup_screener(
+            type, self.id, title, multiplier, exception, year=0)
+        self.screener2 = setup_screener(
+            type, self.id, title, multiplier, exception, year=1)
+        self.screener3 = setup_screener(
+            type, self.id, title, multiplier, exception, year=2)
+
+    def set_data(self, tickers):
+        self.data = {}
+
+        self.screener1.set_data(tickers)
+        self.screener2.set_data(tickers)
+        self.screener3.set_data(tickers)
+
+        for ticker in tickers:
+            try:
+                self.data[ticker] = self.math_mode([self.screener1.data[ticker],
+                                                    self.screener2.data[ticker], self.screener3.data[ticker]])
+            except Exception:
+                self.data[ticker] = self.exception
+
+
 class CalendarScreener:
     def __init__(self, id, title):
         self.id = id
         self.title = title
 
-    def set_data(self, tickers, disable_tqdm=False):
+    def set_data(self, tickers):
         self.data = {}
 
-        if not disable_tqdm:
-            print()
-            print(f"Screening {self.title}...")
-            print()
-
-        for ticker in tqdm(tickers, disable=disable_tqdm):
+        for ticker in tickers:
             try:
-                self.data[ticker] = tickers[ticker].calendar[self.id]
-            except KeyError:
-                self.data[ticker] = None
+                _data = tickers[ticker].calendar[self.id]
+            except (KeyError, AttributeError):
+                _data = None
+
+            if self.id == 'Earnings Date':
+                if _data is None or len(_data) == 0:
+                    self.data[ticker] = None
+                elif len(_data) == 1:
+                    self.data[ticker] = str(_data[0])
+                else:
+                    self.data[ticker] = "::".join(
+                        [str(_data[0]), str(_data[1])])
+            else:
+                self.data[ticker] = _data
 
 
 class InfoScreener:
@@ -44,19 +94,14 @@ class InfoScreener:
         self.exception = exception
         self.year = 0
 
-    def set_data(self, tickers, disable_tqdm=False):
+    def set_data(self, tickers):
         self.data = {}
 
-        if not disable_tqdm:
-            print()
-            print(f"Screening {self.title}...")
-            print()
-
-        for ticker in tqdm(tickers, disable=disable_tqdm):
+        for ticker in tickers:
             try:
                 self.data[ticker] = tickers[ticker].info[self.id] * \
                     self.multiplier
-            except KeyError:
+            except (KeyError, AttributeError):
                 self.data[ticker] = self.exception
 
 
@@ -68,18 +113,13 @@ class CashflowScreener:
         self.exception = exception
         self.year = year
 
-    def set_data(self, tickers, disable_tqdm=False):
+    def set_data(self, tickers):
         self.data = {}
 
-        if not disable_tqdm:
-            print()
-            print(f"Screening {self.title}...")
-            print()
-
-        for ticker in tqdm(tickers, disable=disable_tqdm):
+        for ticker in tickers:
             try:
                 self.data[ticker] = tickers[ticker].cashflow.loc[self.id].iloc[self.year] * self.multiplier
-            except KeyError:
+            except (KeyError, AttributeError):
                 self.data[ticker] = self.exception
 
 
@@ -91,17 +131,12 @@ class FinancialsScreener:
         self.exception = exception
         self.year = year
 
-    def set_data(self, tickers, disable_tqdm=False):
+    def set_data(self, tickers):
         self.data = {}
-        if not disable_tqdm:
-            print()
-            print(f"Screening {self.title}...")
-            print()
-
-        for ticker in tqdm(tickers, disable=disable_tqdm):
+        for ticker in tickers:
             try:
                 self.data[ticker] = tickers[ticker].financials.loc[self.id].iloc[self.year] * self.multiplier
-            except KeyError:
+            except (KeyError, AttributeError):
                 self.data[ticker] = self.exception
 
 
@@ -113,18 +148,13 @@ class BalancesheetScreener:
         self.exception = exception
         self.year = year
 
-    def set_data(self, tickers, disable_tqdm=False):
+    def set_data(self, tickers):
         self.data = {}
 
-        if not disable_tqdm:
-            print()
-            print(f"Screening {self.title}...")
-            print()
-
-        for ticker in tqdm(tickers, disable=disable_tqdm):
+        for ticker in tickers:
             try:
                 self.data[ticker] = tickers[ticker].balancesheet.loc[self.id].iloc[self.year] * self.multiplier
-            except KeyError:
+            except (KeyError, AttributeError):
                 self.data[ticker] = self.exception
 
 
@@ -149,18 +179,13 @@ class GrowthScreener:
         self.start_screener = setup_screener(
             type, id, title, multiplier, exception, year=self.start_year)
 
-    def set_data(self, tickers, disable_tqdm=False):
+    def set_data(self, tickers):
         self.data = {}
 
-        if not disable_tqdm:
-            print()
-            print(f"Screening {self.title}...")
-            print()
+        self.end_screener.set_data(tickers)
+        self.start_screener.set_data(tickers)
 
-        self.end_screener.set_data(tickers, disable_tqdm=True)
-        self.start_screener.set_data(tickers, disable_tqdm=True)
-
-        for ticker in tqdm(tickers, disable=disable_tqdm):
+        for ticker in tickers:
             try:
                 self.data[ticker] = (self.end_screener.data[ticker] - self.start_screener.data[ticker]) / \
                     self.start_screener.data[ticker] * self.multiplier
@@ -189,18 +214,13 @@ class RelationToSumScreener:
         self.screener2 = setup_screener(
             self.type2, self.id2, title, multiplier, exception, year=self.year)
 
-    def set_data(self, tickers, disable_tqdm=False):
+    def set_data(self, tickers):
         self.data = {}
 
-        if not disable_tqdm:
-            print()
-            print(f"Screening {self.title}...")
-            print()
+        self.screener1.set_data(tickers)
+        self.screener2.set_data(tickers)
 
-        self.screener1.set_data(tickers, disable_tqdm=True)
-        self.screener2.set_data(tickers, disable_tqdm=True)
-
-        for ticker in tqdm(tickers, disable=disable_tqdm):
+        for ticker in tickers:
             try:
                 self.data[ticker] = self.screener1.data[ticker] / \
                     (self.screener1.data[ticker] +
