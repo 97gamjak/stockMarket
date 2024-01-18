@@ -81,4 +81,14 @@ same_company_tickers = {
 }
 
 isin_dict = {
+    "ABNB": "US0090661010",
+    "BRK.B": "US0846707026",
+    "BF.B": "US1156372096",
+    "CAT": "US1491231015",
+    "CSCO": "US17275R1023",
+    "FANG": "US25278X1090",
+    "IBM": "US4592001014",
+    "KEYS": "US49338L1035",
+    "META": "US30303M1027",
+    "WELL": "US95040Q1040",
 }
