@@ -20,8 +20,11 @@ classifiers = [
 ]
 
 dependencies = [
+    "ipykernel",
     "pandas",
-    "yfinance",
+    "yfinance", #maybe to be removed
+    "ib_insync",
+    "yahoo_fin",
     "tqdm",
     "numpy",
     "beartype",

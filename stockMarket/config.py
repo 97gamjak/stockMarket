@@ -58,9 +58,9 @@ screening_data["revenueGrowth"] = GrowthScreener(id="Total Revenue",
                                                  multiplier=100,
                                                  two_years=True)
 
-screening_data["operatingCashflow"] = InfoScreener(id="operatingCashflow",
-                                                   title="Operating Cash Flow (B)",
-                                                   multiplier=1/10**9)
+screening_data["operatingCashflow"] = CashflowScreener(id="Operating Cash Flow",
+                                                       title="Operating Cash Flow (B)",
+                                                       multiplier=1/10**9)
 
 
 screening_data["grossMargin"] = InfoScreener(id="grossMargins",

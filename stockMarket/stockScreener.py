@@ -28,13 +28,19 @@ class StockScreener:
         self.selected_tickers = self.tickers
         self.tickers_without_data = {}
 
-        for screen_information in self.screen_information:
+        for info_key, info_value in self.screen_information.items():
+            new_stock_data = StockData(self.index, self.selected_tickers)
+
             stock_screener = StockScreener(
-                StockData(self.index, self.selected_tickers), is_stock_screener_child=True)
-            stock_screener.screen(
-                screen_information={screen_information: self.screen_information[screen_information]})
+                new_stock_data, is_stock_screener_child=True)
+
+            new_screen_information = {info_key: info_value}
+            stock_screener.screen(screen_information=new_screen_information)
+
             self.summary_body += stock_screener.summary_body
+
             self.selected_tickers = stock_screener.selected_tickers
+
             for key, value in stock_screener.tickers_without_data.items():
                 self.tickers_without_data[key] = value
 
@@ -63,11 +69,11 @@ class StockScreener:
             if self.missing_data:
                 self.tickers_without_data[company] = self.tickers[company]
 
-            for reason in self.discard_reasons:
-                short_reason = reason.split('_')[0]
-                self.summary_body += f"{reason}     {self.discard_reasons[reason]} with limits [{self.screen_information[short_reason][0]}, {self.screen_information[short_reason][1]}]\n"
+        for reason in self.discard_reasons:
+            short_reason = reason.split('_')[0]
+            self.summary_body += f"{reason}     {self.discard_reasons[reason]} with limits [{self.screen_information[short_reason][0]}, {self.screen_information[short_reason][1]}]\n"
 
-        return self._finalize_summary()
+        self._finalize_summary()
 
     def _finalize_summary(self):
         if not self.is_stock_screener_child:
@@ -102,10 +108,6 @@ A short summary of the reasons for discarding companies is given below:
         if upper_limit is not None and float(data[company]) > self.screen_information[key][1]:
             self.to_discard = True
             self.discard_reasons[key + '_upper_limit'] += 1
-
-    def screen_lower_limit_ebitda_margin(self, company, data, key, sector):
-        if sector != 'Financial Services':
-            self.screen_lower_limit(company, data, key)
 
     def write_email(self, email_addresses=None):
         dictionary = {}
