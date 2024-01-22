@@ -9,7 +9,7 @@ from .financialStatement import FinancialStatementBase
 def init_income_class(coa_type, **kwargs):
     if coa_type == "Bank":
         return IncomeBank(coa_type=coa_type, **kwargs)
-    elif coa_type == "Industry":
+    elif coa_type == "Industry" or coa_type == "Insurance" or coa_type == "Utility":
         return IncomeIndustry(coa_type=coa_type, **kwargs)
     else:
         raise ValueError(f"coa_type {coa_type} is not valid")

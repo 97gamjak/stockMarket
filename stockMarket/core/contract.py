@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from .financialStatement import Income, BalanceSheet, CashFlowStatement
+from .income import Income
+from .financialStatement import BalanceSheet, CashFlowStatement
 
 
 @dataclass(kw_only=True)
