@@ -2,6 +2,9 @@
 requires = ["setuptools>=42", "setuptools_scm>=8"]
 build-backend = "setuptools.build_meta"
 
+[tool.setuptools]
+py-modules = ["stockMarket"]
+
 [project]
 name = "stockMarket"
 dynamic = [
@@ -40,7 +43,6 @@ docs = [
 version_file = "stockMarket/_version.py"
 
 [project.scripts]
-
 
 [project.urls]
 
