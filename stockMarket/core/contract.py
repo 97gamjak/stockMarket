@@ -20,6 +20,12 @@ class Contract:
     balance: BalanceSheet = field(default_factory=BalanceSheet)
     cashflow: CashFlow = field(default_factory=CashFlow)
 
+    @property
+    def ebitda(self):
+        depreciation = np.nan_to_num(self.cashflow.depreciation)
+        amortization = np.nan_to_num(self.cashflow.amortization)
+        return self.income.ebit + depreciation + amortization
+
     def init_pricing_data(self, interval: Interval = Interval.in_daily, n_bars: int = 1000):
         tv = TvDatafeed()
         self._pricing_data = tv.get_hist(

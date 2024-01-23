@@ -1,4 +1,5 @@
 import datetime as dt
+import numpy as np
 
 from dataclasses import dataclass, field
 from beartype.typing import List
@@ -17,7 +18,8 @@ def init_income_class(coa_type, **kwargs):
 
 @dataclass(kw_only=True)
 class Income(FinancialStatementBase):
-    net_income: List[float] = field(default_factory=list)
+    net_income: np.ndarray[int, np.float64] = field(
+        default_factory=lambda: np.ndarray(shape=0))
 
     @property
     def coa_items(self):
@@ -28,16 +30,18 @@ class Income(FinancialStatementBase):
 
 @dataclass(kw_only=True)
 class IncomeBank(Income):
-    net_interest_income: List[float] = field(default_factory=list)
-    non_interest_income: List[float] = field(default_factory=list)
+    net_interest_income: np.ndarray[int, np.float64] = field(
+        default_factory=lambda: np.ndarray(shape=0))
+    non_interest_income: np.ndarray[int, np.float64] = field(
+        default_factory=lambda: np.ndarray(shape=0))
 
     @property
     def revenue(self):
-        return [sum(x) for x in zip(self.net_interest_income, self.non_interest_income)]
+        return self.net_interest_income + self.non_interest_income
 
-    @revenue.setter
-    def revenue(self, value):
-        self.revenue = value
+    @property
+    def ebit(self):
+        return np.array([np.nan] * len(self.net_interest_income))
 
     @property
     def coa_items(self):
@@ -49,10 +53,36 @@ class IncomeBank(Income):
 
 @dataclass(kw_only=True)
 class IncomeIndustry(Income):
-    revenue: List[float] = field(default_factory=list)
+    revenue: np.ndarray[int, np.float64] = field(
+        default_factory=lambda: np.ndarray(shape=0))
+    gross_profit: np.ndarray[int, np.float64] = field(
+        default_factory=lambda: np.ndarray(shape=0))
+    selling_general_admin: np.ndarray[int, np.float64] = field(
+        default_factory=lambda: np.ndarray(shape=0))
+    research_development: np.ndarray[int, np.float64] = field(
+        default_factory=lambda: np.ndarray(shape=0))
+    depreciation_amortization: np.ndarray[int, np.float64] = field(
+        default_factory=lambda: np.ndarray(shape=0))
+
+    @property
+    def ebit(self):
+        research_development = np.nan_to_num(self.research_development)
+        depreciation_amortization = np.nan_to_num(
+            self.depreciation_amortization)
+        ebit = self.gross_profit - self.selling_general_admin - \
+            research_development - depreciation_amortization
+
+        if np.isnan(ebit).any():
+            raise ValueError("EBIT is NaN")
+
+        return ebit
 
     @property
     def coa_items(self):
         coa_items = super().coa_items
         coa_items["RTLR"] = self.revenue
+        coa_items["SGRP"] = self.gross_profit
+        coa_items["SSGA"] = self.selling_general_admin
+        coa_items["ERAD"] = self.research_development
+        coa_items["SDPR"] = self.depreciation_amortization
         return coa_items

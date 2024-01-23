@@ -1,4 +1,5 @@
 import datetime as dt
+import numpy as np
 
 from dataclasses import dataclass, field
 from beartype.typing import List
@@ -18,10 +19,17 @@ class BalanceSheet(FinancialStatementBase):
 
 @dataclass(kw_only=True)
 class CashFlow(FinancialStatementBase):
-    operating_cashflow: List[float] = field(default_factory=list)
+    operating_cashflow: np.ndarray[int, np.float64] = field(
+        default_factory=lambda: np.ndarray(shape=0))
+    depreciation: np.ndarray[int, np.float64] = field(
+        default_factory=lambda: np.ndarray(shape=0))
+    amortization: np.ndarray[int, np.float64] = field(
+        default_factory=lambda: np.ndarray(shape=0))
 
     @property
     def coa_items(self):
         return {
             "OTLO": self.operating_cashflow,
+            "SDED": self.depreciation,
+            "SAMT": self.amortization,
         }
