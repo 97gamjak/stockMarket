@@ -17,5 +17,11 @@ class BalanceSheet(FinancialStatementBase):
 
 
 @dataclass(kw_only=True)
-class CashFlowStatement(FinancialStatementBase):
-    pass
+class CashFlow(FinancialStatementBase):
+    operating_cashflow: List[float] = field(default_factory=list)
+
+    @property
+    def coa_items(self):
+        return {
+            "OTLO": self.operating_cashflow,
+        }

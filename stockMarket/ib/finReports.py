@@ -12,7 +12,7 @@ from xml.etree import ElementTree as ET
 from tqdm import tqdm
 
 from stockMarket import __data_path__
-from stockMarket.core import Contract, IncomeBank, IncomeIndustry, BalanceSheet, CashFlowStatement, init_income_class
+from stockMarket.core import Contract, BalanceSheet, CashFlow, init_income_class
 
 data_path = str(__data_path__.joinpath("fin_statements")) + "/"
 data_backup_path = str(__data_path__.joinpath("fin_statements/backup")) + "/"
@@ -51,12 +51,13 @@ class FinReports:
 
             self.income = init_income_class(coa_type=coa_type)
             self.balance = BalanceSheet(coa_type=coa_type)
-            self.cashflow = CashFlowStatement(coa_type=coa_type)
+            self.cashflow = CashFlow(coa_type=coa_type)
 
             fin_statements_annual = root.findall(
                 "FinancialStatements/AnnualPeriods/FiscalPeriod/[@Type='Annual']")
             self.add_time_periods(fin_statements_annual)
             self.get_income_statement(fin_statements_annual)
+            self.get_cashflow_statement(fin_statements_annual)
 
             contract.income = self.income
             contract.balance = self.balance
@@ -92,14 +93,19 @@ class FinReports:
         self.cashflow.fiscal_years = fiscal_years
         self.cashflow.fiscal_year_end_dates = fiscal_year_end_dates
 
+    def get_financials(self, et_element, statement_type, financial_statement):
+        for coa_item, func in financial_statement.coa_items.items():
+            line_items = [i.find(f"Statement/[@Type='{statement_type}']/lineItem/[@coaCode='{coa_item}']")
+                          for i in et_element]
+            for line_item in line_items:
+                print(line_item.text)
+                func.append(float(line_item.text) if not line_item else np.nan)
+
     def get_income_statement(self, et_element: List[ET.Element]):
-        income_statements = [i.find("Statement/[@Type='INC']")
-                             for i in et_element]
-        for income_statement in income_statements:
-            for xml_id, func in self.income.xml_ids.items():
-                line_item = income_statement.find(
-                    f"lineItem/[@coaCode='{self.coa_map[xml_id]}']")
-                func.append(float(line_item.text))
+        self.get_financials(et_element, "INC", self.income)
+
+    def get_cashflow_statement(self, et_element: List[ET.Element]):
+        self.get_financials(et_element, "CAS", self.cashflow)
 
 
 class StoreXMLData:
