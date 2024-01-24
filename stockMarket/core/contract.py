@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 import pandas as pd
-import matplotlib.pyplot as plt
+import mplfinance as mpf
 import talib
 import numpy as np
+import datetime as dt
 
 from tvDatafeed import TvDatafeed, Interval
 from dataclasses import dataclass, field
@@ -20,11 +21,22 @@ class Contract:
     balance: BalanceSheet = field(default_factory=BalanceSheet)
     cashflow: CashFlow = field(default_factory=CashFlow)
 
+    earnings_dates: np.ndarray[int, dt.datetime] = field(
+        default_factory=lambda: np.ndarray(shape=0))
+
+    @property
+    def next_earnings_date(self):
+        return np.min(self.earnings_dates)
+
     @property
     def ebitda(self):
         depreciation = np.nan_to_num(self.cashflow.depreciation)
         amortization = np.nan_to_num(self.cashflow.amortization)
         return self.income.ebit + depreciation + amortization
+
+    @property
+    def ebitda_margin(self):
+        return self.ebitda / self.income.revenue * 100
 
     def init_pricing_data(self, interval: Interval = Interval.in_daily, n_bars: int = 1000):
         tv = TvDatafeed()
@@ -42,44 +54,40 @@ class Contract:
         return talib.MACD(self._pricing_data.close, fastperiod=fast_period, slowperiod=slow_period, signalperiod=signal_period)
 
     def plot(self, **kwargs):
-        n_subplots = len(kwargs) + 1
-        fig, ax = plt.subplots(n_subplots, 1, sharex=True)
-        ax[0].set_title(self.ticker)
-        ax[0] = _plot_pricing(ax[0], self._pricing_data["close"])
+        add_plots = []
 
         for i, (key, value) in enumerate(kwargs.items()):
-            ax[i+1] = plot_map[key](ax[i+1], value)
+            add_plots += plot_map[key](value, i+2)
 
-        fig.set_size_inches(18.5, 10.5)
-        plt.show()
-
-
-def _plot_pricing(ax: plt.Axes, pricing_data=None):
-    ax.plot(pricing_data)
-    ax.set_ylabel("Close")
-
-    return ax
+        mpf.plot(self._pricing_data, addplot=add_plots,
+                 warn_too_much_data=10000, volume=True, style="starsandstripes", figscale=1.3)
 
 
-def _plot_rsi(ax: plt.Axes, rsi):
-    ax.plot(rsi, c="orange")
-    ax.axhline(y=70, c="red", linestyle="--")
-    ax.axhline(y=30, c="green", linestyle="--")
-    ax.set_ylabel("RSI")
+def _plot_rsi(rsi, panel: int):
+    add_plots = []
+    line30 = pd.Series(30, index=rsi.index)
+    line70 = pd.Series(70, index=rsi.index)
+    #fmt: off
+    add_plots += [mpf.make_addplot(rsi, panel=panel, ylabel="RSI")]
+    add_plots += [mpf.make_addplot(line30, panel=panel, secondary_y=False, color='g')]
+    add_plots += [mpf.make_addplot(line70, panel=panel, secondary_y=False, color='r')]
+    #fmt: on
+    return add_plots
 
-    return ax
 
+def _plot_macd(macd, panel: int):
+    add_plots = []
 
-def _plot_macd(ax: plt.Axes, macd):
     colormat = np.where(macd[2] > 0, 'g', 'r')
-    ax.plot(macd[0], c="blue", label="macd-fastperiod")
-    ax.plot(macd[1], c="orange", label="macd-slowperiod")
-    ax.bar(macd[2].index, macd[2].values,
-           color=colormat, label="macd-histogram")
-    ax.set_ylabel("MACD")
-    ax.legend(loc="upper left")
 
-    return ax
+    add_plots += [mpf.make_addplot(macd[0], panel=panel,
+                                   ylabel="MACD")]
+    add_plots += [mpf.make_addplot(macd[1], panel=panel,
+                                   color='orange', secondary_y=False)]
+    add_plots += [mpf.make_addplot(macd[2], type='bar',
+                                   panel=panel, color=colormat, secondary_y=False)]
+
+    return add_plots
 
 
 plot_map = {
