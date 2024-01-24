@@ -18,16 +18,22 @@ class BalanceSheet(FinancialStatementBase):
         default_factory=lambda: np.ndarray(shape=0))
     total_debt: np.ndarray[int, np.float64] = field(
         default_factory=lambda: np.ndarray(shape=0))
+    total_liabilities: np.ndarray[int, np.float64] = field(
+        default_factory=lambda: np.ndarray(shape=0))
+    total_assets: np.ndarray[int, np.float64] = field(
+        default_factory=lambda: np.ndarray(shape=0))
 
     @property
     def equity_ratio(self):
-        return self.common_stocK_equity / (self.common_stocK_equity + self.total_debt) * 100
+        return (self.total_assets - self.total_liabilities) / self.total_assets * 100
 
     @property
     def coa_items(self):
         return {
             "QTLE": self.common_stocK_equity,
+            "LTLL": self.total_liabilities,
             "STLD": self.total_debt,
+            "ATOT": self.total_assets,
         }
 
 
