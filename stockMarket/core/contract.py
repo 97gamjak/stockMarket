@@ -21,12 +21,8 @@ class Contract:
     balance: BalanceSheet = field(default_factory=BalanceSheet)
     cashflow: CashFlow = field(default_factory=CashFlow)
 
-    earnings_dates: np.ndarray[int, dt.datetime] = field(
-        default_factory=lambda: np.ndarray(shape=0))
-
-    @property
-    def next_earnings_date(self):
-        return np.min(self.earnings_dates)
+    earnings_date: dt.datetime | None = None
+    ex_dividend_date: dt.datetime | None = None
 
     @property
     def ebitda(self):
