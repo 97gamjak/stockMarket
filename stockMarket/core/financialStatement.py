@@ -14,7 +14,21 @@ class FinancialStatementBase:
 
 @dataclass(kw_only=True)
 class BalanceSheet(FinancialStatementBase):
-    pass
+    common_stocK_equity: np.ndarray[int, np.float64] = field(
+        default_factory=lambda: np.ndarray(shape=0))
+    total_debt: np.ndarray[int, np.float64] = field(
+        default_factory=lambda: np.ndarray(shape=0))
+
+    @property
+    def equity_ratio(self):
+        return self.common_stocK_equity / (self.common_stocK_equity + self.total_debt) * 100
+
+    @property
+    def coa_items(self):
+        return {
+            "QTLE": self.common_stocK_equity,
+            "STLD": self.total_debt,
+        }
 
 
 @dataclass(kw_only=True)

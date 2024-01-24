@@ -27,6 +27,18 @@ class Income(FinancialStatementBase):
             "NINC": self.net_income,
         }
 
+    @property
+    def revenue_growth(self):
+        return -np.diff(self.revenue) / self.revenue[1:] * 100
+
+    @property
+    def revenue_growth_all_time(self):
+        growths = []
+        for i in range(len(self.revenue)-1):
+            growths.append(
+                (self.revenue[i] - self.revenue[-1]) / self.revenue[-1] / (len(self.revenue) - i - 1) * 100)
+        return np.array(growths)
+
 
 @dataclass(kw_only=True)
 class IncomeBank(Income):
@@ -63,19 +75,12 @@ class IncomeIndustry(Income):
         default_factory=lambda: np.ndarray(shape=0))
     depreciation_amortization: np.ndarray[int, np.float64] = field(
         default_factory=lambda: np.ndarray(shape=0))
+    total_operating_expenses: np.ndarray[int, np.float64] = field(
+        default_factory=lambda: np.ndarray(shape=0))
 
     @property
     def ebit(self):
-        research_development = np.nan_to_num(self.research_development)
-        depreciation_amortization = np.nan_to_num(
-            self.depreciation_amortization)
-        ebit = self.gross_profit - self.selling_general_admin - \
-            research_development - depreciation_amortization
-
-        if np.isnan(ebit).any():
-            raise ValueError("EBIT is NaN")
-
-        return ebit
+        return self.revenue - self.total_operating_expenses
 
     @property
     def coa_items(self):
@@ -85,4 +90,5 @@ class IncomeIndustry(Income):
         coa_items["SSGA"] = self.selling_general_admin
         coa_items["ERAD"] = self.research_development
         coa_items["SDPR"] = self.depreciation_amortization
+        coa_items["ETOE"] = self.total_operating_expenses
         return coa_items

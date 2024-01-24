@@ -58,6 +58,7 @@ class FinReports:
             self.add_time_periods(fin_statements_annual)
             self.get_income_statement(fin_statements_annual)
             self.get_cashflow_statement(fin_statements_annual)
+            self.get_balance_sheet(fin_statements_annual)
 
             contract.income = self.income
             contract.balance = self.balance
@@ -107,6 +108,9 @@ class FinReports:
 
     def get_cashflow_statement(self, et_element: List[ET.Element]):
         self.get_financials(et_element, "CAS", self.cashflow)
+
+    def get_balance_sheet(self, et_element: List[ET.Element]):
+        self.get_financials(et_element, "BAL", self.balance)
 
 
 class StoreXMLData:
