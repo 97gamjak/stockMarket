@@ -145,9 +145,6 @@ class StoreXMLData:
 
         for contract in tqdm(self.ib_contracts, desc="Downloading XML data"):
 
-            if contract.symbol in tickers_to_ignore:
-                continue
-
             self.fin_statements[contract.symbol] = app.reqFundamentalData(
                 contract, 'ReportsFinStatements', [])
 
@@ -221,9 +218,3 @@ primary_exchange_dict = {
     "META": "NASDAQ",
     "WELL": "NYSE",
 }
-
-tickers_to_ignore = [
-    "ONEM",  # bought by amazon
-    "NMTR",  # bankrupt
-    "AGLE",  # not aviailable, penny stock
-]

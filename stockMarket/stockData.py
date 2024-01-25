@@ -4,6 +4,45 @@ import tabula
 
 from tqdm import tqdm
 
+tickers_to_change_name = {
+    "AVID": "CDMO",
+    "BOMN": "BOC",
+}
+
+tickers_to_ignore = [
+    "ONEM",  # bought by amazon
+    "AERI",  # bought by Alcon
+    "AJRD",  # bought by L3Harris
+    "ANAT",  # bought by Core Specialty
+    "ANGN",  # bought by Elicio Therapeutics
+    "ATRS",  # bought by Halozyme Therapeutics
+    "AAWW",  # bought by investor group
+    "BPFH",  # bought by SVB Financial Group
+    "EPAY",  # bought by Thoma Bravo
+    "BRMK",  # bought by Ready Capital
+    "BTX",   # bought by Resideo
+
+    "ACBI",  # merged with South State
+    "BXS",   # merged with Cadence Bancorporation
+    "BCEI",  # merged with Extraction Oil & Gas
+    "MNRL",  # merged with Sitio Royalties
+    "ATCX",  # went private
+
+    "NMTR",  # bankrupt
+    "AMRS",  # bankrupt
+    "ATNX",  # bankrupt
+    "ATHX",  # bankrupt
+    "AUD",   # bankrupt
+    "AVYA",  # bankrupt
+
+    "AGLE",  # not aviailable, penny stock
+
+    # "AFIN",  # no idea why not available - some REIT
+    # "HOME",  # no idea why not available
+    # "BCOR",  # no idea why not available
+    # "BVH",   # no idea why not available
+]
+
 
 class StockData:
     def __init__(self, index, tickers=None):
@@ -29,6 +68,12 @@ class StockData:
                 company for company in self.companies if isinstance(company, str)]
         else:
             raise ValueError("Index not supported")
+
+        self.companies = [
+            company for company in self.companies if company not in tickers_to_ignore]
+
+        self.companies = [tickers_to_change_name[company]
+                          if company in tickers_to_change_name else company for company in self.companies]
 
     def init_data(self):
         self.tickers = self.download_tickers()
