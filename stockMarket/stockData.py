@@ -1,5 +1,6 @@
 import yfinance as yf
 import pandas as pd
+import tabula
 
 from tqdm import tqdm
 

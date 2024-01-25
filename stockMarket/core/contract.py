@@ -23,6 +23,7 @@ class Contract:
 
     earnings_date: dt.datetime | None = None
     ex_dividend_date: dt.datetime | None = None
+    pays_dividend: bool = False
 
     @property
     def ebitda(self):
@@ -55,8 +56,21 @@ class Contract:
         for i, (key, value) in enumerate(kwargs.items()):
             add_plots += plot_map[key](value, i+2)
 
-        mpf.plot(self._pricing_data, addplot=add_plots,
-                 warn_too_much_data=10000, volume=True, style="starsandstripes", figscale=1.3)
+            bucket_size = 0.001 * max(self._pricing_data["close"])
+            vol_profile = self._pricing_data["volume"].groupby(self._pricing_data["close"].apply(
+                lambda x: bucket_size * round(x/bucket_size, 0))).sum()
+
+        mc = mpf.make_marketcolors(base_mpf_style="yahoo")
+        s = mpf.make_mpf_style(base_mpf_style="yahoo", marketcolors=mc)
+
+        fig, axlist = mpf.plot(self._pricing_data, type="candle", addplot=add_plots, returnfig=True,
+                               warn_too_much_data=10000, volume=True, style=s, figscale=1.3)
+        axlist[0].set_title(self.ticker, fontsize=20)
+        vpax = fig.add_axes(axlist[0].get_position())
+        vpax.set_axis_off()
+        vpax.set_xlim(right=1.2*max(vol_profile.values))
+        vpax.barh(vol_profile.keys().values, vol_profile.values,
+                  height=0.75*bucket_size, align="center", color="black", alpha=0.45)
 
 
 def _plot_rsi(rsi, panel: int):
