@@ -37,6 +37,12 @@ class BalanceSheet(FinancialStatementBase):
         }
 
 
+class _BalanceSheetPropertiesMixin:
+    @property
+    def equity_ratio(self):
+        return self.balance.equity_ratio
+
+
 @dataclass(kw_only=True)
 class CashFlow(FinancialStatementBase):
     operating_cashflow: np.ndarray[int, np.float64] = field(
@@ -53,3 +59,9 @@ class CashFlow(FinancialStatementBase):
             "SDED": self.depreciation,
             "SAMT": self.amortization,
         }
+
+
+class _CashFlowPropertiesMixin:
+    @property
+    def operating_cashflow(self):
+        return self.cashflow.operating_cashflow

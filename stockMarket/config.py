@@ -7,77 +7,41 @@ from .screeningData import GrowthScreener
 from .screeningData import CalendarScreener
 from .screeningData import ThreeYearScreener
 
+tickers_to_change_name = {
+    "AVID": "CDMO",
+    "BOMN": "BOC",
+}
 
-screening_data = {}
-screening_data["longName"] = InfoScreener(id="longName",
-                                          title="Long Name")
+tickers_to_ignore = [
+    "ONEM",  # bought by amazon
+    "AERI",  # bought by Alcon
+    "AJRD",  # bought by L3Harris
+    "ANAT",  # bought by Core Specialty
+    "ANGN",  # bought by Elicio Therapeutics
+    "ATRS",  # bought by Halozyme Therapeutics
+    "AAWW",  # bought by investor group
+    "BPFH",  # bought by SVB Financial Group
+    "EPAY",  # bought by Thoma Bravo
+    "BRMK",  # bought by Ready Capital
+    "BTX",   # bought by Resideo
 
-screening_data["sector"] = InfoScreener(id="sector",
-                                        title="Sector")
+    "ACBI",  # merged with South State
+    "BXS",   # merged with Cadence Bancorporation
+    "BCEI",  # merged with Extraction Oil & Gas
+    "MNRL",  # merged with Sitio Royalties
+    "ATCX",  # went private
 
-screening_data["price"] = InfoScreener(id="open",
-                                       title="Price")
+    "NMTR",  # bankrupt
+    "AMRS",  # bankrupt
+    "ATNX",  # bankrupt
+    "ATHX",  # bankrupt
+    "AUD",   # bankrupt
+    "AVYA",  # bankrupt
 
-screening_data["marketCap"] = InfoScreener(id="marketCap",
-                                           title="Market Cap (B)",
-                                           multiplier=1/10**9)
+    "AGLE",  # not aviailable, penny stock
 
-screening_data["trailingPE"] = InfoScreener(id="trailingPE",
-                                            title="Trailing PE")
-
-screening_data["forwardPE"] = InfoScreener(id="forwardPE",
-                                           title="Forward PE")
-
-screening_data["dividendYield"] = InfoScreener(id="dividendYield",
-                                               title="Dividend Yield %",
-                                               multiplier=100,
-                                               exception=0)
-
-screening_data["payoutRatio"] = InfoScreener(id="payoutRatio",
-                                             title="Payout Ratio %",
-                                             multiplier=100)
-
-screening_data["minNetIncome"] = ThreeYearScreener(id="Net Income",
-                                                   title="Lowest Net Income (B)",
-                                                   type="financials",
-                                                   math_mode="min",
-                                                   multiplier=1/10**9)
-
-screening_data["maxNetIncome"] = ThreeYearScreener(id="Net Income",
-                                                   title="Highest Net Income (B)",
-                                                   type="financials",
-                                                   math_mode="max",
-                                                   multiplier=1/10**9)
-
-
-screening_data["revenueGrowth"] = GrowthScreener(id="Total Revenue",
-                                                 title="Revenue Growth %",
-                                                 type="financials",
-                                                 multiplier=100,
-                                                 two_years=True)
-
-screening_data["operatingCashflow"] = CashflowScreener(id="Operating Cash Flow",
-                                                       title="Operating Cash Flow (B)",
-                                                       multiplier=1/10**9)
-
-
-screening_data["grossMargin"] = InfoScreener(id="grossMargins",
-                                             title="Gross Margin %",
-                                             multiplier=100)
-
-screening_data["ebitdaMargin"] = InfoScreener(id="ebitdaMargins",
-                                              title="EBITDA Margin %",
-                                              multiplier=100)
-
-screening_data["equityRatio"] = RelationToSumScreener(type1="balancesheet",
-                                                      id1="Common Stock Equity",
-                                                      type2="balancesheet",
-                                                      id2="Total Debt",
-                                                      title="Equity Ratio %",
-                                                      multiplier=100)
-
-screening_data["earningsDate"] = CalendarScreener(id="Earnings Date",
-                                                  title="Earnings Date")
-
-screening_data["exDividendDate"] = CalendarScreener(id="Ex-Dividend Date",
-                                                    title="Ex-Dividend Date")
+    # "AFIN",  # no idea why not available - some REIT
+    # "HOME",  # no idea why not available
+    # "BCOR",  # no idea why not available
+    # "BVH",   # no idea why not available
+]

@@ -22,22 +22,14 @@ class Income(FinancialStatementBase):
         default_factory=lambda: np.ndarray(shape=0))
 
     @property
+    def ebit_margin(self):
+        return self.ebit / self.revenue * 100
+
+    @property
     def coa_items(self):
         return {
             "NINC": self.net_income,
         }
-
-    @property
-    def revenue_growth(self):
-        return -np.diff(self.revenue) / self.revenue[1:] * 100
-
-    @property
-    def revenue_growth_all_time(self):
-        growths = []
-        for i in range(len(self.revenue)-1):
-            growths.append(
-                (self.revenue[i] - self.revenue[-1]) / self.revenue[-1] / (len(self.revenue) - i - 1) * 100)
-        return np.array(growths)
 
 
 @dataclass(kw_only=True)
@@ -92,3 +84,29 @@ class IncomeIndustry(Income):
         coa_items["SDPR"] = self.depreciation_amortization
         coa_items["ETOE"] = self.total_operating_expenses
         return coa_items
+
+
+class _IncomePropertiesMixin:
+    @property
+    def revenue(self):
+        return self.income.revenue
+
+    @property
+    def net_income(self):
+        return self.income.net_income
+
+    @property
+    def ebit(self):
+        return self.income.ebit
+
+    @property
+    def ebit_margin(self):
+        return self.income.ebit_margin
+
+    @property
+    def coa_type(self):
+        return self.income.coa_type
+
+    @property
+    def fin_statement_type(self):
+        return self.income.coa_type

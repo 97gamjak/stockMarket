@@ -12,7 +12,7 @@ from xml.etree import ElementTree as ET
 from tqdm import tqdm
 
 from stockMarket import __data_path__
-from stockMarket.core import Contract, BalanceSheet, CashFlow, init_income_class
+from stockMarket.core import Contracts, ContractListType, BalanceSheet, CashFlow, init_income_class
 
 data_path = str(__data_path__.joinpath("fin_statements")) + "/"
 data_backup_path = str(__data_path__.joinpath("fin_statements/backup")) + "/"
@@ -21,15 +21,8 @@ file_ending = "_fin_statements.xml"
 
 class FinReports:
 
-    def __init__(self, contracts: List[str] | str | Contract | List[Contract]):
-        contracts = np.atleast_1d(contracts)
-
-        if isinstance(contracts[0], str):
-            self.contracts = np.array(
-                [Contract(ticker=contract) for contract in contracts])
-
-        else:
-            self.contracts = contracts
+    def __init__(self, contracts: ContractListType):
+        self.contracts = Contracts(contracts)
 
     def populate_contracts(self):
         self.filenames = [data_path + contract.ticker +
@@ -63,6 +56,8 @@ class FinReports:
             contract.income = self.income
             contract.balance = self.balance
             contract.cashflow = self.cashflow
+
+        return self.contracts
 
     def build_coa_map(self):
         coa_map = {}
@@ -114,8 +109,9 @@ class FinReports:
 
 
 class StoreXMLData:
-    def __init__(self, contracts: List[str] | str):
-        self.tickers = np.atleast_1d(contracts)
+    def __init__(self, contracts: ContractListType):
+        self.contracts = Contracts(contracts)
+        self.tickers = self.contracts.tickers
         self.fin_statements = {}
 
     def save_xml_data(self):
