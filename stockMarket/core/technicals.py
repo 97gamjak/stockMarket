@@ -5,7 +5,6 @@ import talib
 import warnings
 
 from tvDatafeed import TvDatafeed
-from scipy.signal import argrelextrema
 
 from .contract import Contract
 from stockMarket.utils import Period
@@ -56,7 +55,7 @@ class Technicals:
             self.pricing_data.close, nbdevup=nbdevup, nbdevdn=nbdevdn, timeperiod=time_period)
         return self.bbands
 
-    def plot(self, **kwargs):
+    def plot(self, logarithmic_scale="linear", **kwargs):
         add_plots = []
 
         for i, (key, value) in enumerate(kwargs.items()):
@@ -70,7 +69,7 @@ class Technicals:
         s = mpf.make_mpf_style(base_mpf_style="yahoo", marketcolors=mc)
 
         fig, axlist = mpf.plot(self.pricing_data, type="candle", addplot=add_plots, returnfig=True,
-                               warn_too_much_data=10000, volume=True, style=s, figscale=1.3)
+                               warn_too_much_data=10000, volume=True, style=s, figscale=1.3, yscale=logarithmic_scale)
         axlist[0].set_title(self.ticker, fontsize=20)
         vpax = fig.add_axes(axlist[0].get_position())
         vpax.set_axis_off()
