@@ -4,9 +4,11 @@ import mplfinance as mpf
 import talib
 import warnings
 
-from tvDatafeed import TvDatafeed, Interval
+from tvDatafeed import TvDatafeed
+from scipy.signal import argrelextrema
 
 from .contract import Contract
+from stockMarket.utils import Period
 
 
 class Technicals:
@@ -26,12 +28,17 @@ class Technicals:
 
         self.pricing_data = None
 
-    def init_pricing_data(self, interval: Interval = Interval.in_daily, n_bars: int = 1000):
+    def init_pricing_data(self, interval: Period = "daily", n_bars: int | None = 1000):
+        if n_bars is None:
+            n_bars = 5000  # max value
+
+        interval = Period(interval)
+
         tv = TvDatafeed()
         self.pricing_data = tv.get_hist(
             symbol=self.ticker,
             exchange=self.exchange,
-            interval=interval,
+            interval=interval.interval,
             n_bars=n_bars,
         )
 
@@ -44,15 +51,20 @@ class Technicals:
                                slowperiod=slow_period, signalperiod=signal_period)
         return self.macd
 
+    def bbands(self, nbdevup: int = 2, nbdevdn: int = 2, time_period: int = 20):
+        self.bbands = talib.BBANDS(
+            self.pricing_data.close, nbdevup=nbdevup, nbdevdn=nbdevdn, timeperiod=time_period)
+        return self.bbands
+
     def plot(self, **kwargs):
         add_plots = []
 
         for i, (key, value) in enumerate(kwargs.items()):
             add_plots += plot_map[key](value, i+2)
 
-            bucket_size = 0.001 * max(self.pricing_data["close"])
-            vol_profile = self.pricing_data["volume"].groupby(self.pricing_data["close"].apply(
-                lambda x: bucket_size * round(x/bucket_size, 0))).sum()
+        bucket_size = 0.001 * max(self.pricing_data["close"])
+        vol_profile = self.pricing_data["volume"].groupby(self.pricing_data["close"].apply(
+            lambda x: bucket_size * round(x/bucket_size, 0))).sum()
 
         mc = mpf.make_marketcolors(base_mpf_style="yahoo")
         s = mpf.make_mpf_style(base_mpf_style="yahoo", marketcolors=mc)
@@ -94,7 +106,22 @@ def _plot_macd(macd, panel: int):
     return add_plots
 
 
+def _plot_bbands(bbands, _):
+    panel = 0
+    add_plots = []
+
+    add_plots += [mpf.make_addplot(bbands[0], panel=panel,
+                                   color='orange', secondary_y=False)]
+    add_plots += [mpf.make_addplot(bbands[1],
+                                   panel=panel, color='blue', secondary_y=False)]
+    add_plots += [mpf.make_addplot(bbands[2], panel=panel,
+                                   color='orange', secondary_y=False)]
+
+    return add_plots
+
+
 plot_map = {
     "rsi": _plot_rsi,
-    "macd": _plot_macd
+    "macd": _plot_macd,
+    "bbands": _plot_bbands,
 }
