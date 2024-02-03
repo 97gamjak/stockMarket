@@ -18,6 +18,7 @@ class Contract(
 ):
     ticker: str
     exchange: str = ""
+    currency: str = ""
     long_name: str = ""
     sector: str = ""
 

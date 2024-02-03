@@ -48,12 +48,15 @@ class EqualityScreenerObject(ScreenerObject):
         self.equal_to = equal_to
         if isinstance(self.equal_to, str):
             self.equal_to = self.equal_to.lower()
+
         self.not_equal_to = not_equal_to
         if isinstance(self.not_equal_to, str):
             self.not_equal_to = self.not_equal_to.lower()
 
         if self.equal_to is not None and self.not_equal_to is not None:
             raise ValueError("Cannot set both equal_to and not_equal_to")
+        elif self.equal_to is None and self.not_equal_to is None:
+            raise ValueError("Must set either equal_to or not_equal_to")
 
     def check_to_discard(self, contract: Contract) -> bool:
         self.to_discard = super().check_to_discard(contract)
@@ -63,11 +66,10 @@ class EqualityScreenerObject(ScreenerObject):
             value = value.lower()
 
         to_discard = False
-        if value != self.equal_to:
-            if self.equal_to is not None:
-                to_discard = True
-            else:
-                to_discard = False
+        if self.equal_to is not None and value != self.equal_to:
+            to_discard = False
+        elif self.not_equal_to is not None and value == self.not_equal_to:
+            to_discard = False
         else:
             to_discard = True
 
@@ -95,7 +97,9 @@ class LimitScreenerObject(ScreenerObject):
         value = self.lambda_func(contract.__getattribute__(self.func_string))
 
         to_discard = False
-        if np.isnan(value):
+        if value == "Infinity":
+            to_discard = True
+        elif np.isnan(value):
             to_discard = False
 
         elif value <= self.min_value:

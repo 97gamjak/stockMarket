@@ -21,6 +21,7 @@ def growth_total(data):
 default_df_entries = {
     "Name": "long_name",
     "Sector": "sector",
+    "Financial Statement Type": "fin_statement_type",
 
     "Price": "price",
     "Trailing PE": "trailing_pe",
@@ -59,6 +60,8 @@ def contracts_to_df(contracts: Contracts, dict_to_df: Dict = default_df_entries)
     for key, (value, lambda_func) in dict_to_df.items():
         df[key] = [lambda_func(contract.__getattribute__(value))
                    for contract in contracts]
+
+    df = df.sort_values(by=["Sector", "Financial Statement Type"], ascending=[True, True])
 
     return df
 

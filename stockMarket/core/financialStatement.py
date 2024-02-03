@@ -15,17 +15,33 @@ class FinancialStatementBase:
 @dataclass(kw_only=True)
 class BalanceSheet(FinancialStatementBase):
     common_stocK_equity: np.ndarray[int, np.float64] = field(
-        default_factory=lambda: np.ndarray(shape=0))
+        default_factory=lambda: np.ndarray(shape=0)
+    )
     total_debt: np.ndarray[int, np.float64] = field(
-        default_factory=lambda: np.ndarray(shape=0))
+        default_factory=lambda: np.ndarray(shape=0)
+    )
     total_liabilities: np.ndarray[int, np.float64] = field(
-        default_factory=lambda: np.ndarray(shape=0))
+        default_factory=lambda: np.ndarray(shape=0)
+    )
     total_assets: np.ndarray[int, np.float64] = field(
-        default_factory=lambda: np.ndarray(shape=0))
+        default_factory=lambda: np.ndarray(shape=0)
+    )
+    goodwill: np.ndarray[int, np.float64] = field(
+        default_factory=lambda: np.ndarray(shape=0)
+    )
+
+    @property
+    def equity(self):
+        return self.total_assets - self.total_liabilities
 
     @property
     def equity_ratio(self):
         return (self.total_assets - self.total_liabilities) / self.total_assets * 100
+
+    @property
+    def goodwill_ratio(self):
+        goodwill = np.nan_to_num(self.goodwill, nan=0)
+        return goodwill / self.equity * 100
 
     @property
     def coa_items(self):
@@ -34,10 +50,15 @@ class BalanceSheet(FinancialStatementBase):
             "LTLL": self.total_liabilities,
             "STLD": self.total_debt,
             "ATOT": self.total_assets,
+            "AGWI": self.goodwill,
         }
 
 
 class _BalanceSheetPropertiesMixin:
+    @property
+    def goodwill_ratio(self):
+        return self.balance.goodwill_ratio
+
     @property
     def equity_ratio(self):
         return self.balance.equity_ratio

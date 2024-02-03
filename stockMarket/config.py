@@ -1,47 +1,90 @@
-from __future__ import annotations
-
-from .screeningData import InfoScreener
-from .screeningData import CashflowScreener
-from .screeningData import RelationToSumScreener
-from .screeningData import GrowthScreener
-from .screeningData import CalendarScreener
-from .screeningData import ThreeYearScreener
-
 tickers_to_change_name = {
-    "AVID": "CDMO",
-    "BOMN": "BOC",
+    "ENOB": "RENB",
+    "CENTA": "CENT",
+    "LILAK": "LILA",
 }
 
 tickers_to_ignore = [
-    "ONEM",  # bought by amazon
-    "AERI",  # bought by Alcon
-    "AJRD",  # bought by L3Harris
-    "ANAT",  # bought by Core Specialty
-    "ANGN",  # bought by Elicio Therapeutics
-    "ATRS",  # bought by Halozyme Therapeutics
-    "AAWW",  # bought by investor group
-    "BPFH",  # bought by SVB Financial Group
-    "EPAY",  # bought by Thoma Bravo
-    "BRMK",  # bought by Ready Capital
-    "BTX",   # bought by Resideo
+    "CWEN",
+    "RuSHB",
+    "UONEK",
+    "UONE",
 
-    "ACBI",  # merged with South State
-    "BXS",   # merged with Cadence Bancorporation
-    "BCEI",  # merged with Extraction Oil & Gas
-    "MNRL",  # merged with Sitio Royalties
-    "ATCX",  # went private
+    "AJRD",   # bought by L3Harris
+    "ARGO",   # bought by Brookfield Reinsurance
+    "ARNC",   # bought by Apollo Funds
+    "AVTA",   # bought by Cetera
+    "AVID",   # bought by STG
+    "BVH",    # bought by Hilton Grand Vacations
+    "CCF",    # bought by KKR
+    "CELL",   # bought by Bruker
+    "CIR",    # bought by KKR
+    "CTIC",   # bought by Orphan Biovitrum
+    "CVT",    # bought by Blackstone
+    "DEN",    # bought by Exxon
+    "DICE",   # bought by Eli Lilly
+    "DSEY",   # bought by Solenis
+    "EQRX",   # bought by Revolution Medicines
+    "ESMT",   # bought by Vista Equity Partners
+    "ESTE",   # bought by Permian Resources
+    "FOCS",   # bought by Clayton,Dubilier & Rice
+    "FORG",   # bought by Thoma Bravo
+    "HCCI",   # bought by J.F. Lehman & Company
+    "HMPT",   # bought by Mr. Cooper Group
+    "ICPT",   # bought by Alfasigma
+    "INDT",   # bought by Centerbridge Partners and GIC
+    "ISEE",   # bought by Astellas
+    "KDNY",   # bought by Novartis
+    "KLR",    # bought by Tata Communications
+    "LVOX",   # bought by NICE
+    "NXGN",   # bought by Thoma Bravo
+    "PFSW",   # bought by GXO
+    "PLM",    # bought by Glencore
+    "PNT",    # bought by Eli Lilly
+    "PRDS",   # bought by Medi Pacific
+    "QUOT",   # bought by Neptune Retail Solutions
+    "RETA",   # bought by Biogen
+    "ROCC",   # bought by Baytex Energy
+    "RPT",    # bought by Kimco Reality
+    "RXDX",   # bought by Merck & CO
+    "SCU",    # bought by Rithm Capital Corp
+    "TFM",    # bought by Cencosud
+    "THRN",   # bought by L. Catterton
+    "TRTN",   # bought by Brookfield Infrastructure
+    "TWNK",   # bought by J.M. Smucker
+    "UBA",    # bought by Regency Centers
+    "VRTV",   # bought by CD&R
 
-    "NMTR",  # bankrupt
+    "GRNA",  # merged with LLC
+    "LTHM",  # merged with Allkem
+    "NETI",  # merged with Cadeler
+    "NEX",   # merged with Patterson-UTI
+    "NUVA",  # merged with Globus Medical
+    "RTL",   # merged with  Global NET Lease
+    "SLGC",  # merged with Somat Logic Inc
+
+
+    "RADI",  # went private
+    "HT",    # went private
+    "CHS",   # went private
+    "FRG",   # went private
+    "PDLI",  # went private
+
     "AMRS",  # bankrupt
-    "ATNX",  # bankrupt
-    "ATHX",  # bankrupt
-    "AUD",   # bankrupt
-    "AVYA",  # bankrupt
+    "APPH",  # bankrupt
+    "EBIX",  # bankrupt
+    "IRNT",  # bankrupt
+    "PTRA",  # bankrupt
+    "RAD",   # bankrupt
+    "RIDE",  # bankrupt
+    "SUNL",  # bankrupt
+    "TTCF",  # bankrupt
+    "VRAY",  # bankrupt
+    "ZEV",   # bankrupt
+    "OSTK",   # bankrupt
+
 
     "AGLE",  # not aviailable, penny stock
 
-    # "AFIN",  # no idea why not available - some REIT
-    # "HOME",  # no idea why not available
-    # "BCOR",  # no idea why not available
-    # "BVH",   # no idea why not available
+    "FIBK",   # no idea why not available
 ]

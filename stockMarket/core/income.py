@@ -26,6 +26,10 @@ class Income(FinancialStatementBase):
         return self.ebit / self.revenue * 100
 
     @property
+    def netto_margin(self):
+        return self.net_income / self.revenue * 100
+
+    @property
     def coa_items(self):
         return {
             "NINC": self.net_income,
@@ -34,6 +38,8 @@ class Income(FinancialStatementBase):
 
 @dataclass(kw_only=True)
 class IncomeBank(Income):
+    interest_income: np.ndarray[int, np.float64] = field(
+        default_factory=lambda: np.ndarray(shape=0))
     net_interest_income: np.ndarray[int, np.float64] = field(
         default_factory=lambda: np.ndarray(shape=0))
     non_interest_income: np.ndarray[int, np.float64] = field(
@@ -41,15 +47,16 @@ class IncomeBank(Income):
 
     @property
     def revenue(self):
-        return self.net_interest_income + self.non_interest_income
+        return self.interest_income + self.non_interest_income
 
     @property
     def ebit(self):
-        return np.array([np.nan] * len(self.net_interest_income))
+        return np.array([np.nan] * len(self.interest_income))
 
     @property
     def coa_items(self):
         coa_items = super().coa_items
+        coa_items["SIIB"] = self.interest_income
         coa_items["ENII"] = self.net_interest_income
         coa_items["SNII"] = self.non_interest_income
         return coa_items
@@ -94,6 +101,10 @@ class _IncomePropertiesMixin:
     @property
     def net_income(self):
         return self.income.net_income
+
+    @property
+    def netto_margin(self):
+        return self.income.netto_margin
 
     @property
     def ebit(self):

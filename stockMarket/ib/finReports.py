@@ -127,13 +127,17 @@ class StoreXMLData:
                     clientId=np.random.default_rng().integers(1, 100000))
 
         self.ib_contracts = []
-        for ticker in self.tickers:
+        for contract in self.contracts:
 
             c = IBContract()
-            c.symbol = ticker
+            c.symbol = contract.ticker
             c.secType = 'STK'
             c.exchange = "SMART"
-            c.currency = "USD"
+
+            if contract.currency != "":
+                c.currency = contract.currency
+            else:
+                c.currency = "USD"
 
             self.ib_contracts.append(c)
 
@@ -141,7 +145,10 @@ class StoreXMLData:
 
         for contract in tqdm(self.ib_contracts, desc="Downloading XML data"):
 
-            self.fin_statements[contract.symbol] = app.reqFundamentalData(
+            ticker = contract.symbol
+            contract.symbol = contract.symbol.split(".")[0]
+
+            self.fin_statements[ticker] = app.reqFundamentalData(
                 contract, 'ReportsFinStatements', [])
 
         app.disconnect()
