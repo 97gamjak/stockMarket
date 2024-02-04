@@ -29,6 +29,9 @@ class BalanceSheet(FinancialStatementBase):
     goodwill: np.ndarray[int, np.float64] = field(
         default_factory=lambda: np.ndarray(shape=0)
     )
+    total_outstanding_shares_common_stock: np.ndarray[int, np.float64] = field(
+        default_factory=lambda: np.ndarray(shape=0)
+    )
 
     @property
     def equity(self):
@@ -51,6 +54,7 @@ class BalanceSheet(FinancialStatementBase):
             "STLD": self.total_debt,
             "ATOT": self.total_assets,
             "AGWI": self.goodwill,
+            "QTCO": self.total_outstanding_shares_common_stock,
         }
 
 

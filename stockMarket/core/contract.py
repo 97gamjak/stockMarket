@@ -44,5 +44,18 @@ class Contract(
         return self.income.ebit + depreciation + amortization
 
     @property
+    def earnings_per_share(self):
+        return self.income.net_income / self.balance.total_outstanding_shares_common_stock
+
+    @property
+    def price_to_earnings(self):
+        return self.price / self.earnings_per_share
+
+    @property
     def ebitda_margin(self):
         return self.ebitda / self.income.revenue * 100
+
+    # NOTE: This should include the average of total assets from the last two years - not implemented yet
+    @property
+    def return_on_assets(self):
+        return self.income.net_income / self.balance.total_assets * 100

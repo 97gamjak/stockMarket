@@ -40,3 +40,11 @@ class Contracts:
     @property
     def tickers(self):
         return list(self.contract_dict.keys())
+
+    @property
+    def long_names(self):
+        return [contract.long_name for contract in self.contract_dict.values()]
+
+    @property
+    def sectors(self):
+        return [contract.sector for contract in self.contract_dict.values()]
