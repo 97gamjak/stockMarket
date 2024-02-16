@@ -147,6 +147,7 @@ class StoreXMLData:
 
             ticker = contract.symbol
             contract.symbol = contract.symbol.split(".")[0]
+            contract.symbol = contract.symbol.replace("-", ".")
 
             self.fin_statements[ticker] = app.reqFundamentalData(
                 contract, 'ReportsFinStatements', [])
