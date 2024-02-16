@@ -2,6 +2,7 @@ tickers_to_change_name = {
     "ENOB": "RENB",
     "CENTA": "CENT",
     "LILAK": "LILA",
+    "TUI1.F": "TUI",
 }
 
 tickers_to_ignore = [
@@ -9,6 +10,20 @@ tickers_to_ignore = [
     "RuSHB",
     "UONEK",
     "UONE",
+    "GOOG, GOOGL",
+
+    "HUH1V.HE",     # from Euro Stoxx 600
+    "TIGO-SDB.ST",  # from Euro Stoxx 600
+    "INDU-C.ST",    # from Euro Stoxx 600
+    "EFE.F",        # from Euro Stoxx 600
+    "QGEN",         # from Euro Stoxx 600
+    "SGBAF",        # from Euro Stoxx 600
+    "VOLVBS.XC",    # from Euro Stoxx 600
+    "WRT1V.HE",     # from Euro Stoxx 600
+    "NDA-SE.ST",    # from Euro Stoxx 600
+    "LISP.SW",      # from Euro Stoxx 600
+    "SRT3.DE",      # from Euro Stoxx 600
+    "UMG.AS",       # from Euro Stoxx 600
 
     "AJRD",   # bought by L3Harris
     "ARGO",   # bought by Brookfield Reinsurance

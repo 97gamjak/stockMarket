@@ -64,8 +64,8 @@ class Contract(
     def peg_trailing_3y(self):
         try:
             result = self.trailing_pe / \
-                (self.earnings_per_share[0] -
-                 self.earnings_per_share[3]) * 3 * self.earnings_per_share[3]
+                ((self.earnings_per_share[0] /
+                 self.earnings_per_share[3])**(1/3.0) - 1) / 100
         except:
             result = np.nan
         return result

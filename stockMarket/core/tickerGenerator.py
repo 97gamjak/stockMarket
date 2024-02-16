@@ -49,8 +49,10 @@ class TickerGenerator:
     sp500_names = ['s&p500', 'sp500']
     russell_2000_names = ['russell2000']
     euro_stoxx_600_names = ['eurostoxx600', 'euro_stoxx600', "euro_stoxx_600"]
+    nasdaq_100_names = ['nasdaq100', 'nasdaq_100', 'nasdaq']
 
-    indices_names = sp500_names + russell_2000_names + euro_stoxx_600_names
+    indices_names = sp500_names + russell_2000_names + \
+        euro_stoxx_600_names + nasdaq_100_names
 
     def __init__(self, indices=str | List[str]):
         self.indices = np.atleast_1d(indices)
@@ -84,6 +86,9 @@ class TickerGenerator:
         if index in self.euro_stoxx_600_names:
             tickers = self.get_euro_stoxx_600_tickers()
 
+        if index in self.nasdaq_100_names:
+            tickers = self.get_nasdaq_100_tickers()
+
         tickers_cleaned = []
         for ticker in tickers:
             if ticker in tickers_to_ignore:
@@ -101,6 +106,9 @@ class TickerGenerator:
 
     def get_sp500_tickers(self) -> List[str]:
         return list(pd.read_html('https://en.wikipedia.org/wiki/List_of_S%26P_500_companies')[0]['Symbol'])
+
+    def get_nasdaq_100_tickers(self) -> List[str]:
+        return list(pd.read_html('https://de.wikipedia.org/wiki/NASDAQ-100')[-1]['Symbol'])
 
     def get_euro_stoxx_600_tickers(self) -> List[str]:
         df = pd.read_csv(self.euro_stoxx_600_file)
@@ -134,6 +142,9 @@ class TickerGenerator:
     def generate_currencies(self) -> List[Tuple[str, str]]:
         ticker_currency_tuples = []
 
+        # TODO:
+        crude_hack = {"TUI": "TUI1.F"}
+
         for index in self.indices:
             tickers = self.generate_tickers_single_index(index)
 
@@ -146,6 +157,8 @@ class TickerGenerator:
 
                 currencies = []
                 for ticker in tickers:
+                    if ticker in crude_hack:
+                        ticker = crude_hack[ticker]
                     currency = df.loc[df["Ticker"] ==
                                       ticker, "Currency"].values[0]
 

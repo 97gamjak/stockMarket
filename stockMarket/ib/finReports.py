@@ -133,11 +133,13 @@ class StoreXMLData:
             c.symbol = contract.ticker
             c.secType = 'STK'
             c.exchange = "SMART"
+            c.currency = "USD"
 
             if contract.currency != "":
                 c.currency = contract.currency
-            else:
-                c.currency = "USD"
+
+            if contract.exchange != "":
+                c.exchange = contract.exchange
 
             self.ib_contracts.append(c)
 
@@ -146,7 +148,9 @@ class StoreXMLData:
         for contract in tqdm(self.ib_contracts, desc="Downloading XML data"):
 
             ticker = contract.symbol
-            contract.symbol = contract.symbol.split(".")[0]
+            if ticker not in keep_dots_tickers:
+                contract.symbol = contract.symbol.split(".")[0]
+
             contract.symbol = contract.symbol.replace("-", ".")
 
             self.fin_statements[ticker] = app.reqFundamentalData(
@@ -200,6 +204,24 @@ class StoreXMLData:
             if contract.symbol in alternative_tickers.keys():
                 contract.symbol = alternative_tickers[contract.symbol]
 
+            if contract.currency == "PLN":
+                contract.exchange = "WSE"
+
+
+keep_dots_tickers = [
+    "AV.",
+    "SSAB.A",
+    "BA.",
+    "TW.",
+    "JD.",
+    "HL.",
+    "RR.",
+    "BP.",
+    "QQ.",
+    "SN.",
+    "UU.",
+    "NG.",
+]
 
 same_company_tickers = {
     "BRK.B": "BRK A",
@@ -210,6 +232,19 @@ same_company_tickers = {
 
 alternative_tickers = {
     "BF.B": "BF B",
+    "AV.L": "AV.",
+    "SSAB-B.ST": "SSAB.A",
+    "BA.L": "BA.",
+    "TW.L": "TW.",
+    "STLA": "STLAP",
+    "JD.L": "JD.",
+    "HL.L": "HL.",
+    "RR.L": "RR.",
+    "BP.L": "BP.",
+    "QQ.L": "QQ.",
+    "SN.L": "SN.",
+    "UU.L": "UU.",
+    "NG.L": "NG.",
 }
 
 primary_exchange_dict = {
