@@ -59,3 +59,13 @@ class Contract(
     @property
     def return_on_assets(self):
         return self.income.net_income / self.balance.total_assets * 100
+
+    @property
+    def peg_trailing_3y(self):
+        try:
+            result = self.trailing_pe / \
+                (self.earnings_per_share[0] -
+                 self.earnings_per_share[3]) * 3 * self.earnings_per_share[3]
+        except:
+            result = np.nan
+        return result
