@@ -3,6 +3,8 @@ from stockMarket.yfinance import BasicInfo, Calendar
 from stockMarket.ib import FinReports
 from stockMarket.utils import Period
 
+from stockMarket.core.pricing import Pricing
+
 
 def populate_contracts(contracts: ContractListType,
                        include_calendar: bool = True,
@@ -17,5 +19,11 @@ def populate_contracts(contracts: ContractListType,
             update=update_period)
 
     contracts = FinReports(contracts).populate_contracts()
+
+    for contract in contracts:
+        print("test")
+        pricing = Pricing(contract.ticker)
+        pricing.get_pricing_data()
+        contract.full_pricing_info = pricing.prices
 
     return contracts

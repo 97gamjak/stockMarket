@@ -7,8 +7,8 @@ import datetime as dt
 from dataclasses import dataclass, field
 from beartype.typing import Iterable
 
-from .income import Income, _IncomePropertiesMixin
-from .financialStatement import BalanceSheet, CashFlow, _BalanceSheetPropertiesMixin, _CashFlowPropertiesMixin
+from .financialStatement import Income, BalanceSheet, CashFlow
+from ._base import BaseMixin
 
 
 def get_data_from(contract: Contract, values, date=None, years_back=0):
@@ -37,11 +37,7 @@ def get_data_from(contract: Contract, values, date=None, years_back=0):
 
 
 @dataclass(kw_only=True)
-class Contract(
-        _IncomePropertiesMixin,
-        _BalanceSheetPropertiesMixin,
-        _CashFlowPropertiesMixin
-):
+class Contract(BaseMixin):
     ticker: str
     exchange: str = ""
     currency: str = ""
@@ -63,6 +59,8 @@ class Contract(
     ex_dividend_date: dt.datetime | pd.NaT = pd.NaT
     pays_dividend: bool = False
 
+    full_pricing_info: pd.DataFrame | None = None
+
     def earnings_per_share_growth(self, years: int = 1):
         return self.growth(self.earnings_per_share, years)
 
@@ -78,6 +76,24 @@ class Contract(
     def growth(self, value, years: int = 1):
         rate = value[0] / value[years]
         return (np.sign(rate)*(np.abs(rate))**(1/float(years)) - 1) * 100
+
+    def get_price_by_date(self, date=None, years_back=0):
+        if date is None:
+            date = dt.date.today()
+
+        date = date - pd.DateOffset(years=years_back)
+        date = pd.to_datetime(date).date()
+
+        return self.full_pricing_info.loc[self.full_pricing_info.index <= date].iloc[-1].loc("close")
+
+    def price_to_earnings(self, date=None, years_back=0):
+        return self.get_price_by_date(date, years_back) / self.earnings_per_share
+
+    def price_to_revenue(self, date=None, years_back=0):
+        return self.get_price_by_date(date, years_back) / self.revenue_per_share
+
+    def price_to_operating_cashflow(self, date=None, years_back=0):
+        return self.get_price_by_date(date, years_back) / self.operating_cashflow_per_share
 
     @property
     def ebitda(self):
@@ -100,18 +116,6 @@ class Contract(
     @property
     def free_cashflow_per_share(self):
         return self.cashflow.free_cashflow / self.balance.total_outstanding_shares_common_stock
-
-    @property
-    def price_to_earnings(self):
-        return self.price / self.earnings_per_share
-
-    @property
-    def price_to_revenue(self):
-        return self.market_cap / self.revenue
-
-    @property
-    def price_to_operating_cashflow(self):
-        return self.price / self.operating_cashflow_per_share
 
     @property
     def price_to_free_cashflow(self):
