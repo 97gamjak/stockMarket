@@ -70,12 +70,20 @@ class IncomeIndustry(Income):
         default_factory=lambda: np.ndarray(shape=0))
     selling_general_admin: np.ndarray[int, np.float64] = field(
         default_factory=lambda: np.ndarray(shape=0))
-    research_development: np.ndarray[int, np.float64] = field(
+    _research_development: np.ndarray[int, np.float64] = field(
         default_factory=lambda: np.ndarray(shape=0))
     depreciation_amortization: np.ndarray[int, np.float64] = field(
         default_factory=lambda: np.ndarray(shape=0))
     total_operating_expenses: np.ndarray[int, np.float64] = field(
         default_factory=lambda: np.ndarray(shape=0))
+
+    @property
+    def research_development(self):
+        return self._research_development
+
+    @research_development.setter
+    def research_development(self, value):
+        self._research_development = np.nan_to_num(value, nan=0)
 
     @property
     def ebit(self):
@@ -121,3 +129,15 @@ class _IncomePropertiesMixin:
     @property
     def fin_statement_type(self):
         return self.income.coa_type
+
+    @property
+    def fiscal_years(self):
+        return self.income.fiscal_years
+
+    @property
+    def fiscal_year_end_dates(self):
+        return self.income.fiscal_year_end_dates
+
+    @property
+    def reporting_dates(self):
+        return self.income.reporting_dates

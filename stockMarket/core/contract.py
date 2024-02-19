@@ -5,9 +5,35 @@ import numpy as np
 import datetime as dt
 
 from dataclasses import dataclass, field
+from beartype.typing import Iterable
 
 from .income import Income, _IncomePropertiesMixin
 from .financialStatement import BalanceSheet, CashFlow, _BalanceSheetPropertiesMixin, _CashFlowPropertiesMixin
+
+
+def get_data_from(contract: Contract, values, date=None, years_back=0):
+
+    if not isinstance(values, Iterable):
+        return values
+
+    if date is None:
+        date = dt.date.today()
+
+    if years_back > 0:
+        date = date - pd.DateOffset(years=years_back)
+        date = pd.to_datetime(date).date()
+
+    i = 0
+    while True:
+        if contract.reporting_dates[i] < date:
+            break
+        else:
+            i += 1
+
+        if i == len(contract.reporting_dates):
+            raise ValueError("No reporting dates found")
+
+    return values[i]
 
 
 @dataclass(kw_only=True)
@@ -37,6 +63,22 @@ class Contract(
     ex_dividend_date: dt.datetime | pd.NaT = pd.NaT
     pays_dividend: bool = False
 
+    def earnings_per_share_growth(self, years: int = 1):
+        return self.growth(self.earnings_per_share, years)
+
+    def revenue_per_share_growth(self, years: int = 1):
+        return self.growth(self.revenue_per_share, years)
+
+    def operating_cashflow_per_share_growth(self, years: int = 1):
+        return self.growth(self.operating_cashflow_per_share, years)
+
+    def free_cashflow_per_share_growth(self, years: int = 1):
+        return self.growth(self.free_cashflow_per_share, years)
+
+    def growth(self, value, years: int = 1):
+        rate = value[0] / value[years]
+        return (np.sign(rate)*(np.abs(rate))**(1/float(years)) - 1) * 100
+
     @property
     def ebitda(self):
         depreciation = np.nan_to_num(self.cashflow.depreciation)
@@ -48,8 +90,32 @@ class Contract(
         return self.income.net_income / self.balance.total_outstanding_shares_common_stock
 
     @property
+    def revenue_per_share(self):
+        return self.income.revenue / self.balance.total_outstanding_shares_common_stock
+
+    @property
+    def operating_cashflow_per_share(self):
+        return self.cashflow.operating_cashflow / self.balance.total_outstanding_shares_common_stock
+
+    @property
+    def free_cashflow_per_share(self):
+        return self.cashflow.free_cashflow / self.balance.total_outstanding_shares_common_stock
+
+    @property
     def price_to_earnings(self):
         return self.price / self.earnings_per_share
+
+    @property
+    def price_to_revenue(self):
+        return self.market_cap / self.revenue
+
+    @property
+    def price_to_operating_cashflow(self):
+        return self.price / self.operating_cashflow_per_share
+
+    @property
+    def price_to_free_cashflow(self):
+        return self.price / self.free_cashflow_per_share
 
     @property
     def ebitda_margin(self):
@@ -63,9 +129,35 @@ class Contract(
     @property
     def peg_trailing_3y(self):
         try:
-            result = self.trailing_pe / \
-                ((self.earnings_per_share[0] /
-                 self.earnings_per_share[3])**(1/3.0) - 1) / 100
+            result = self.price_to_earnings[0] / \
+                self.earnings_per_share_growth(3)
+        except:
+            result = np.nan
+        return result
+
+    @property
+    def prg_trailing_3y(self):
+        try:
+            result = self.price_to_revenue[0] / \
+                self.revenue_per_share_growth(3)
+        except:
+            result = np.nan
+        return result
+
+    @property
+    def pocg_trailing_3y(self):
+        try:
+            result = self.price_to_operating_cashflow[0] / \
+                self.operating_cashflow_per_share_growth(3)
+        except:
+            result = np.nan
+        return result
+
+    @property
+    def pfcg_trailing_3y(self):
+        try:
+            result = self.price_to_free_cashflow[0] / \
+                self.free_cashflow_per_share_growth(3)
         except:
             result = np.nan
         return result

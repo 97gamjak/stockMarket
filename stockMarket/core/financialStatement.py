@@ -10,6 +10,7 @@ class FinancialStatementBase:
     coa_type: str = "NotDefined"
     fiscal_years: List[int] = field(default_factory=list)
     fiscal_year_end_dates: List[dt.date] = field(default_factory=list)
+    reporting_dates: List[dt.date] = field(default_factory=list)
 
 
 @dataclass(kw_only=True)
@@ -26,27 +27,68 @@ class BalanceSheet(FinancialStatementBase):
     total_assets: np.ndarray[int, np.float64] = field(
         default_factory=lambda: np.ndarray(shape=0)
     )
-    goodwill: np.ndarray[int, np.float64] = field(
+    _goodwill: np.ndarray[int, np.float64] = field(
         default_factory=lambda: np.ndarray(shape=0)
     )
     total_outstanding_shares_common_stock: np.ndarray[int, np.float64] = field(
         default_factory=lambda: np.ndarray(shape=0)
     )
-    current_portion_of_long_term_debt_and_capital_lease_obligations: np.ndarray[int, np.float64] = field(
+    _current_portion_of_long_term_debt_and_capital_lease_obligations: np.ndarray[int, np.float64] = field(
         default_factory=lambda: np.ndarray(shape=0)
     )
-    short_term_debt: np.ndarray[int, np.float64] = field(
+    _short_term_debt: np.ndarray[int, np.float64] = field(
         default_factory=lambda: np.ndarray(shape=0)
     )
-    accrued_expenses: np.ndarray[int, np.float64] = field(
+    _accrued_expenses: np.ndarray[int, np.float64] = field(
         default_factory=lambda: np.ndarray(shape=0)
     )
-    total_long_term_debt: np.ndarray[int, np.float64] = field(
+    _total_long_term_debt: np.ndarray[int, np.float64] = field(
         default_factory=lambda: np.ndarray(shape=0)
     )
     cash_and_short_term_investments: np.ndarray[int, np.float64] = field(
         default_factory=lambda: np.ndarray(shape=0)
     )
+
+    @property
+    def goodwill(self):
+        return self._goodwill
+
+    @goodwill.setter
+    def goodwill(self, value):
+        self._goodwill = np.nan_to_num(value, nan=0)
+
+    @property
+    def current_portion_of_long_term_debt_and_capital_lease_obligations(self):
+        return self._current_portion_of_long_term_debt_and_capital_lease_obligations
+
+    @current_portion_of_long_term_debt_and_capital_lease_obligations.setter
+    def current_portion_of_long_term_debt_and_capital_lease_obligations(self, value):
+        self._current_portion_of_long_term_debt_and_capital_lease_obligations = np.nan_to_num(
+            value, nan=0)
+
+    @property
+    def short_term_debt(self):
+        return self._short_term_debt
+
+    @short_term_debt.setter
+    def short_term_debt(self, value):
+        self._short_term_debt = np.nan_to_num(value, nan=0)
+
+    @property
+    def accrued_expenses(self):
+        return self._accrued_expenses
+
+    @accrued_expenses.setter
+    def accrued_expenses(self, value):
+        self._accrued_expenses = np.nan_to_num(value, nan=0)
+
+    @property
+    def total_long_term_debt(self):
+        return self._total_long_term_debt
+
+    @total_long_term_debt.setter
+    def total_long_term_debt(self, value):
+        self._total_long_term_debt = np.nan_to_num(value, nan=0)
 
     @property
     def equity_shareholders(self):
@@ -62,23 +104,15 @@ class BalanceSheet(FinancialStatementBase):
 
     @property
     def goodwill_ratio(self):
-        goodwill = np.nan_to_num(self.goodwill, nan=0)
-        return goodwill / self.equity * 100
+        return self.goodwill / self.equity * 100
 
     @property
     def total_short_term_debt(self):
-        short_term_dept = np.nan_to_num(self.short_term_debt, nan=0)
-        current_portion_of_long_term_debt_and_capital_lease_obligations = np.nan_to_num(
-            self.current_portion_of_long_term_debt_and_capital_lease_obligations, nan=0)
-        accrued_expenses = np.nan_to_num(self.accrued_expenses, nan=0)
-        return short_term_dept + current_portion_of_long_term_debt_and_capital_lease_obligations + accrued_expenses
+        return self.short_term_debt + self.current_portion_of_long_term_debt_and_capital_lease_obligations + self.accrued_expenses
 
     @property
     def gearing(self):
-        cash_and_short_term_investments = np.nan_to_num(
-            self.cash_and_short_term_investments, nan=0)
-        total_long_term_debt = np.nan_to_num(self.total_long_term_debt, nan=0)
-        return (self.total_short_term_debt + total_long_term_debt - cash_and_short_term_investments)/self.equity * 100
+        return (self.total_short_term_debt + self.total_long_term_debt - self.cash_and_short_term_investments)/self.equity * 100
 
     @property
     def coa_items(self):
@@ -114,11 +148,25 @@ class _BalanceSheetPropertiesMixin:
 @dataclass(kw_only=True)
 class CashFlow(FinancialStatementBase):
     operating_cashflow: np.ndarray[int, np.float64] = field(
-        default_factory=lambda: np.ndarray(shape=0))
+        default_factory=lambda: np.ndarray(shape=0)
+    )
     depreciation: np.ndarray[int, np.float64] = field(
-        default_factory=lambda: np.ndarray(shape=0))
+        default_factory=lambda: np.ndarray(shape=0)
+    )
     amortization: np.ndarray[int, np.float64] = field(
-        default_factory=lambda: np.ndarray(shape=0))
+        default_factory=lambda: np.ndarray(shape=0)
+    )
+    _capital_expenditure: np.ndarray[int, np.float64] = field(
+        default_factory=lambda: np.ndarray(shape=0)
+    )
+
+    @property
+    def capital_expenditure(self):
+        return self._capital_expenditure
+
+    @capital_expenditure.setter
+    def capital_expenditure(self, value):
+        self._capital_expenditure = np.nan_to_num(value, nan=0)
 
     @property
     def coa_items(self):
@@ -126,10 +174,19 @@ class CashFlow(FinancialStatementBase):
             "OTLO": self.operating_cashflow,
             "SDED": self.depreciation,
             "SAMT": self.amortization,
+            "SCEX": self.capital_expenditure,
         }
+
+    @property
+    def free_cashflow(self):
+        return self.operating_cashflow - self.capital_expenditure
 
 
 class _CashFlowPropertiesMixin:
     @property
     def operating_cashflow(self):
         return self.cashflow.operating_cashflow
+
+    @property
+    def free_cashflow(self):
+        return self.cashflow.free_cashflow

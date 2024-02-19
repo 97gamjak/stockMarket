@@ -82,12 +82,20 @@ class FinReports:
         fiscal_year_end_dates = [pd.Timestamp(
             date).date() for date in fiscal_year_end_dates]
 
+        reporting_dates = [i.find(
+            "Statement/FPHeader/Source").attrib["Date"] for i in fin_statements_annual]
+        reporting_dates = [pd.Timestamp(
+            date).date() for date in reporting_dates]
+
         self.income.fiscal_years = fiscal_years
         self.income.fiscal_year_end_dates = fiscal_year_end_dates
+        self.income.reporting_dates = reporting_dates
         self.balance.fiscal_years = fiscal_years
         self.balance.fiscal_year_end_dates = fiscal_year_end_dates
+        self.balance.reporting_dates = reporting_dates
         self.cashflow.fiscal_years = fiscal_years
         self.cashflow.fiscal_year_end_dates = fiscal_year_end_dates
+        self.cashflow.reporting_dates = reporting_dates
 
     def get_financials(self, et_element, statement_type, financial_statement):
         for coa_item, func in financial_statement.coa_items.items():

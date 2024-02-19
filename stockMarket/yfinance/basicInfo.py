@@ -42,16 +42,11 @@ class BasicInfo:
                 self.dividend_yield = np.nan
                 self.payout_ratio = np.nan
 
-                to_be_updated = True
-
                 ticker = contract.ticker
                 is_ticker_in_df = contract.ticker in self.df.index
 
-                if is_ticker_in_df:
-                    to_be_updated = self._parse_df(ticker)
-
-                if to_be_updated:
-                    self._get_data_from_yf(ticker)
+                self._parse_df(ticker)
+                self._get_data_from_yf(ticker)
 
                 self._populate_df(is_ticker_in_df, ticker)
 
@@ -93,7 +88,9 @@ class BasicInfo:
         self.long_name = info["longName"]
         self.sector = info["sector"]
         self.price = info["open"]
-        self.market_cap = info["marketCap"] / 10**6
+
+        if "marketCap" in info:
+            self.market_cap = info["marketCap"] / 10**6
 
         if "trailingPE" in info:
             self.trailing_pe = info["trailingPE"]
