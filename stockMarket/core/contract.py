@@ -74,8 +74,13 @@ class Contract(BaseMixin):
         return self.growth(self.free_cashflow_per_share, years)
 
     def growth(self, value, years: int = 1):
-        rate = value[0] / value[years]
-        return (np.sign(rate)*(np.abs(rate))**(1/float(years)) - 1) * 100
+        values = []
+        for i, j in enumerate(range(years, len(value))):
+            rate = value[i] / value[j]
+            values.append((np.sign(rate)*(np.abs(rate))
+                          ** (1/float(j)) - 1) * 100)
+
+        return np.array(values)
 
     def get_price_by_date(self, date=None, years_back=0):
         if date is None:
@@ -84,7 +89,7 @@ class Contract(BaseMixin):
         date = date - pd.DateOffset(years=years_back)
         date = pd.to_datetime(date).date()
 
-        return self.full_pricing_info.loc[self.full_pricing_info.index <= date].iloc[-1].loc("close")
+        return self.full_pricing_info[self.full_pricing_info.index <= date].iloc[-1].close
 
     def price_to_earnings(self, date=None, years_back=0):
         return self.get_price_by_date(date, years_back) / self.earnings_per_share
@@ -94,6 +99,46 @@ class Contract(BaseMixin):
 
     def price_to_operating_cashflow(self, date=None, years_back=0):
         return self.get_price_by_date(date, years_back) / self.operating_cashflow_per_share
+
+    def price_to_free_cashflow(self, date=None, years_back=0):
+        return self.get_price_by_date(date, years_back) / self.free_cashflow_per_share
+
+    def peg_trailing_3y(self, date=None, years_back=0):
+        try:
+            growth = self.earnings_per_share_growth(3)
+            result = (self.price_to_earnings(
+                date, years_back)[:len(growth)] / growth)
+        except:
+            result = np.nan
+        return result
+
+    def prg_trailing_3y(self, date=None, years_back=0):
+
+        try:
+            growth = self.revenue_per_share_growth(3)
+            result = self.price_to_revenue(date, years_back)[
+                :len(growth)] / growth
+        except:
+            result = np.nan
+        return result
+
+    def pocg_trailing_3y(self, date=None, years_back=0):
+        try:
+            growth = self.operating_cashflow_per_share_growth(3)
+            result = self.price_to_operating_cashflow(
+                date, years_back)[:len(growth)] / growth
+        except:
+            result = np.nan
+        return result
+
+    def pfcg_trailing_3y(self, date=None, years_back=0):
+        try:
+            growth = self.free_cashflow_per_share_growth(3)
+            result = self.price_to_free_cashflow(date, years_back)[
+                :len(growth)] / growth
+        except:
+            result = np.nan
+        return result
 
     @property
     def ebitda(self):
@@ -118,10 +163,6 @@ class Contract(BaseMixin):
         return self.cashflow.free_cashflow / self.balance.total_outstanding_shares_common_stock
 
     @property
-    def price_to_free_cashflow(self):
-        return self.price / self.free_cashflow_per_share
-
-    @property
     def ebitda_margin(self):
         return self.ebitda / self.income.revenue * 100
 
@@ -129,39 +170,3 @@ class Contract(BaseMixin):
     @property
     def return_on_assets(self):
         return self.income.net_income / self.balance.total_assets * 100
-
-    @property
-    def peg_trailing_3y(self):
-        try:
-            result = self.price_to_earnings[0] / \
-                self.earnings_per_share_growth(3)
-        except:
-            result = np.nan
-        return result
-
-    @property
-    def prg_trailing_3y(self):
-        try:
-            result = self.price_to_revenue[0] / \
-                self.revenue_per_share_growth(3)
-        except:
-            result = np.nan
-        return result
-
-    @property
-    def pocg_trailing_3y(self):
-        try:
-            result = self.price_to_operating_cashflow[0] / \
-                self.operating_cashflow_per_share_growth(3)
-        except:
-            result = np.nan
-        return result
-
-    @property
-    def pfcg_trailing_3y(self):
-        try:
-            result = self.price_to_free_cashflow[0] / \
-                self.free_cashflow_per_share_growth(3)
-        except:
-            result = np.nan
-        return result

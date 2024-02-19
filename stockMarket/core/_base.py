@@ -1,21 +1,23 @@
 from .financialStatement.income import IncomeBank, IncomeIndustry
 from .financialStatement import Income, BalanceSheet, CashFlow
+from .financialStatement._base import FinancialStatementBase
 
 
 class BaseMixin:
-    classes = [Income, IncomeBank, IncomeIndustry, BalanceSheet, CashFlow]
+    classes = [Income, IncomeBank, IncomeIndustry,
+               BalanceSheet, CashFlow, FinancialStatementBase]
 
     def __init_subclass__(cls) -> None:
         _attributes, _attributes_with_setters, properties = cls.get_attributes()
 
         def property_factory(c, attr):
-            if c in [Income, IncomeBank, IncomeIndustry]:
+            if c in [Income, IncomeBank, IncomeIndustry, FinancialStatementBase]:
                 def getter(self):
                     return getattr(self.income, attr)
             elif c in [BalanceSheet]:
                 def getter(self):
                     return getattr(self.balance, attr)
-            else:
+            elif c in [CashFlow]:
                 def getter(self):
                     return getattr(self.cashflow, attr)
 
@@ -33,7 +35,10 @@ class BaseMixin:
         _attributes_with_setters = {}
         _properties = {}
         for c in cls.classes:
-            _attributes[c] = c._attributes
+            if "_attributes" not in c.__dict__:
+                c._attributes = []
+            else:
+                _attributes[c] = c._attributes
 
             if "_attributes_with_setters" in c.__dict__:
                 _attributes_with_setters[c] = c._attributes_with_setters

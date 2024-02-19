@@ -21,7 +21,6 @@ def populate_contracts(contracts: ContractListType,
     contracts = FinReports(contracts).populate_contracts()
 
     for contract in contracts:
-        print("test")
         pricing = Pricing(contract.ticker)
         pricing.get_pricing_data()
         contract.full_pricing_info = pricing.prices

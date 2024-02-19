@@ -2,6 +2,12 @@ import numpy as np
 
 
 class FinancialStatementBase:
+    _attributes = [
+        "fiscal_years",
+        "fiscal_year_end_dates",
+        "reporting_dates"
+    ]
+
     def __init__(self, coa_type=None):
         if coa_type is None:
             self.coa_type: str = "NotDefined"

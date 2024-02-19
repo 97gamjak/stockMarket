@@ -177,7 +177,7 @@ class Ranking:
             try:
                 relative_scores.append(f"{total_score/total_max_score:.2%}")
             except ZeroDivisionError:
-                relative_scores.append(np.nan)
+                relative_scores.append("0.00%")
 
             total_scores.append(f"{total_score}/{total_max_score}")
 

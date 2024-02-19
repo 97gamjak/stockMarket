@@ -16,7 +16,8 @@ class Pricing:
     def get_pricing_data(self):
         file = __data_path__ / f"prices/{self.ticker}_daily_prices.csv"
         if file.exists():
-            self.prices = pd.read_csv(file, parse_dates=True)
+            self.prices = pd.read_csv(
+                file, parse_dates=True, sep='\t', index_col=0)
             dates = [pd.to_datetime(date).date()
                      for date in self.prices.index.to_series()]
             self.prices.index = dates
