@@ -103,37 +103,37 @@ class Contract(BaseMixin):
     def price_to_free_cashflow(self, date=None, years_back=0):
         return self.get_price_by_date(date, years_back) / self.free_cashflow_per_share
 
-    def peg_trailing_3y(self, date=None, years_back=0):
+    def peg(self, growth_years, date=None, years_back=0):
         try:
-            growth = self.earnings_per_share_growth(3)
+            growth = self.earnings_per_share_growth(growth_years)
             result = (self.price_to_earnings(
                 date, years_back)[:len(growth)] / growth)
         except:
             result = np.nan
         return result
 
-    def prg_trailing_3y(self, date=None, years_back=0):
+    def prg(self, growth_years, date=None, years_back=0):
 
         try:
-            growth = self.revenue_per_share_growth(3)
+            growth = self.revenue_per_share_growth(growth_years)
             result = self.price_to_revenue(date, years_back)[
                 :len(growth)] / growth
         except:
             result = np.nan
         return result
 
-    def pocg_trailing_3y(self, date=None, years_back=0):
+    def pocg(self, growth_years, date=None, years_back=0):
         try:
-            growth = self.operating_cashflow_per_share_growth(3)
+            growth = self.operating_cashflow_per_share_growth(growth_years)
             result = self.price_to_operating_cashflow(
                 date, years_back)[:len(growth)] / growth
         except:
             result = np.nan
         return result
 
-    def pfcg_trailing_3y(self, date=None, years_back=0):
+    def pfcg(self, growth_years, date=None, years_back=0):
         try:
-            growth = self.free_cashflow_per_share_growth(3)
+            growth = self.free_cashflow_per_share_growth(growth_years)
             result = self.price_to_free_cashflow(date, years_back)[
                 :len(growth)] / growth
         except:

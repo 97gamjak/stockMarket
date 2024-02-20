@@ -5,7 +5,6 @@ from .financialStatement.income import init_income_class
 from .screener import Screener, ScreenerObject, LimitScreenerObject, EqualityScreenerObject
 from .tickerGenerator import TickerGenerator, get_tickers_from_index, get_currencies_from_index
 from .technicals import Technicals
-from .ranking import Ranking, RankingObject, RangeRankingObject
 
 from .api import growth_y2y
 from .api import growth_total
