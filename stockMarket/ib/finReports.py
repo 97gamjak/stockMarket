@@ -101,11 +101,6 @@ class FinReports:
         for coa_item, func in financial_statement.coa_items.items():
             line_items = [i.find(f"Statement/[@Type='{statement_type}']/lineItem/[@coaCode='{coa_item}']")
                           for i in et_element]
-            # func.resize(len(line_items), refcheck=False)
-            # for i, line_item in enumerate(line_items):
-            #     func[i] = float(
-            #         line_item.text) if line_item is not None else np.nan
-
             result = []
             for i, line_item in enumerate(line_items):
                 result.append(float(line_item.text)

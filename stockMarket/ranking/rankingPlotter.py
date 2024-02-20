@@ -65,11 +65,11 @@ class RankingPlotter:
                      f'{height:.0%}', va='top', color="r")
 
             _plt.ax.vlines(cutoff, 0, max_y_value, colors="r")
-            _plt.ax.text(cutoff - x_range*0.01, min_y_value-y_range*0.03,
+            _plt.ax.text(cutoff + x_range*0.01, max_y_value - 0.03*y_range,
                          f'{cutoff:.1f}', va='center', color="r", rotation=90)
 
         _plt.ax.set_xlabel(self.ranking_object.description)
-        _plt.ax.set_xlim(max(min(data), xlim[0]), min(max(data), xlim[1]))
+        _plt.ax.set_xlim(min(data), max(data))
         ax2.set_ylim(0, 1)
         _plt.ax.legend(
             title=f"N(n.d.): {len(no_data)/total_data:.2%}\nN(c.): {len(constraint)/total_data:.2%}", loc='upper right')

@@ -7,7 +7,7 @@ import matplotlib.ticker as mtick
 import seaborn as sns
 
 from scipy.stats import gaussian_kde
-from beartype.typing import List
+from beartype.typing import List, Callable
 
 from .rankingFlag import RankingFlag
 from .rankingResult import RankingResult
@@ -21,6 +21,10 @@ class Ranking:
         self.years_back = years_back
         self.contracts = contracts
         self.ranking_objects = ranking_objects
+        for i in range(len(self.ranking_objects)):
+            if isinstance(self.ranking_objects[i], Callable):
+                self.ranking_objects[i] = self.ranking_objects[i](
+                    date, years_back)
 
     def rank(self):
         self.ranking = pd.DataFrame(

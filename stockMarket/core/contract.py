@@ -108,7 +108,7 @@ class Contract(BaseMixin):
             growth = self.earnings_per_share_growth(growth_years)
             result = (self.price_to_earnings(
                 date, years_back)[:len(growth)] / growth)
-        except:
+        except Exception:
             result = np.nan
         return result
 
@@ -118,7 +118,7 @@ class Contract(BaseMixin):
             growth = self.revenue_per_share_growth(growth_years)
             result = self.price_to_revenue(date, years_back)[
                 :len(growth)] / growth
-        except:
+        except Exception:
             result = np.nan
         return result
 
@@ -127,7 +127,7 @@ class Contract(BaseMixin):
             growth = self.operating_cashflow_per_share_growth(growth_years)
             result = self.price_to_operating_cashflow(
                 date, years_back)[:len(growth)] / growth
-        except:
+        except Exception:
             result = np.nan
         return result
 
@@ -136,7 +136,7 @@ class Contract(BaseMixin):
             growth = self.free_cashflow_per_share_growth(growth_years)
             result = self.price_to_free_cashflow(date, years_back)[
                 :len(growth)] / growth
-        except:
+        except Exception:
             result = np.nan
         return result
 
