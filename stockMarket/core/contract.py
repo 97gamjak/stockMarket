@@ -73,6 +73,9 @@ class Contract(BaseMixin):
     def free_cashflow_per_share_growth(self, years: int = 1):
         return self.growth(self.free_cashflow_per_share, years)
 
+    def book_value_per_share_growth(self, years: int = 1):
+        return self.growth(self.balance.book_value_per_share, years)
+
     def growth(self, value, years: int = 1):
         values = []
         for i, j in enumerate(range(years, len(value))):
@@ -102,6 +105,9 @@ class Contract(BaseMixin):
 
     def price_to_free_cashflow(self, date=None, years_back=0):
         return self.get_price_by_date(date, years_back) / self.free_cashflow_per_share
+
+    def price_to_book(self, date=None, years_back=0):
+        return self.get_price_by_date(date, years_back) / self.balance.book_value_per_share
 
     def peg(self, growth_years, date=None, years_back=0):
         try:
@@ -140,6 +146,15 @@ class Contract(BaseMixin):
             result = np.nan
         return result
 
+    def pbg(self, growth_years, date=None, years_back=0):
+        try:
+            growth = self.book_value_per_share_growth(growth_years)
+            result = self.price_to_book(date, years_back)[
+                :len(growth)] / growth
+        except Exception:
+            result = np.nan
+        return result
+
     @property
     def ebitda(self):
         depreciation = np.nan_to_num(self.cashflow.depreciation)
@@ -170,3 +185,7 @@ class Contract(BaseMixin):
     @property
     def return_on_assets(self):
         return self.income.net_income / self.balance.total_assets * 100
+
+    @property
+    def dynamic_gearing(self):
+        return (self.total_short_term_debt + self.total_long_term_debt - self.cash_and_short_term_investments)/self.cashflow.free_cashflow

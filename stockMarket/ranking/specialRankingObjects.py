@@ -23,6 +23,14 @@ def create_gearing_ranker(cutoffs=[20, 60], scores=[2, 1, 0]):
     return RangeRankingObject("Gearing", lambda x: x.gearing, cutoffs, scores)
 
 
+def create_dynamic_gearing_ranker(cutoffs=[2, 5], scores=[2, 1, 0]):
+    return RangeRankingObject("Dynamic Gearing", lambda x: x.dynamic_gearing, cutoffs, scores)
+
+
+def create_asset_coverage_ratio_ranker(cutoffs=[100, 200], scores=[0, 1, 2]):
+    return RangeRankingObject("Asset Coverage Ratio", lambda x: x.asset_coverage_ratio, cutoffs, scores)
+
+
 def create_peg_ranker(growth_years, cutoffs=[0.8, 1.2], scores=[2, 1, 0], date=None, years_back=0):
     pe_constraint = ValueRankingConstraint(
         lambda x: x.price_to_earnings(years_back=years_back), operator.gt, 0)
@@ -75,3 +83,21 @@ def create_pfcg_ranker(growth_years, cutoffs=[0.8, 1.2], scores=[2, 1, 0], date=
     )
 
     return pfcg_ranking
+
+
+def create_pbg_ranker(growth_years, cutoffs=[0.8, 1.2], scores=[2, 1, 0], date=None, years_back=0):
+    pb_constraint = ValueRankingConstraint(
+        lambda x: x.price_to_book(years_back=years_back), operator.gt, 0)
+
+    growth_pbg_constraint = ValueRankingConstraint(
+        lambda x: x.book_value_per_share_growth(growth_years), operator.gt, 0)
+
+    pbg_ranking = RangeRankingObject(
+        "PBG",
+        lambda x: x.pbg(growth_years, date=date, years_back=years_back),
+        cutoffs,
+        scores,
+        constraints=[pb_constraint, growth_pbg_constraint]
+    )
+
+    return pbg_ranking

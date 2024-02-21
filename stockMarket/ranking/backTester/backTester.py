@@ -4,6 +4,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mtick
 
+from tqdm import tqdm
+
 from ..ranking import Ranking
 from stockMarket.core.pricing import Pricing
 from stockMarket.utils.period import Period
@@ -17,100 +19,186 @@ class BackTester:
         self.contracts = contracts
         self.ranking_objects = ranking_objects
 
-    def back_test(self, date=None, years_back=1, period="annual"):
+    def back_test(self, date=None, end_date=None, years_back=1, period="annual", frequency="annual"):
 
-        self.ranking = Ranking(
-            self.contracts, self.ranking_objects, date=date, years_back=years_back)
-        self.ranking.rank()
+        self.dates, self.performance_dates = self.calculate_ranking_dates(
+            date, end_date, years_back, period, frequency)
 
-        self.get_performance()
-        # self.get_performance(date, years_back, period)
+        old_price_matrix = np.matrix(
+            np.zeros((len(self.dates), len(self.contracts))))
+        new_price_matrix = np.matrix(
+            np.zeros((len(self.dates), len(self.contracts))))
+        weights_matrix = np.matrix(
+            np.zeros((len(self.dates), len(self.contracts))))
+        for i, date in enumerate(tqdm(self.dates)):
+            self.ranking = self.perform_ranking(date)
+            self.prices = self.get_pricing_data(
+                date, self.performance_dates[i])
+            weights = self.get_weights()
+            old_price_matrix[self.dates.index(date)] = [price[1]
+                                                        for price in self.prices.values()]
+            new_price_matrix[self.dates.index(date)] = [price[0]
+                                                        for price in self.prices.values()]
+            weights_matrix[self.dates.index(date)] = weights
 
-        data = [
-            data for data in self.performances.values() if not np.isnan(data[0]) and not np.isnan(data[1])]
+        self.average_performance = self.calculate_performance(
+            old_price_matrix, new_price_matrix)
+        self.ew_total_performance = self.equal_weighted_performance(
+            self.average_performance)
+        self.weighted_total_performance = self.weighted_performance(
+            old_price_matrix, new_price_matrix, weights_matrix)
 
-        weights = self.ranking.ranking["Relative Score"]
-        weights = [float(weight.replace("%", "")) / 100 for weight in weights]
-        weights = [weight for i, weight in enumerate(
-            weights) if not np.isnan(list(self.performances.values())[i][0]) and not np.isnan(list(self.performances.values())[i][1])]
+        self.benchmarks = self.calculate_benchmarks(self.list_benchmarks)
 
-        weights = np.array(weights)
-
-        ew_total_performance = self.equal_weighted_performance(data)
-        weighted_total_performance = self.weighted_performance(data, weights)
-        self.calculate_benchmarks(self.list_benchmarks)
-
-        plt.plot(ew_total_performance)
-        plt.plot(weighted_total_performance)
-
-        for i, benchmark in enumerate(self.benchmarks):
-            plt.hlines(self.benchmarks[benchmark], 0, len(
-                data), label=benchmark, color=self.colors[i])
-
-        plt.plot(weighted_total_performance - ew_total_performance)
-
-        plt.xlim(0, 100)
-        ax = plt.gca()
-        ax.yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
-        plt.legend()
-        plt.show()
-
-    def get_performance(self):
-        self.performances = {}
-        for ticker in self.ranking.ranking.index:
-            try:
-                old_performance = self.contracts[ticker].get_price_by_date(
-                    years_back=1)
-                new_performance = self.contracts[ticker].get_price_by_date(
-                    years_back=0)
-                self.performances[ticker] = (new_performance, old_performance)
-            except Exception:
-                self.performances[ticker] = (np.nan, np.nan)
-
-    def calculate_ranking_dates(self, date, years_back, period):
+    def calculate_ranking_dates(self, date, end_date, years_back, period, frequency):
         if date is None:
             date = dt.date.today()
-        self.date = date - pd.DateOffset(years=years_back)
-        self.date = pd.to_datetime(self.date).date()
+        date = date - pd.DateOffset(years=years_back)
+        date = pd.to_datetime(date).date()
 
-        self.period = Period(period)
-        self.dates = self.period.calculate_dates(self.date, dt.date().today())
-        print(self.dates)
+        period = Period(period)
+        frequency = Period(frequency)
 
-    def perform_ranking(self, date, years_back):
-        ranking = Ranking(self.contracts, self.ranking_objects,
-                          date=date, years_back=years_back)
-        return ranking.rank()
+        if end_date is None:
+            end_date = dt.date.today()
 
-    def equal_weighted_performance(self, data):
-        new_performance = np.array([data[0] for data in data])
-        old_performance = np.array([data[1] for data in data])
-        performance = (new_performance - old_performance) / old_performance
-        total_performance = np.cumsum(performance) / \
-            np.cumsum(np.ones(len(performance)))
+        dates = []
+        while date + period.period_time <= end_date:
+            dates.append(date)
+            date += frequency.period_time
+
+        performance_dates = [date + period.period_time for date in dates]
+
+        return dates, performance_dates
+
+    def perform_ranking(self, date):
+        ranking = Ranking(self.contracts, self.ranking_objects, date=date)
+        ranking.rank()
+        return ranking
+
+    def get_pricing_data(self, date, performance_date):
+        prices = {}
+        for ticker in self.ranking.ranking.index:
+            try:
+                old_price = self.contracts[ticker].get_price_by_date(date=date)
+                new_price = self.contracts[ticker].get_price_by_date(
+                    date=performance_date)
+                prices[ticker] = (new_price, old_price)
+            except Exception:
+                prices[ticker] = (np.nan, np.nan)
+
+        return prices
+
+    def get_weights(self):
+        weights = self.ranking.ranking["Relative Score"]
+        weights = [float(weight.replace("%", "")) / 100 for weight in weights]
+        weights = np.array(weights)
+
+        return weights
+
+    def calculate_performance(self, old_price_matrix, new_price_matrix):
+        n_contracts = len(self.contracts)
+        n_dates = len(self.dates)
+        performance = np.matrix(np.zeros((n_dates, n_contracts)))
+
+        for i in range(n_dates):
+            for j in range(n_contracts):
+                if np.isnan(old_price_matrix[i, j]) or np.isnan(new_price_matrix[i, j]):
+                    performance[i, j] = np.nan
+                else:
+                    performance[i, j] = (
+                        new_price_matrix[i, j] - old_price_matrix[i, j]) / old_price_matrix[i, j]
+
+        average_performance = np.array(np.nanmean(performance, axis=0))[0]
+
+        average_performance = average_performance[~np.isnan(
+            average_performance)]
+
+        return average_performance
+
+    def equal_weighted_performance(self, average_performance):
+
+        total_performance = np.cumsum(average_performance) / \
+            np.cumsum(np.ones(len(average_performance)))
+
         return total_performance
 
-    def weighted_performance(self, data, weights):
-        new_performance = np.array([data[0] for data in data])
-        old_performance = np.array([data[1] for data in data])
-        performance = (new_performance - old_performance) / old_performance
-        total_performance = np.cumsum(performance*weights) / \
-            np.cumsum(weights)
+    def weighted_performance(self, old_price_matrix, new_price_matrix, weights):
+        n_contracts = len(self.contracts)
+        n_dates = len(self.dates)
+        performance = np.matrix(np.zeros((n_dates, n_contracts)))
+
+        for i in range(n_dates):
+            for j in range(n_contracts):
+                if np.isnan(old_price_matrix[i, j]) or np.isnan(new_price_matrix[i, j]):
+                    performance[i, j] = np.nan
+                else:
+                    performance[i, j] = (
+                        new_price_matrix[i, j] - old_price_matrix[i, j]) / old_price_matrix[i, j] * weights[i, j]
+
+        average_weights = np.array(np.nanmean(weights, axis=0))[0]
+        average_performance = np.array(np.nanmean(performance, axis=0))[0]
+
+        average_weights = average_weights[~np.isnan(average_performance)]
+        average_performance = average_performance[~np.isnan(
+            average_performance)]
+
+        total_performance = np.cumsum(average_performance) / \
+            np.cumsum(average_weights)
+
         return total_performance
 
     def calculate_benchmarks(self, list_benchmarks):
-        self.benchmarks = {}
+        benchmarks = {}
         for benchmark in list_benchmarks:
-            try:
-                pricing = Pricing(ticker=benchmark)
-                pricing.update_prices(n_bars=500)
-                price_data = pricing.get_pricing_data()
-                date = dt.date.today() - pd.DateOffset(years=1)
-                date = pd.to_datetime(date).date()
-                new_performance = price_data.iloc[-1].close
-                old_performance = price_data[:date].iloc[-1].close
-                self.benchmarks[benchmark] = (
-                    new_performance - old_performance) / old_performance
-            except Exception:
-                self.benchmarks[benchmark] = np.nan
-        return self.benchmarks
+            performances = []
+            for i, date in enumerate(self.dates):
+                try:
+                    pricing = Pricing(ticker=benchmark)
+                    pricing.update_prices(n_bars=5000)
+                    price_data = pricing.get_pricing_data()
+                    new_performance = price_data[:self.performance_dates[i]
+                                                 ].iloc[-1].close
+                    old_performance = price_data[:date].iloc[-1].close
+                    performances.append(
+                        (new_performance - old_performance) / old_performance)
+                except Exception:
+                    performances.append(np.nan)
+
+            benchmarks[benchmark] = np.nanmean(performances)
+        return benchmarks
+
+    def plot_cumulative_performance(self):
+        fig, ax = plt.subplots(1, 2, figsize=(20, 10))
+        ax[0].plot(self.ew_total_performance)
+        ax[0].plot(self.weighted_total_performance)
+
+        for i, benchmark in enumerate(self.benchmarks):
+            ax[0].hlines(self.benchmarks[benchmark], 0, len(
+                self.contracts), label=benchmark, color=self.colors[i])
+
+        ax[1].plot(self.weighted_total_performance - self.ew_total_performance)
+
+        ax[0].yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
+        ax[1].yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
+        ax[0].legend()
+
+        plt.show()
+
+    def plot_single_performances(self):
+        running_average = np.convolve(self.average_performance, np.ones(
+            100) / 100, mode='valid')
+
+        # plt.plot(self.average_performance)
+        plt.plot(running_average)
+
+        ax = plt.gca()
+        ax.yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
+
+        for i, benchmark in enumerate(self.benchmarks):
+            plt.hlines(self.benchmarks[benchmark], 0, len(
+                self.contracts), label=benchmark, color=self.colors[i])
+
+        plt.legend()
+
+        plt.show()

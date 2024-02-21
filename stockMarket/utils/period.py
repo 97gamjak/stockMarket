@@ -6,21 +6,21 @@ from tvDatafeed import Interval
 
 
 class Period:
-    def __init__(self, period: str | Period):
+    def __init__(self, period: str | Period, amount: int = 1):
         if isinstance(period, str):
             self.period_string = period
 
             if period == "daily":
-                self.period_time = dt.timedelta(days=1)
+                self.period_time = dt.timedelta(days=1) * amount
                 self.interval = Interval.in_daily
             elif period == "weekly":
-                self.period_time = dt.timedelta(days=7)
+                self.period_time = dt.timedelta(days=7) * amount
                 self.interval = Interval.in_weekly
             elif period == "monthly":
-                self.period_time = dt.timedelta(days=30)
+                self.period_time = dt.timedelta(days=30) * amount
                 self.interval = Interval.in_monthly
             elif period == "annual":
-                self.period_time = dt.timedelta(days=365)
+                self.period_time = dt.timedelta(days=365) * amount
                 self.interval = None
             elif period == "now":
                 self.period_time = None
@@ -34,11 +34,3 @@ class Period:
             self.period_time = period.period_time
             self.period_string = period.period_string
             self.interval = period.interval
-
-    def calculate_dates(self, start_date, end_date, frequency=1):
-        dates = []
-        date = start_date
-        while date + self.period_time < end_date:
-            dates.append(date)
-            date += dt.timedelta(days=frequency)
-        return dates
