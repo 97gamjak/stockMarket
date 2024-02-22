@@ -12,12 +12,13 @@ from stockMarket.utils.period import Period
 
 
 class BackTester:
-    list_benchmarks = ["SPX", "SPXEW", "MXWO"]
+    list_benchmarks = ["SPX", "SPXEW", "MXWO", "NDX"]
     colors = ['r', 'g', 'c', 'm', 'y', 'k']
 
     def __init__(self, contracts, ranking_objects):
         self.contracts = contracts
         self.ranking_objects = ranking_objects
+        self.plotting_title = "Back Test\n"
 
     def back_test(self, date=None, end_date=None, years_back=1, period="annual", frequency="annual"):
 
@@ -68,6 +69,11 @@ class BackTester:
             date += frequency.period_time
 
         performance_dates = [date + period.period_time for date in dates]
+
+        self.plotting_title += f"{dates[0]} - {performance_dates[-1]}\n"
+        self.plotting_title += f"Period: {period.period_string} * {period.amount}\n"
+        self.plotting_title += f"Frequency: {frequency.period_string} * {frequency.amount}\n"
+        self.plotting_title += f"Average over {len(dates)} periods\n"
 
         return dates, performance_dates
 
@@ -170,8 +176,8 @@ class BackTester:
 
     def plot_cumulative_performance(self):
         fig, ax = plt.subplots(1, 2, figsize=(20, 10))
-        ax[0].plot(self.ew_total_performance)
-        ax[0].plot(self.weighted_total_performance)
+        ax[0].plot(self.ew_total_performance, label="EW")
+        ax[0].plot(self.weighted_total_performance, label="Weighted")
 
         for i, benchmark in enumerate(self.benchmarks):
             ax[0].hlines(self.benchmarks[benchmark], 0, len(
@@ -182,15 +188,19 @@ class BackTester:
         ax[0].yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
         ax[1].yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
         ax[0].legend()
+        ax[0].set_ylabel("Performance")
+        ax[1].set_ylabel("Performance Difference Weighted - EW")
 
+        plt.title(self.plotting_title)
         plt.show()
 
     def plot_single_performances(self):
+        n = int(len(self.average_performance)/5.0)
         running_average = np.convolve(self.average_performance, np.ones(
-            100) / 100, mode='valid')
+            n) / n, mode='valid')
 
         # plt.plot(self.average_performance)
-        plt.plot(running_average)
+        plt.plot(running_average, label=f"Running Average over {n} contracts")
 
         ax = plt.gca()
         ax.yaxis.set_major_formatter(mtick.PercentFormatter(1.0))
@@ -200,5 +210,5 @@ class BackTester:
                 self.contracts), label=benchmark, color=self.colors[i])
 
         plt.legend()
-
+        plt.title(self.plotting_title)
         plt.show()

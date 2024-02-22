@@ -54,6 +54,45 @@ class FinReportsMerger:
 
             os.remove(file)
 
+    def clean_up(self):
+        files_to_clean = glob.glob(str(self.statement_path / "*.xml"))
+        for file in files_to_clean:
+            with open(file, "r") as f:
+                data = f.read()
+                data = data.split("\n")
+
+            new_data = []
+            first_occurrence = True
+            end_encountered = False
+            first_fiscal_period = []
+            inc_found = False
+            bal_found = False
+            cas_found = False
+            for line in data:
+                if first_occurrence and line.startswith("<FiscalPeriod Type="):
+                    first_occurrence = False
+
+                if not first_occurrence and not end_encountered:
+                    first_fiscal_period.append(line)
+                else:
+                    new_data.append(line)
+
+                if not end_encountered and line.startswith("</FiscalPeriod>"):
+                    end_encountered = True
+
+                    if any([line == "<Statement Type=\"INC\">" for line in first_fiscal_period]):
+                        inc_found = True
+                    if any([line == "<Statement Type=\"BAL\">" for line in first_fiscal_period]):
+                        bal_found = True
+                    if any([line == "<Statement Type=\"CAS\">" for line in first_fiscal_period]):
+                        cas_found = True
+
+                    if inc_found and bal_found and cas_found:
+                        new_data = new_data + first_fiscal_period
+
+            with open(file, "w") as f:
+                f.write("\n".join(new_data))
+
     def add_old_fiscal_data(self, annual_diff_lines, backup_data):
         new_data = []
         append_data = False

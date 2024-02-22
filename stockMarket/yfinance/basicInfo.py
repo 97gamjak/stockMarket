@@ -45,7 +45,9 @@ class BasicInfo:
                 ticker = contract.ticker
                 is_ticker_in_df = contract.ticker in self.df.index
 
-                self._parse_df(ticker)
+                if ticker in self.df.index:
+                    self._parse_df(ticker)
+
                 self._get_data_from_yf(ticker)
 
                 self._populate_df(is_ticker_in_df, ticker)
@@ -63,11 +65,6 @@ class BasicInfo:
     def _parse_df(self, ticker: str) -> bool:
         self.long_name = self.df.loc[ticker, "Long Name"]
 
-        if not isinstance(self.long_name, float):
-            to_be_updated = False
-        else:
-            to_be_updated = True
-
         self.sector = self.df.loc[ticker, "Sector"]
         self.price = float(self.df.loc[ticker, "Price"])
         self.market_cap = float(self.df.loc[ticker, "Market Cap"])
@@ -76,8 +73,6 @@ class BasicInfo:
         self.dividend_yield = float(self.df.loc[ticker, "Dividend Yield"])
         self.payout_ratio = float(self.df.loc[ticker, "Payout Ratio"])
 
-        return to_be_updated
-
     def _get_data_from_yf(self, ticker):
         yf_ticker = ticker
         if yf_ticker in tickers_to_change_name:
@@ -85,9 +80,18 @@ class BasicInfo:
 
         yf_ticker = yf.Ticker(yf_ticker)
         info = yf_ticker.info
-        self.long_name = info["longName"]
-        self.sector = info["sector"]
-        self.price = info["open"]
+
+        if len(info) == 0:
+            return
+
+        if "longName" in info:
+            self.long_name = info["longName"]
+
+        if "sector" in info:
+            self.sector = info["sector"]
+
+        if "open" in info:
+            self.price = info["open"]
 
         if "marketCap" in info:
             self.market_cap = info["marketCap"] / 10**6

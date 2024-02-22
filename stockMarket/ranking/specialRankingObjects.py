@@ -31,6 +31,10 @@ def create_asset_coverage_ratio_ranker(cutoffs=[100, 200], scores=[0, 1, 2]):
     return RangeRankingObject("Asset Coverage Ratio", lambda x: x.asset_coverage_ratio, cutoffs, scores)
 
 
+def create_third_order_liquidity_ranker(cutoffs=[130, 150], scores=[0, 1, 2]):
+    return RangeRankingObject("Third Order Liquidity", lambda x: x.third_order_liquidity, cutoffs, scores)
+
+
 def create_peg_ranker(growth_years, cutoffs=[0.8, 1.2], scores=[2, 1, 0], date=None, years_back=0):
     pe_constraint = ValueRankingConstraint(
         lambda x: x.price_to_earnings(years_back=years_back), operator.gt, 0)

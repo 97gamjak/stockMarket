@@ -7,20 +7,21 @@ from tvDatafeed import Interval
 
 class Period:
     def __init__(self, period: str | Period, amount: int = 1):
+        self.amount = amount
         if isinstance(period, str):
             self.period_string = period
 
             if period == "daily":
-                self.period_time = dt.timedelta(days=1) * amount
+                self.period_time = dt.timedelta(days=1) * self.amount
                 self.interval = Interval.in_daily
             elif period == "weekly":
-                self.period_time = dt.timedelta(days=7) * amount
+                self.period_time = dt.timedelta(days=7) * self.amount
                 self.interval = Interval.in_weekly
             elif period == "monthly":
-                self.period_time = dt.timedelta(days=30) * amount
+                self.period_time = dt.timedelta(days=30) * self.amount
                 self.interval = Interval.in_monthly
             elif period == "annual":
-                self.period_time = dt.timedelta(days=365) * amount
+                self.period_time = dt.timedelta(days=365) * self.amount
                 self.interval = None
             elif period == "now":
                 self.period_time = None

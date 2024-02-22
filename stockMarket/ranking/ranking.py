@@ -67,7 +67,7 @@ class Ranking:
             except ZeroDivisionError:
                 relative_scores.append("0.00%")
 
-            total_scores.append(f"{total_score}/{total_max_score}")
+            total_scores.append(f"{total_score:.2f}/{total_max_score}")
 
             no_data = sum([1 for ranking_result in self.contract_scores[ticker]
                            if ranking_result.flag == RankingFlag.NODATA])
