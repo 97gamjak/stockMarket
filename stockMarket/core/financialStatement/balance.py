@@ -88,19 +88,19 @@ class BalanceSheet(FinancialStatementBase):
         return {
             "QTLE": self.set_common_stocK_equity,
             "LTLL": self.set_total_liabilities,
-            "STLD": self.set_total_debt,
-            "ATOT": self.set_total_assets,
+            "STLD": self.set_total_debt,#
+            "ATOT": self.set_total_assets,#
             "QTCO": self.set_total_outstanding_shares_common_stock,
-            "AGWI": self.set_goodwill,
+            "AGWI": self.set_goodwill,#
             "LSTD": self.set_short_term_debt,
             "LCLD": self.set_current_portion_of_long_term_debt_and_capital_lease_obligations,
-            "LAEX": self.set_accrued_expenses,
-            "LTTD": self.set_total_long_term_debt,
-            "STBP": self.set_book_value_per_share,
+            "LAEX": self.set_accrued_expenses,#
+            "LTTD": self.set_total_long_term_debt,#
+            "STBP": self.set_book_value_per_share,#
             "ATRC": self.set_total_receivables_net,
             "AITL": self.set_total_inventory,
-            "SOCA": self.set_other_current_assets,
-            "APPY": self.set_prepaid_expenses,
+            "SOCA": self.set_other_current_assets,#
+            "APPY": self.set_prepaid_expenses,#
             "ACSH": self.set_cash,
             "ACAE": self.set_cash_equivalents,
             "ASTI": self.set_short_term_investments,
