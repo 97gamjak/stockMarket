@@ -71,8 +71,10 @@ class BackTester:
         performance_dates = [date + period.period_time for date in dates]
 
         self.plotting_title += f"{dates[0]} - {performance_dates[-1]}\n"
-        self.plotting_title += f"Period: {period.period_string} * {period.amount}\n"
-        self.plotting_title += f"Frequency: {frequency.period_string} * {frequency.amount}\n"
+        self.plotting_title += f"Period: {
+            period.period_string} * {period.amount}\n"
+        self.plotting_title += f"Frequency: {
+            frequency.period_string} * {frequency.amount}\n"
         self.plotting_title += f"Average over {len(dates)} periods\n"
 
         return dates, performance_dates
@@ -174,7 +176,7 @@ class BackTester:
             benchmarks[benchmark] = np.nanmean(performances)
         return benchmarks
 
-    def plot_cumulative_performance(self):
+    def plot_cumulative_performance(self, filename=None):
         fig, ax = plt.subplots(1, 2, figsize=(20, 10))
         ax[0].plot(self.ew_total_performance, label="EW")
         ax[0].plot(self.weighted_total_performance, label="Weighted")
@@ -191,10 +193,15 @@ class BackTester:
         ax[0].set_ylabel("Performance")
         ax[1].set_ylabel("Performance Difference Weighted - EW")
 
-        plt.title(self.plotting_title)
-        plt.show()
+        fig.suptitle(self.plotting_title)
 
-    def plot_single_performances(self):
+        if filename is not None:
+            plt.tight_layout()
+            plt.savefig(filename)
+        else:
+            plt.show()
+
+    def plot_single_performances(self, filename=None):
         n = int(len(self.average_performance)/5.0)
         running_average = np.convolve(self.average_performance, np.ones(
             n) / n, mode='valid')
@@ -211,4 +218,9 @@ class BackTester:
 
         plt.legend()
         plt.title(self.plotting_title)
-        plt.show()
+
+        if filename is not None:
+            plt.tight_layout()
+            plt.savefig(filename)
+        else:
+            plt.show()
