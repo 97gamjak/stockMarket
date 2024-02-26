@@ -1,112 +1,91 @@
+.. _general:
+
+*******
 General
 *******
+
+If any of the following derived KPIs contain a growth rate, it is assumed that the growth rate is not fixed to a certain time period. Therefore, the growth rate is always noramlized to a yearly growth rate. This can be achieved by the following formula:
+
+.. math::
+        Growth(KPI, n_{\text{years}}) = \frac{KPI_{\text{new}}}{KPI_{\text{old}}}^{1/n_{\text{years}}} - 1
+
+============
 Derived KPIs
 ============
 
-.. admonition::
-    Growth Rate
+.. list-table::
+    :header-rows: 1
+    :class: tight-table
 
-    .. math::
-        Growth(KPI, n_{\text{years}}) = \frac{KPI_{\text{new}}}{KPI_{\text{old}}}^{1/n_{\text{years}}} - 1
-
-.. admonition::
-    Earnings Per Share
-
-    .. math::
-        EPS = \frac{Net Income}{Total Outstanding Shares Common Stock}
-
-.. admonition::
-   Revenue Per Share
-
-   .. math::
-        RPS = \frac{Revenue}{Total Outstanding Shares Common Stock}
-
-.. admonition::
-   Operating Cash Flow Per Share
-
-   .. math::
-        OCPS = \frac{Operatong Cash Flow}{Total Outstanding Shares Common Stock}
-
-.. admonition::
-   Free Cash Flow Per Share
-
-   .. math::
-        FCPS = \frac{Free Cash Flow}{Total Outstanding Shares Common Stock}
-
-.. admonition::
-    EBITDA
-
-    .. math::
-        EBITDA = EBIT + DEPRECIATION \& AMORTIZATION
-
-.. admonition::
-    EBIDTA Margin
-
-    .. math::
-        EBIDTA MARGIN = \frac{EBITDA}{REVENUE}
-
-.. admonition::
-    Return On Assets
-
-    .. math::
-        Return On Assets = \frac{Net Income}{Total Assets}
-
-.. admonition::
-    Price/Earnings
-
-    .. math::
-        P/E = \frac{Price}{EPS}
-
-.. admonition::
-    Price/Revenue
-
-    .. math::
-        P/R = \frac{Price}{RPS}
-
-.. admonition::
-    Price/Operating Cash Flow
-
-    .. math::
-        P/OC = \frac{Price}{OCPS}
-
-.. admonition::
-    Price/Free Cash Flow
-
-    .. math::
-        P/FC = \frac{Price}{FCPS}
-
-.. admonition::
-   Price/Book Value
-
-    .. math::
-          P/B = \frac{Price}{BPS}
-
-.. admonition::
-    Price To Earnings Growth
-
-    .. math::
-        PEG = \frac{P/E}{Growth(EPS, n)}
-
-.. admonition::
-    Price To Revenue Growth
-
-    .. math::
-        PRG = \frac{P/R}{Growth(RPS, n)}
-
-.. admonition::
-    Price To Operating Cash Flow Growth
-
-    .. math::
-        POCG = \frac{P/OC}{Growth(OCPS, n)}
-
-.. admonition::
-    Price To Free Cash Flow Growth
-
-    .. math::
-        PFCG = \frac{P/FC}{Growth(FCPS, n)}
-
-.. admonition::
-    Price To Book Value Growth
-
-    .. math::
-        PBG = \frac{P/B}{Growth(BPS, n)}
+    * - KPI
+      - ID
+      - Description
+      - Formula
+    * - Earnings Per Share
+      - EPS
+      - Net Income divided by Total Outstanding Shares Common Stock
+      - :math:`\frac{NetInc}{TotOutShares}`
+    * - Revenue Per Share
+      - RPS
+      - Revenue divided by Total Outstanding Shares Common Stock
+      - :math:`\frac{Rev}{TotOutShares}`
+    * - Operating Cash Flow Per Share
+      - OpCFPS
+      - Operating Cash Flow divided by Total Outstanding Shares Common Stock
+      - :math:`\frac{OpCF}{TotOutShares}`
+    * - Free Cash Flow Per Share
+      - FreeCFPS
+      - Free Cash Flow divided by Total Outstanding Shares Common Stock
+      - :math:`\frac{FreeCF}{TotOutShares}`
+    * - EBITDA
+      - EBITDA
+      - EBIT + Depreciation & Amortization
+      - :math:`EBIT + D\&A`
+    * - EBITDA Margin
+      - EBITDAMargin
+      - EBITDA divided by Revenue
+      - :math:`\frac{EBITDA}{Rev}`
+    * - Return On Assets
+      - RetOnAss
+      - Return on Assets is a measure of how effectively a company uses its assets to generate earnings
+      - :math:`\frac{NetInc}{TotAss}`
+    * - Price/Earnings
+      - P/E
+      - Price divided by Earnings Per Share
+      - :math:`\frac{Price}{EPS}`
+    * - Price/Revenue
+      - P/R
+      - Price divided by Revenue Per Share
+      - :math:`\frac{Price}{RPS}`
+    * - Price/Operating Cash Flow
+      - P/OpCF
+      - Price divided by Operating Cash Flow Per Share
+      - :math:`\frac{Price}{OpCFPS}`
+    * - Price/Free Cash Flow
+      - P/FreeCF
+      - Price divided by Free Cash Flow Per Share
+      - :math:`\frac{Price}{FreeCFPS}`
+    * - Price/Book Value
+      - P/B
+      - Price divided by Book Value Per Share
+      - :math:`\frac{Price}{BPS}`
+    * - Price To Earnings Growth
+      - PEG
+      - Price To Earnings divided by Growth(EPS, n)
+      - :math:`\frac{P/E}{Growth(EPS)}`
+    * - Price To Revenue Growth
+      - PRG
+      - Price To Revenue divided by Growth(RPS, n)
+      - :math:`\frac{P/R}{Growth(RPS)}`
+    * - Price To Operating Cash Flow Growth
+      - POCG
+      - Price To Operating Cash Flow divided by Growth(OpCFPS, n)
+      - :math:`\frac{P/OpCF}{Growth(OpCFPS)}`
+    * - Price To Free Cash Flow Growth
+      - PFCG
+      - Price To Free Cash Flow divided by Growth(FreeCFPS, n)
+      - :math:`\frac{P/FreeCF}{Growth(FreeCFPS)}`
+    * - Price To Book Value Growth
+      - PBG
+      - Price To Book Value divided by Growth(BPS, n)
+      - :math:`\frac{P/B}{Growth(BPS)}`

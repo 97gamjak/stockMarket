@@ -84,101 +84,108 @@
            <div itemprop="articleBody">
              
   <section id="general">
-<h1>General<a class="headerlink" href="#general" title="Link to this heading"></a></h1>
-<section id="derived-kpis">
-<h2>Derived KPIs<a class="headerlink" href="#derived-kpis" title="Link to this heading"></a></h2>
-<div class="admonition-growth-rate admonition">
-<p class="admonition-title">Growth Rate</p>
+<span id="id1"></span><h1>General<a class="headerlink" href="#general" title="Link to this heading"></a></h1>
+<p>If any of the following derived KPIs contain a growth rate, it is assumed that the growth rate is not fixed to a certain time period. Therefore, the growth rate is always noramlized to a yearly growth rate. This can be achieved by the following formula:</p>
 <div class="math notranslate nohighlight">
 \[Growth(KPI, n_{\text{years}}) = \frac{KPI_{\text{new}}}{KPI_{\text{old}}}^{1/n_{\text{years}}} - 1\]</div>
-</div>
-<div class="admonition-earnings-per-share admonition">
-<p class="admonition-title">Earnings Per Share</p>
-<div class="math notranslate nohighlight">
-\[EPS = \frac{Net Income}{Total Outstanding Shares Common Stock}\]</div>
-</div>
-<div class="admonition-revenue-per-share admonition">
-<p class="admonition-title">Revenue Per Share</p>
-<div class="math notranslate nohighlight">
-\[RPS = \frac{Revenue}{Total Outstanding Shares Common Stock}\]</div>
-</div>
-<div class="admonition-operating-cash-flow-per-share admonition">
-<p class="admonition-title">Operating Cash Flow Per Share</p>
-<div class="math notranslate nohighlight">
-\[OCPS = \frac{Operatong Cash Flow}{Total Outstanding Shares Common Stock}\]</div>
-</div>
-<div class="admonition-free-cash-flow-per-share admonition">
-<p class="admonition-title">Free Cash Flow Per Share</p>
-<div class="math notranslate nohighlight">
-\[FCPS = \frac{Free Cash Flow}{Total Outstanding Shares Common Stock}\]</div>
-</div>
-<div class="admonition-ebitda admonition">
-<p class="admonition-title">EBITDA</p>
-<div class="math notranslate nohighlight">
-\[EBITDA = EBIT + DEPRECIATION \&amp; AMORTIZATION\]</div>
-</div>
-<div class="admonition-ebidta-margin admonition">
-<p class="admonition-title">EBIDTA Margin</p>
-<div class="math notranslate nohighlight">
-\[EBIDTA MARGIN = \frac{EBITDA}{REVENUE}\]</div>
-</div>
-<div class="admonition-return-on-assets admonition">
-<p class="admonition-title">Return On Assets</p>
-<div class="math notranslate nohighlight">
-\[Return On Assets = \frac{Net Income}{Total Assets}\]</div>
-</div>
-<div class="admonition-price-earnings admonition">
-<p class="admonition-title">Price/Earnings</p>
-<div class="math notranslate nohighlight">
-\[P/E = \frac{Price}{EPS}\]</div>
-</div>
-<div class="admonition-price-revenue admonition">
-<p class="admonition-title">Price/Revenue</p>
-<div class="math notranslate nohighlight">
-\[P/R = \frac{Price}{RPS}\]</div>
-</div>
-<div class="admonition-price-operating-cash-flow admonition">
-<p class="admonition-title">Price/Operating Cash Flow</p>
-<div class="math notranslate nohighlight">
-\[P/OC = \frac{Price}{OCPS}\]</div>
-</div>
-<div class="admonition-price-free-cash-flow admonition">
-<p class="admonition-title">Price/Free Cash Flow</p>
-<div class="math notranslate nohighlight">
-\[P/FC = \frac{Price}{FCPS}\]</div>
-</div>
-<div class="admonition-price-book-value admonition">
-<p class="admonition-title">Price/Book Value</p>
-<blockquote>
-<div><div class="math notranslate nohighlight">
-\[P/B = \frac{Price}{BPS}\]</div>
-</div></blockquote>
-</div>
-<div class="admonition-price-to-earnings-growth admonition">
-<p class="admonition-title">Price To Earnings Growth</p>
-<div class="math notranslate nohighlight">
-\[PEG = \frac{P/E}{Growth(EPS, n)}\]</div>
-</div>
-<div class="admonition-price-to-revenue-growth admonition">
-<p class="admonition-title">Price To Revenue Growth</p>
-<div class="math notranslate nohighlight">
-\[PRG = \frac{P/R}{Growth(RPS, n)}\]</div>
-</div>
-<div class="admonition-price-to-operating-cash-flow-growth admonition">
-<p class="admonition-title">Price To Operating Cash Flow Growth</p>
-<div class="math notranslate nohighlight">
-\[POCG = \frac{P/OC}{Growth(OCPS, n)}\]</div>
-</div>
-<div class="admonition-price-to-free-cash-flow-growth admonition">
-<p class="admonition-title">Price To Free Cash Flow Growth</p>
-<div class="math notranslate nohighlight">
-\[PFCG = \frac{P/FC}{Growth(FCPS, n)}\]</div>
-</div>
-<div class="admonition-price-to-book-value-growth admonition">
-<p class="admonition-title">Price To Book Value Growth</p>
-<div class="math notranslate nohighlight">
-\[PBG = \frac{P/B}{Growth(BPS, n)}\]</div>
-</div>
+<section id="derived-kpis">
+<h2>Derived KPIs<a class="headerlink" href="#derived-kpis" title="Link to this heading"></a></h2>
+<table class="tight-table docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>KPI</p></th>
+<th class="head"><p>ID</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Formula</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Earnings Per Share</p></td>
+<td><p>EPS</p></td>
+<td><p>Net Income divided by Total Outstanding Shares Common Stock</p></td>
+<td><p><span class="math notranslate nohighlight">\(\frac{NetInc}{TotOutShares}\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>Revenue Per Share</p></td>
+<td><p>RPS</p></td>
+<td><p>Revenue divided by Total Outstanding Shares Common Stock</p></td>
+<td><p><span class="math notranslate nohighlight">\(\frac{Rev}{TotOutShares}\)</span></p></td>
+</tr>
+<tr class="row-even"><td><p>Operating Cash Flow Per Share</p></td>
+<td><p>OpCFPS</p></td>
+<td><p>Operating Cash Flow divided by Total Outstanding Shares Common Stock</p></td>
+<td><p><span class="math notranslate nohighlight">\(\frac{OpCF}{TotOutShares}\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>Free Cash Flow Per Share</p></td>
+<td><p>FreeCFPS</p></td>
+<td><p>Free Cash Flow divided by Total Outstanding Shares Common Stock</p></td>
+<td><p><span class="math notranslate nohighlight">\(\frac{FreeCF}{TotOutShares}\)</span></p></td>
+</tr>
+<tr class="row-even"><td><p>EBITDA</p></td>
+<td><p>EBITDA</p></td>
+<td><p>EBIT + Depreciation &amp; Amortization</p></td>
+<td><p><span class="math notranslate nohighlight">\(EBIT + D\&amp;A\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>EBITDA Margin</p></td>
+<td><p>EBITDAMargin</p></td>
+<td><p>EBITDA divided by Revenue</p></td>
+<td><p><span class="math notranslate nohighlight">\(\frac{EBITDA}{Rev}\)</span></p></td>
+</tr>
+<tr class="row-even"><td><p>Return On Assets</p></td>
+<td><p>RetOnAss</p></td>
+<td><p>Return on Assets is a measure of how effectively a company uses its assets to generate earnings</p></td>
+<td><p><span class="math notranslate nohighlight">\(\frac{NetInc}{TotAss}\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>Price/Earnings</p></td>
+<td><p>P/E</p></td>
+<td><p>Price divided by Earnings Per Share</p></td>
+<td><p><span class="math notranslate nohighlight">\(\frac{Price}{EPS}\)</span></p></td>
+</tr>
+<tr class="row-even"><td><p>Price/Revenue</p></td>
+<td><p>P/R</p></td>
+<td><p>Price divided by Revenue Per Share</p></td>
+<td><p><span class="math notranslate nohighlight">\(\frac{Price}{RPS}\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>Price/Operating Cash Flow</p></td>
+<td><p>P/OpCF</p></td>
+<td><p>Price divided by Operating Cash Flow Per Share</p></td>
+<td><p><span class="math notranslate nohighlight">\(\frac{Price}{OpCFPS}\)</span></p></td>
+</tr>
+<tr class="row-even"><td><p>Price/Free Cash Flow</p></td>
+<td><p>P/FreeCF</p></td>
+<td><p>Price divided by Free Cash Flow Per Share</p></td>
+<td><p><span class="math notranslate nohighlight">\(\frac{Price}{FreeCFPS}\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>Price/Book Value</p></td>
+<td><p>P/B</p></td>
+<td><p>Price divided by Book Value Per Share</p></td>
+<td><p><span class="math notranslate nohighlight">\(\frac{Price}{BPS}\)</span></p></td>
+</tr>
+<tr class="row-even"><td><p>Price To Earnings Growth</p></td>
+<td><p>PEG</p></td>
+<td><p>Price To Earnings divided by Growth(EPS, n)</p></td>
+<td><p><span class="math notranslate nohighlight">\(\frac{P/E}{Growth(EPS)}\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>Price To Revenue Growth</p></td>
+<td><p>PRG</p></td>
+<td><p>Price To Revenue divided by Growth(RPS, n)</p></td>
+<td><p><span class="math notranslate nohighlight">\(\frac{P/R}{Growth(RPS)}\)</span></p></td>
+</tr>
+<tr class="row-even"><td><p>Price To Operating Cash Flow Growth</p></td>
+<td><p>POCG</p></td>
+<td><p>Price To Operating Cash Flow divided by Growth(OpCFPS, n)</p></td>
+<td><p><span class="math notranslate nohighlight">\(\frac{P/OpCF}{Growth(OpCFPS)}\)</span></p></td>
+</tr>
+<tr class="row-odd"><td><p>Price To Free Cash Flow Growth</p></td>
+<td><p>PFCG</p></td>
+<td><p>Price To Free Cash Flow divided by Growth(FreeCFPS, n)</p></td>
+<td><p><span class="math notranslate nohighlight">\(\frac{P/FreeCF}{Growth(FreeCFPS)}\)</span></p></td>
+</tr>
+<tr class="row-even"><td><p>Price To Book Value Growth</p></td>
+<td><p>PBG</p></td>
+<td><p>Price To Book Value divided by Growth(BPS, n)</p></td>
+<td><p><span class="math notranslate nohighlight">\(\frac{P/B}{Growth(BPS)}\)</span></p></td>
+</tr>
+</tbody>
+</table>
 </section>
 </section>
 
