@@ -83,8 +83,8 @@
 <span class="k">class</span> <span class="nc">BalanceSheet</span><span class="p">(</span><span class="n">FinancialStatementBase</span><span class="p">):</span>
     <span class="n">_attributes</span> <span class="o">=</span> <span class="p">[</span>
         <span class="s2">&quot;common_stocK_equity&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;total_debt&quot;</span><span class="p">,</span>
         <span class="s2">&quot;total_liabilities&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;total_current_liabilities&quot;</span><span class="p">,</span>
         <span class="s2">&quot;total_assets&quot;</span><span class="p">,</span>
         <span class="s2">&quot;total_outstanding_shares_common_stock&quot;</span><span class="p">,</span>
         <span class="s2">&quot;book_value_per_share&quot;</span><span class="p">,</span>
@@ -133,8 +133,12 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cash_and_short_term_investments</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_receivables_net</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_inventory</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">other_current_assets</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepaid_expenses</span>
 
     <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">total_debt</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_short_term_debt</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_long_term_debt</span>
+
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">gearing</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">total_short_term_debt</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_long_term_debt</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">cash_and_short_term_investments</span><span class="p">)</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">equity</span> <span class="o">*</span> <span class="mi">100</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">total_debt</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">cash_and_short_term_investments</span><span class="p">)</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">equity</span> <span class="o">*</span> <span class="mi">100</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">total_non_current_assets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -146,15 +150,15 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">third_order_liquidity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">total_short_term_debt</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">debt</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_short_term_debt</span><span class="p">:</span>
+        <span class="n">total_current_liabilities</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">debt</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_current_liabilities</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">debt</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">total_short_term_debt</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">1e-10</span><span class="p">)</span>
+                <span class="n">total_current_liabilities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">1e-10</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">total_short_term_debt</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">debt</span><span class="p">)</span>
-        <span class="n">total_short_term_debt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">total_short_term_debt</span><span class="p">)</span>
+                <span class="n">total_current_liabilities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">debt</span><span class="p">)</span>
+        <span class="n">total_current_liabilities</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">total_current_liabilities</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_current_assets</span> <span class="o">/</span> <span class="n">total_short_term_debt</span> <span class="o">*</span> <span class="mi">100</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_current_assets</span> <span class="o">/</span> <span class="n">total_current_liabilities</span> <span class="o">*</span> <span class="mi">100</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">cash_and_short_term_investments</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -165,19 +169,20 @@
         <span class="k">return</span> <span class="p">{</span>
             <span class="s2">&quot;QTLE&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_common_stocK_equity</span><span class="p">,</span>
             <span class="s2">&quot;LTLL&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_total_liabilities</span><span class="p">,</span>
-            <span class="s2">&quot;STLD&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_total_debt</span><span class="p">,</span><span class="c1">#</span>
-            <span class="s2">&quot;ATOT&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_total_assets</span><span class="p">,</span><span class="c1">#</span>
+            <span class="s2">&quot;LTCL&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_total_current_liabilities</span><span class="p">,</span>
+            <span class="s2">&quot;STLD&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_total_debt</span><span class="p">,</span>
+            <span class="s2">&quot;ATOT&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_total_assets</span><span class="p">,</span>
             <span class="s2">&quot;QTCO&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_total_outstanding_shares_common_stock</span><span class="p">,</span>
-            <span class="s2">&quot;AGWI&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_goodwill</span><span class="p">,</span><span class="c1">#</span>
+            <span class="s2">&quot;AGWI&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_goodwill</span><span class="p">,</span>
             <span class="s2">&quot;LSTD&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_short_term_debt</span><span class="p">,</span>
             <span class="s2">&quot;LCLD&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_current_portion_of_long_term_debt_and_capital_lease_obligations</span><span class="p">,</span>
-            <span class="s2">&quot;LAEX&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_accrued_expenses</span><span class="p">,</span><span class="c1">#</span>
-            <span class="s2">&quot;LTTD&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_total_long_term_debt</span><span class="p">,</span><span class="c1">#</span>
-            <span class="s2">&quot;STBP&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_book_value_per_share</span><span class="p">,</span><span class="c1">#</span>
+            <span class="s2">&quot;LAEX&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_accrued_expenses</span><span class="p">,</span>
+            <span class="s2">&quot;LTTD&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_total_long_term_debt</span><span class="p">,</span>
+            <span class="s2">&quot;STBP&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_book_value_per_share</span><span class="p">,</span>
             <span class="s2">&quot;ATRC&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_total_receivables_net</span><span class="p">,</span>
             <span class="s2">&quot;AITL&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_total_inventory</span><span class="p">,</span>
-            <span class="s2">&quot;SOCA&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_other_current_assets</span><span class="p">,</span><span class="c1">#</span>
-            <span class="s2">&quot;APPY&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_prepaid_expenses</span><span class="p">,</span><span class="c1">#</span>
+            <span class="s2">&quot;SOCA&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_other_current_assets</span><span class="p">,</span>
+            <span class="s2">&quot;APPY&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_prepaid_expenses</span><span class="p">,</span>
             <span class="s2">&quot;ACSH&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_cash</span><span class="p">,</span>
             <span class="s2">&quot;ACAE&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_cash_equivalents</span><span class="p">,</span>
             <span class="s2">&quot;ASTI&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_short_term_investments</span><span class="p">,</span>

@@ -5,8 +5,8 @@ Basic KPIs
 ==========
 
 * Common Stock Equity
-* Total Debt
 * Total Liabilities
+* Total Current Liabilities
 * Total Assets
 * Total Outstanding Shares Common Stock
 * Book Value Per Share
@@ -30,7 +30,7 @@ Derived KPIs
     Equity
    
     .. math::
-        \text{Equity Shareholders} = \text{Total Assets} - \text{Total Liabilities}
+        \text{Equity} = \text{Total Assets} - \text{Total Liabilities}
 
 .. admonition::
    Equity Ratio
@@ -57,10 +57,17 @@ Derived KPIs
         \text{Cash & Short Term Investments} = \text{Cash} + \text{Cash Equivalents} + \text{Short Term Investments}
 
 .. admonition::
+   Total Debt
+
+    .. math::
+          \text{Total Debt} = \text{Total Short Term Debt} + \text{Total Long Term Debt}
+
+
+.. admonition::
     Gearing
 
     .. math::
-        \text{Gearing} = \frac{\text{Total Shert Term Debt} + \text{Total Long Term Debt} - \text{Cash & Short Term Investments}}{\text{Total Assets}}
+        \text{Gearing} = \frac{\text{Total Debt} - \text{Cash & Short Term Investments}}{\text{Equity}}
 
 .. admonition::
     Total Non Current Assets
@@ -75,10 +82,10 @@ Derived KPIs
         \text{Asset Coverage Ratio} = \frac{\text{Equity} + \text{Total Long Term Debt}}{\text{Total Non Current Assets}}
 
 .. admonition::
-    third order liquidity
+    Third Order Liquidity
 
     .. math::
-        \text{third order liquidity} = \frac{\text{Total Current Assets}}{\text{Total Short Term Debt}}
+        \text{Third Order Liquidity} = \frac{\text{Total Current Assets}}{\text{Total Current Liabilities}}
 
 
 
