@@ -36,17 +36,17 @@ jobs:
           && pip3 install myst-parser
           && pip3 install better-apidoc
           && pip3 install --upgrade --no-cache-dir git+https://github.com/rongardF/tvdatafeed.git
-          && pip3 isntall ipykernel
-          && pip3 isntall pandas
-          && pip3 isntall yfinance
-          && pip3 isntall ib_insync
-          && pip3 isntall tqdm
-          && pip3 isntall numpy
-          && pip3 isntall beartype
-          && pip3 isntall mplfinance
-          && pip3 isntall tabula
-          && pip3 isntall jpype1
-          && pip3 isntall jinja2 
+          && pip3 install ipykernel
+          && pip3 install pandas
+          && pip3 install yfinance
+          && pip3 install ib_insync
+          && pip3 install tqdm
+          && pip3 install numpy
+          && pip3 install beartype
+          && pip3 install mplfinance
+          && pip3 install tabula
+          && pip3 install jpype1
+          && pip3 install jinja2 
 
 
       - name: Build
