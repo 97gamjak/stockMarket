@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>stockMarket.core.financialStatement.balance &mdash; StockMarket  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/custom.css?v=3e08eec4" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=eafc0fe6" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            StockMarket
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../financialStatments/financialStatments.html">Financial Statements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../code/stockMarket.html">Submodules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../code/stockMarket.html#subpackages">Subpackages</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">StockMarket</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">stockMarket.core.financialStatement.balance</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for stockMarket.core.financialStatement.balance</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">._base</span> <span class="kn">import</span> <span class="n">FinancialStatementBase</span>
+
+
+<div class="viewcode-block" id="BalanceSheet">
+<a class="viewcode-back" href="../../../../code/stockMarket.core.financialStatement.balance.html#stockMarket.core.financialStatement.balance.BalanceSheet">[docs]</a>
+<span class="k">class</span> <span class="nc">BalanceSheet</span><span class="p">(</span><span class="n">FinancialStatementBase</span><span class="p">):</span>
+    <span class="n">_attributes</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;common_stocK_equity&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;total_debt&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;total_liabilities&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;total_assets&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;total_outstanding_shares_common_stock&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;book_value_per_share&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+
+    <span class="n">_attributes_with_setters</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;goodwill&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;current_portion_of_long_term_debt_and_capital_lease_obligations&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;short_term_debt&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;accrued_expenses&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;total_long_term_debt&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;total_receivables_net&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;total_inventory&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;other_current_assets&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;prepaid_expenses&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;cash&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;cash_equivalents&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;short_term_investments&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">equity_shareholders</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_assets</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_liabilities</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">equity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">equity_shareholders</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">equity_ratio</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">equity_shareholders</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_assets</span> <span class="o">*</span> <span class="mi">100</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">goodwill_ratio</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">goodwill</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">equity</span> <span class="o">*</span> <span class="mi">100</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">total_short_term_debt</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">short_term_debt</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_portion_of_long_term_debt_and_capital_lease_obligations</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">total_current_assets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cash_and_short_term_investments</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_receivables_net</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_inventory</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">other_current_assets</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepaid_expenses</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">gearing</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">total_short_term_debt</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_long_term_debt</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">cash_and_short_term_investments</span><span class="p">)</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">equity</span> <span class="o">*</span> <span class="mi">100</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">total_non_current_assets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_assets</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_current_assets</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">asset_coverage_ratio</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">equity</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_long_term_debt</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_non_current_assets</span> <span class="o">*</span> <span class="mi">100</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">third_order_liquidity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">total_short_term_debt</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">debt</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_short_term_debt</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">debt</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">total_short_term_debt</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">1e-10</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">total_short_term_debt</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">debt</span><span class="p">)</span>
+        <span class="n">total_short_term_debt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">total_short_term_debt</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_current_assets</span> <span class="o">/</span> <span class="n">total_short_term_debt</span> <span class="o">*</span> <span class="mi">100</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">cash_and_short_term_investments</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cash</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">cash_equivalents</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">short_term_investments</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">coa_items</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;QTLE&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_common_stocK_equity</span><span class="p">,</span>
+            <span class="s2">&quot;LTLL&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_total_liabilities</span><span class="p">,</span>
+            <span class="s2">&quot;STLD&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_total_debt</span><span class="p">,</span><span class="c1">#</span>
+            <span class="s2">&quot;ATOT&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_total_assets</span><span class="p">,</span><span class="c1">#</span>
+            <span class="s2">&quot;QTCO&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_total_outstanding_shares_common_stock</span><span class="p">,</span>
+            <span class="s2">&quot;AGWI&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_goodwill</span><span class="p">,</span><span class="c1">#</span>
+            <span class="s2">&quot;LSTD&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_short_term_debt</span><span class="p">,</span>
+            <span class="s2">&quot;LCLD&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_current_portion_of_long_term_debt_and_capital_lease_obligations</span><span class="p">,</span>
+            <span class="s2">&quot;LAEX&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_accrued_expenses</span><span class="p">,</span><span class="c1">#</span>
+            <span class="s2">&quot;LTTD&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_total_long_term_debt</span><span class="p">,</span><span class="c1">#</span>
+            <span class="s2">&quot;STBP&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_book_value_per_share</span><span class="p">,</span><span class="c1">#</span>
+            <span class="s2">&quot;ATRC&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_total_receivables_net</span><span class="p">,</span>
+            <span class="s2">&quot;AITL&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_total_inventory</span><span class="p">,</span>
+            <span class="s2">&quot;SOCA&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_other_current_assets</span><span class="p">,</span><span class="c1">#</span>
+            <span class="s2">&quot;APPY&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_prepaid_expenses</span><span class="p">,</span><span class="c1">#</span>
+            <span class="s2">&quot;ACSH&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_cash</span><span class="p">,</span>
+            <span class="s2">&quot;ACAE&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_cash_equivalents</span><span class="p">,</span>
+            <span class="s2">&quot;ASTI&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_short_term_investments</span><span class="p">,</span>
+        <span class="p">}</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Jakob Gamper, Benjamin Lantschner.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

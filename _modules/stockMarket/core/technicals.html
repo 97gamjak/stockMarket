@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>stockMarket.core.technicals &mdash; StockMarket  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=3e08eec4" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=eafc0fe6" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            StockMarket
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../financialStatments/financialStatments.html">Financial Statements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../code/stockMarket.html">Submodules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../code/stockMarket.html#subpackages">Subpackages</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">StockMarket</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">stockMarket.core.technicals</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for stockMarket.core.technicals</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">mplfinance</span> <span class="k">as</span> <span class="nn">mpf</span>
+<span class="kn">import</span> <span class="nn">talib</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="kn">from</span> <span class="nn">tvDatafeed</span> <span class="kn">import</span> <span class="n">TvDatafeed</span>
+
+<span class="kn">from</span> <span class="nn">.contract</span> <span class="kn">import</span> <span class="n">Contract</span>
+<span class="kn">from</span> <span class="nn">stockMarket.utils</span> <span class="kn">import</span> <span class="n">Period</span>
+
+
+<div class="viewcode-block" id="Technicals">
+<a class="viewcode-back" href="../../../code/stockMarket.core.technicals.html#stockMarket.core.technicals.Technicals">[docs]</a>
+<span class="k">class</span> <span class="nc">Technicals</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">contract</span><span class="p">:</span> <span class="n">Contract</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">ticker</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">exchange</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">contract</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">ticker</span> <span class="ow">or</span> <span class="n">exchange</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                    <span class="s2">&quot;ticker and exchange are ignored when contract is provided&quot;</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">contract</span> <span class="o">=</span> <span class="n">contract</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ticker</span> <span class="o">=</span> <span class="n">contract</span><span class="o">.</span><span class="n">ticker</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">exchange</span> <span class="o">=</span> <span class="n">contract</span><span class="o">.</span><span class="n">exchange</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">contract</span> <span class="o">=</span> <span class="n">Contract</span><span class="p">(</span><span class="n">ticker</span><span class="o">=</span><span class="n">ticker</span><span class="p">,</span> <span class="n">exchange</span><span class="o">=</span><span class="n">exchange</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ticker</span> <span class="o">=</span> <span class="n">ticker</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">exchange</span> <span class="o">=</span> <span class="n">exchange</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">pricing_data</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="Technicals.init_pricing_data">
+<a class="viewcode-back" href="../../../code/stockMarket.core.technicals.html#stockMarket.core.technicals.Technicals.init_pricing_data">[docs]</a>
+    <span class="k">def</span> <span class="nf">init_pricing_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interval</span><span class="p">:</span> <span class="n">Period</span> <span class="o">=</span> <span class="s2">&quot;daily&quot;</span><span class="p">,</span> <span class="n">n_bars</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">n_bars</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">n_bars</span> <span class="o">=</span> <span class="mi">5000</span>  <span class="c1"># max value</span>
+
+        <span class="n">interval</span> <span class="o">=</span> <span class="n">Period</span><span class="p">(</span><span class="n">interval</span><span class="p">)</span>
+
+        <span class="n">tv</span> <span class="o">=</span> <span class="n">TvDatafeed</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pricing_data</span> <span class="o">=</span> <span class="n">tv</span><span class="o">.</span><span class="n">get_hist</span><span class="p">(</span>
+            <span class="n">symbol</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ticker</span><span class="p">,</span>
+            <span class="n">exchange</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">exchange</span><span class="p">,</span>
+            <span class="n">interval</span><span class="o">=</span><span class="n">interval</span><span class="o">.</span><span class="n">interval</span><span class="p">,</span>
+            <span class="n">n_bars</span><span class="o">=</span><span class="n">n_bars</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Technicals.rsi">
+<a class="viewcode-back" href="../../../code/stockMarket.core.technicals.html#stockMarket.core.technicals.Technicals.rsi">[docs]</a>
+    <span class="k">def</span> <span class="nf">rsi</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_period</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">14</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rsi</span> <span class="o">=</span> <span class="n">talib</span><span class="o">.</span><span class="n">RSI</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pricing_data</span><span class="o">.</span><span class="n">close</span><span class="p">,</span> <span class="n">timeperiod</span><span class="o">=</span><span class="n">time_period</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">rsi</span></div>
+
+
+<div class="viewcode-block" id="Technicals.macd">
+<a class="viewcode-back" href="../../../code/stockMarket.core.technicals.html#stockMarket.core.technicals.Technicals.macd">[docs]</a>
+    <span class="k">def</span> <span class="nf">macd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fast_period</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">12</span><span class="p">,</span> <span class="n">slow_period</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">26</span><span class="p">,</span> <span class="n">signal_period</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">9</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">macd</span> <span class="o">=</span> <span class="n">talib</span><span class="o">.</span><span class="n">MACD</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pricing_data</span><span class="o">.</span><span class="n">close</span><span class="p">,</span> <span class="n">fastperiod</span><span class="o">=</span><span class="n">fast_period</span><span class="p">,</span>
+                               <span class="n">slowperiod</span><span class="o">=</span><span class="n">slow_period</span><span class="p">,</span> <span class="n">signalperiod</span><span class="o">=</span><span class="n">signal_period</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">macd</span></div>
+
+
+<div class="viewcode-block" id="Technicals.bbands">
+<a class="viewcode-back" href="../../../code/stockMarket.core.technicals.html#stockMarket.core.technicals.Technicals.bbands">[docs]</a>
+    <span class="k">def</span> <span class="nf">bbands</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nbdevup</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">nbdevdn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">time_period</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bbands</span> <span class="o">=</span> <span class="n">talib</span><span class="o">.</span><span class="n">BBANDS</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pricing_data</span><span class="o">.</span><span class="n">close</span><span class="p">,</span> <span class="n">nbdevup</span><span class="o">=</span><span class="n">nbdevup</span><span class="p">,</span> <span class="n">nbdevdn</span><span class="o">=</span><span class="n">nbdevdn</span><span class="p">,</span> <span class="n">timeperiod</span><span class="o">=</span><span class="n">time_period</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">bbands</span></div>
+
+
+<div class="viewcode-block" id="Technicals.plot">
+<a class="viewcode-back" href="../../../code/stockMarket.core.technicals.html#stockMarket.core.technicals.Technicals.plot">[docs]</a>
+    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">logarithmic_scale</span><span class="o">=</span><span class="s2">&quot;linear&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">add_plots</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+            <span class="n">add_plots</span> <span class="o">+=</span> <span class="n">plot_map</span><span class="p">[</span><span class="n">key</span><span class="p">](</span><span class="n">value</span><span class="p">,</span> <span class="n">i</span><span class="o">+</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="n">bucket_size</span> <span class="o">=</span> <span class="mf">0.001</span> <span class="o">*</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pricing_data</span><span class="p">[</span><span class="s2">&quot;close&quot;</span><span class="p">])</span>
+        <span class="n">vol_profile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pricing_data</span><span class="p">[</span><span class="s2">&quot;volume&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pricing_data</span><span class="p">[</span><span class="s2">&quot;close&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">bucket_size</span> <span class="o">*</span> <span class="nb">round</span><span class="p">(</span><span class="n">x</span><span class="o">/</span><span class="n">bucket_size</span><span class="p">,</span> <span class="mi">0</span><span class="p">)))</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+
+        <span class="n">mc</span> <span class="o">=</span> <span class="n">mpf</span><span class="o">.</span><span class="n">make_marketcolors</span><span class="p">(</span><span class="n">base_mpf_style</span><span class="o">=</span><span class="s2">&quot;yahoo&quot;</span><span class="p">)</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">mpf</span><span class="o">.</span><span class="n">make_mpf_style</span><span class="p">(</span><span class="n">base_mpf_style</span><span class="o">=</span><span class="s2">&quot;yahoo&quot;</span><span class="p">,</span> <span class="n">marketcolors</span><span class="o">=</span><span class="n">mc</span><span class="p">)</span>
+
+        <span class="n">fig</span><span class="p">,</span> <span class="n">axlist</span> <span class="o">=</span> <span class="n">mpf</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pricing_data</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">&quot;candle&quot;</span><span class="p">,</span> <span class="n">addplot</span><span class="o">=</span><span class="n">add_plots</span><span class="p">,</span> <span class="n">returnfig</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                               <span class="n">warn_too_much_data</span><span class="o">=</span><span class="mi">10000</span><span class="p">,</span> <span class="n">volume</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="n">s</span><span class="p">,</span> <span class="n">figscale</span><span class="o">=</span><span class="mf">1.3</span><span class="p">,</span> <span class="n">yscale</span><span class="o">=</span><span class="n">logarithmic_scale</span><span class="p">)</span>
+        <span class="n">axlist</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ticker</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+        <span class="n">vpax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_axes</span><span class="p">(</span><span class="n">axlist</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_position</span><span class="p">())</span>
+        <span class="n">vpax</span><span class="o">.</span><span class="n">set_axis_off</span><span class="p">()</span>
+        <span class="n">vpax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">right</span><span class="o">=</span><span class="mf">1.2</span><span class="o">*</span><span class="nb">max</span><span class="p">(</span><span class="n">vol_profile</span><span class="o">.</span><span class="n">values</span><span class="p">))</span>
+        <span class="n">vpax</span><span class="o">.</span><span class="n">barh</span><span class="p">(</span><span class="n">vol_profile</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">vol_profile</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                  <span class="n">height</span><span class="o">=</span><span class="mf">0.75</span><span class="o">*</span><span class="n">bucket_size</span><span class="p">,</span> <span class="n">align</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.45</span><span class="p">)</span></div>
+</div>
+
+
+
+<span class="k">def</span> <span class="nf">_plot_rsi</span><span class="p">(</span><span class="n">rsi</span><span class="p">,</span> <span class="n">panel</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="n">add_plots</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">line30</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">rsi</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+    <span class="n">line70</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="mi">70</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">rsi</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+    <span class="c1">#fmt: off</span>
+    <span class="n">add_plots</span> <span class="o">+=</span> <span class="p">[</span><span class="n">mpf</span><span class="o">.</span><span class="n">make_addplot</span><span class="p">(</span><span class="n">rsi</span><span class="p">,</span> <span class="n">panel</span><span class="o">=</span><span class="n">panel</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;RSI&quot;</span><span class="p">)]</span>
+    <span class="n">add_plots</span> <span class="o">+=</span> <span class="p">[</span><span class="n">mpf</span><span class="o">.</span><span class="n">make_addplot</span><span class="p">(</span><span class="n">line30</span><span class="p">,</span> <span class="n">panel</span><span class="o">=</span><span class="n">panel</span><span class="p">,</span> <span class="n">secondary_y</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;g&#39;</span><span class="p">)]</span>
+    <span class="n">add_plots</span> <span class="o">+=</span> <span class="p">[</span><span class="n">mpf</span><span class="o">.</span><span class="n">make_addplot</span><span class="p">(</span><span class="n">line70</span><span class="p">,</span> <span class="n">panel</span><span class="o">=</span><span class="n">panel</span><span class="p">,</span> <span class="n">secondary_y</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)]</span>
+    <span class="c1">#fmt: on</span>
+    <span class="k">return</span> <span class="n">add_plots</span>
+
+
+<span class="k">def</span> <span class="nf">_plot_macd</span><span class="p">(</span><span class="n">macd</span><span class="p">,</span> <span class="n">panel</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+    <span class="n">add_plots</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">colormat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">macd</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;g&#39;</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span>
+
+    <span class="n">add_plots</span> <span class="o">+=</span> <span class="p">[</span><span class="n">mpf</span><span class="o">.</span><span class="n">make_addplot</span><span class="p">(</span><span class="n">macd</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">panel</span><span class="o">=</span><span class="n">panel</span><span class="p">,</span>
+                                   <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;MACD&quot;</span><span class="p">)]</span>
+    <span class="n">add_plots</span> <span class="o">+=</span> <span class="p">[</span><span class="n">mpf</span><span class="o">.</span><span class="n">make_addplot</span><span class="p">(</span><span class="n">macd</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">panel</span><span class="o">=</span><span class="n">panel</span><span class="p">,</span>
+                                   <span class="n">color</span><span class="o">=</span><span class="s1">&#39;orange&#39;</span><span class="p">,</span> <span class="n">secondary_y</span><span class="o">=</span><span class="kc">False</span><span class="p">)]</span>
+    <span class="n">add_plots</span> <span class="o">+=</span> <span class="p">[</span><span class="n">mpf</span><span class="o">.</span><span class="n">make_addplot</span><span class="p">(</span><span class="n">macd</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="nb">type</span><span class="o">=</span><span class="s1">&#39;bar&#39;</span><span class="p">,</span>
+                                   <span class="n">panel</span><span class="o">=</span><span class="n">panel</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">colormat</span><span class="p">,</span> <span class="n">secondary_y</span><span class="o">=</span><span class="kc">False</span><span class="p">)]</span>
+
+    <span class="k">return</span> <span class="n">add_plots</span>
+
+
+<span class="k">def</span> <span class="nf">_plot_bbands</span><span class="p">(</span><span class="n">bbands</span><span class="p">,</span> <span class="n">_</span><span class="p">):</span>
+    <span class="n">panel</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">add_plots</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">add_plots</span> <span class="o">+=</span> <span class="p">[</span><span class="n">mpf</span><span class="o">.</span><span class="n">make_addplot</span><span class="p">(</span><span class="n">bbands</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">panel</span><span class="o">=</span><span class="n">panel</span><span class="p">,</span>
+                                   <span class="n">color</span><span class="o">=</span><span class="s1">&#39;orange&#39;</span><span class="p">,</span> <span class="n">secondary_y</span><span class="o">=</span><span class="kc">False</span><span class="p">)]</span>
+    <span class="n">add_plots</span> <span class="o">+=</span> <span class="p">[</span><span class="n">mpf</span><span class="o">.</span><span class="n">make_addplot</span><span class="p">(</span><span class="n">bbands</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                                   <span class="n">panel</span><span class="o">=</span><span class="n">panel</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;blue&#39;</span><span class="p">,</span> <span class="n">secondary_y</span><span class="o">=</span><span class="kc">False</span><span class="p">)]</span>
+    <span class="n">add_plots</span> <span class="o">+=</span> <span class="p">[</span><span class="n">mpf</span><span class="o">.</span><span class="n">make_addplot</span><span class="p">(</span><span class="n">bbands</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">panel</span><span class="o">=</span><span class="n">panel</span><span class="p">,</span>
+                                   <span class="n">color</span><span class="o">=</span><span class="s1">&#39;orange&#39;</span><span class="p">,</span> <span class="n">secondary_y</span><span class="o">=</span><span class="kc">False</span><span class="p">)]</span>
+
+    <span class="k">return</span> <span class="n">add_plots</span>
+
+
+<span class="n">plot_map</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;rsi&quot;</span><span class="p">:</span> <span class="n">_plot_rsi</span><span class="p">,</span>
+    <span class="s2">&quot;macd&quot;</span><span class="p">:</span> <span class="n">_plot_macd</span><span class="p">,</span>
+    <span class="s2">&quot;bbands&quot;</span><span class="p">:</span> <span class="n">_plot_bbands</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Jakob Gamper, Benjamin Lantschner.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

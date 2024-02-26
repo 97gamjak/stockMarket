@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>stockMarket.ib.finReports &mdash; StockMarket  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=3e08eec4" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=eafc0fe6" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            StockMarket
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../financialStatments/financialStatments.html">Financial Statements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../code/stockMarket.html">Submodules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../code/stockMarket.html#subpackages">Subpackages</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">StockMarket</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">stockMarket.ib.finReports</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for stockMarket.ib.finReports</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">filecmp</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">from</span> <span class="nn">beartype.typing</span> <span class="kn">import</span> <span class="n">List</span>
+<span class="kn">from</span> <span class="nn">ib_insync</span> <span class="kn">import</span> <span class="n">IB</span><span class="p">,</span> <span class="n">util</span>
+<span class="kn">from</span> <span class="nn">ib_insync</span> <span class="kn">import</span> <span class="n">Contract</span> <span class="k">as</span> <span class="n">IBContract</span>
+<span class="kn">from</span> <span class="nn">xml.etree</span> <span class="kn">import</span> <span class="n">ElementTree</span> <span class="k">as</span> <span class="n">ET</span>
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+
+<span class="kn">from</span> <span class="nn">stockMarket</span> <span class="kn">import</span> <span class="n">__data_path__</span>
+<span class="kn">from</span> <span class="nn">stockMarket.core</span> <span class="kn">import</span> <span class="n">Contracts</span><span class="p">,</span> <span class="n">ContractListType</span><span class="p">,</span> <span class="n">BalanceSheet</span><span class="p">,</span> <span class="n">CashFlow</span><span class="p">,</span> <span class="n">init_income_class</span>
+
+<span class="n">data_path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">__data_path__</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s2">&quot;fin_statements&quot;</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span>
+<span class="n">data_backup_path</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">__data_path__</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s2">&quot;fin_statements/backup&quot;</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span>
+<span class="n">file_ending</span> <span class="o">=</span> <span class="s2">&quot;_fin_statements.xml&quot;</span>
+
+
+<div class="viewcode-block" id="FinReports">
+<a class="viewcode-back" href="../../../code/stockMarket.ib.finReports.html#stockMarket.ib.finReports.FinReports">[docs]</a>
+<span class="k">class</span> <span class="nc">FinReports</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">contracts</span><span class="p">:</span> <span class="n">ContractListType</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">contracts</span> <span class="o">=</span> <span class="n">Contracts</span><span class="p">(</span><span class="n">contracts</span><span class="p">)</span>
+
+<div class="viewcode-block" id="FinReports.populate_contracts">
+<a class="viewcode-back" href="../../../code/stockMarket.ib.finReports.html#stockMarket.ib.finReports.FinReports.populate_contracts">[docs]</a>
+    <span class="k">def</span> <span class="nf">populate_contracts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filenames</span> <span class="o">=</span> <span class="p">[</span><span class="n">data_path</span> <span class="o">+</span> <span class="n">contract</span><span class="o">.</span><span class="n">ticker</span> <span class="o">+</span>
+                          <span class="n">file_ending</span> <span class="k">for</span> <span class="n">contract</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">contracts</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">coa_map</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_coa_map</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">file</span><span class="p">,</span> <span class="n">contract</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filenames</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">contracts</span><span class="p">):</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">tree</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Ticker </span><span class="si">{</span><span class="n">contract</span><span class="o">.</span><span class="n">ticker</span><span class="si">}</span><span class="s2"> has no xml file in </span><span class="si">{</span><span class="n">data_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="n">root</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">getroot</span><span class="p">()</span>
+
+            <span class="n">coa_type</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;StatementInfo/COAType&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">income</span> <span class="o">=</span> <span class="n">init_income_class</span><span class="p">(</span><span class="n">coa_type</span><span class="o">=</span><span class="n">coa_type</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">balance</span> <span class="o">=</span> <span class="n">BalanceSheet</span><span class="p">(</span><span class="n">coa_type</span><span class="o">=</span><span class="n">coa_type</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cashflow</span> <span class="o">=</span> <span class="n">CashFlow</span><span class="p">(</span><span class="n">coa_type</span><span class="o">=</span><span class="n">coa_type</span><span class="p">)</span>
+
+            <span class="n">fin_statements_annual</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span>
+                <span class="s2">&quot;FinancialStatements/AnnualPeriods/FiscalPeriod/[@Type=&#39;Annual&#39;]&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_time_periods</span><span class="p">(</span><span class="n">fin_statements_annual</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_income_statement</span><span class="p">(</span><span class="n">fin_statements_annual</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_cashflow_statement</span><span class="p">(</span><span class="n">fin_statements_annual</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_balance_sheet</span><span class="p">(</span><span class="n">fin_statements_annual</span><span class="p">)</span>
+
+            <span class="n">contract</span><span class="o">.</span><span class="n">income</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">income</span>
+            <span class="n">contract</span><span class="o">.</span><span class="n">balance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">balance</span>
+            <span class="n">contract</span><span class="o">.</span><span class="n">cashflow</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cashflow</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">contracts</span></div>
+
+
+<div class="viewcode-block" id="FinReports.build_coa_map">
+<a class="viewcode-back" href="../../../code/stockMarket.ib.finReports.html#stockMarket.ib.finReports.FinReports.build_coa_map">[docs]</a>
+    <span class="k">def</span> <span class="nf">build_coa_map</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">coa_map</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">filenames</span><span class="p">:</span>
+            <span class="n">tree</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+            <span class="n">root</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">getroot</span><span class="p">()</span>
+            <span class="n">fin_statement</span> <span class="o">=</span> <span class="n">root</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;FinancialStatements&quot;</span><span class="p">)</span>
+            <span class="n">map_items</span> <span class="o">=</span> <span class="n">fin_statement</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s2">&quot;.//*[@coaItem]&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">map_item</span> <span class="ow">in</span> <span class="n">map_items</span><span class="p">:</span>
+                <span class="n">coa_map</span><span class="p">[</span><span class="n">map_item</span><span class="o">.</span><span class="n">text</span><span class="p">]</span> <span class="o">=</span> <span class="n">map_item</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;coaItem&quot;</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">coa_map</span></div>
+
+
+<div class="viewcode-block" id="FinReports.add_time_periods">
+<a class="viewcode-back" href="../../../code/stockMarket.ib.finReports.html#stockMarket.ib.finReports.FinReports.add_time_periods">[docs]</a>
+    <span class="k">def</span> <span class="nf">add_time_periods</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fin_statements_annual</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ET</span><span class="o">.</span><span class="n">Element</span><span class="p">]):</span>
+
+        <span class="n">fiscal_years</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;FiscalYear&quot;</span><span class="p">]</span>
+                        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">fin_statements_annual</span><span class="p">]</span>
+        <span class="n">fiscal_years</span> <span class="o">=</span> <span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">year</span><span class="p">)</span><span class="o">.</span><span class="n">year</span> <span class="k">for</span> <span class="n">year</span> <span class="ow">in</span> <span class="n">fiscal_years</span><span class="p">]</span>
+
+        <span class="n">fiscal_year_end_dates</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;EndDate&quot;</span><span class="p">]</span>
+                                 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">fin_statements_annual</span><span class="p">]</span>
+        <span class="n">fiscal_year_end_dates</span> <span class="o">=</span> <span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span>
+            <span class="n">date</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">()</span> <span class="k">for</span> <span class="n">date</span> <span class="ow">in</span> <span class="n">fiscal_year_end_dates</span><span class="p">]</span>
+
+        <span class="n">reporting_dates</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">find</span><span class="p">(</span>
+            <span class="s2">&quot;Statement/FPHeader/Source&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s2">&quot;Date&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">fin_statements_annual</span><span class="p">]</span>
+        <span class="n">reporting_dates</span> <span class="o">=</span> <span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span>
+            <span class="n">date</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">()</span> <span class="k">for</span> <span class="n">date</span> <span class="ow">in</span> <span class="n">reporting_dates</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">income</span><span class="o">.</span><span class="n">fiscal_years</span> <span class="o">=</span> <span class="n">fiscal_years</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">income</span><span class="o">.</span><span class="n">fiscal_year_end_dates</span> <span class="o">=</span> <span class="n">fiscal_year_end_dates</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">income</span><span class="o">.</span><span class="n">reporting_dates</span> <span class="o">=</span> <span class="n">reporting_dates</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">balance</span><span class="o">.</span><span class="n">fiscal_years</span> <span class="o">=</span> <span class="n">fiscal_years</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">balance</span><span class="o">.</span><span class="n">fiscal_year_end_dates</span> <span class="o">=</span> <span class="n">fiscal_year_end_dates</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">balance</span><span class="o">.</span><span class="n">reporting_dates</span> <span class="o">=</span> <span class="n">reporting_dates</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cashflow</span><span class="o">.</span><span class="n">fiscal_years</span> <span class="o">=</span> <span class="n">fiscal_years</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cashflow</span><span class="o">.</span><span class="n">fiscal_year_end_dates</span> <span class="o">=</span> <span class="n">fiscal_year_end_dates</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cashflow</span><span class="o">.</span><span class="n">reporting_dates</span> <span class="o">=</span> <span class="n">reporting_dates</span></div>
+
+
+<div class="viewcode-block" id="FinReports.get_financials">
+<a class="viewcode-back" href="../../../code/stockMarket.ib.finReports.html#stockMarket.ib.finReports.FinReports.get_financials">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_financials</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">et_element</span><span class="p">,</span> <span class="n">statement_type</span><span class="p">,</span> <span class="n">financial_statement</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">coa_item</span><span class="p">,</span> <span class="n">func</span> <span class="ow">in</span> <span class="n">financial_statement</span><span class="o">.</span><span class="n">coa_items</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">line_items</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Statement/[@Type=&#39;</span><span class="si">{</span><span class="n">statement_type</span><span class="si">}</span><span class="s2">&#39;]/lineItem/[@coaCode=&#39;</span><span class="si">{</span><span class="n">coa_item</span><span class="si">}</span><span class="s2">&#39;]&quot;</span><span class="p">)</span>
+                          <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">et_element</span><span class="p">]</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">line_item</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">line_items</span><span class="p">):</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">line_item</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+                              <span class="k">if</span> <span class="n">line_item</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+
+            <span class="n">func</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">result</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="FinReports.get_income_statement">
+<a class="viewcode-back" href="../../../code/stockMarket.ib.finReports.html#stockMarket.ib.finReports.FinReports.get_income_statement">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_income_statement</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">et_element</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ET</span><span class="o">.</span><span class="n">Element</span><span class="p">]):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">get_financials</span><span class="p">(</span><span class="n">et_element</span><span class="p">,</span> <span class="s2">&quot;INC&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">income</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FinReports.get_cashflow_statement">
+<a class="viewcode-back" href="../../../code/stockMarket.ib.finReports.html#stockMarket.ib.finReports.FinReports.get_cashflow_statement">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_cashflow_statement</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">et_element</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ET</span><span class="o">.</span><span class="n">Element</span><span class="p">]):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">get_financials</span><span class="p">(</span><span class="n">et_element</span><span class="p">,</span> <span class="s2">&quot;CAS&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cashflow</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FinReports.get_balance_sheet">
+<a class="viewcode-back" href="../../../code/stockMarket.ib.finReports.html#stockMarket.ib.finReports.FinReports.get_balance_sheet">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_balance_sheet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">et_element</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ET</span><span class="o">.</span><span class="n">Element</span><span class="p">]):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">get_financials</span><span class="p">(</span><span class="n">et_element</span><span class="p">,</span> <span class="s2">&quot;BAL&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">balance</span><span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="StoreXMLData">
+<a class="viewcode-back" href="../../../code/stockMarket.ib.finReports.html#stockMarket.ib.finReports.StoreXMLData">[docs]</a>
+<span class="k">class</span> <span class="nc">StoreXMLData</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">contracts</span><span class="p">:</span> <span class="n">ContractListType</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">contracts</span> <span class="o">=</span> <span class="n">Contracts</span><span class="p">(</span><span class="n">contracts</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tickers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">contracts</span><span class="o">.</span><span class="n">tickers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fin_statements</span> <span class="o">=</span> <span class="p">{}</span>
+
+<div class="viewcode-block" id="StoreXMLData.save_xml_data">
+<a class="viewcode-back" href="../../../code/stockMarket.ib.finReports.html#stockMarket.ib.finReports.StoreXMLData.save_xml_data">[docs]</a>
+    <span class="k">def</span> <span class="nf">save_xml_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_get_fin_statements</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_save_xml_files</span><span class="p">()</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_get_fin_statements</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">util</span><span class="o">.</span><span class="n">startLoop</span><span class="p">()</span>
+
+        <span class="n">app</span> <span class="o">=</span> <span class="n">IB</span><span class="p">()</span>
+        <span class="n">app</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">7497</span><span class="p">,</span>
+                    <span class="n">clientId</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">()</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">100000</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ib_contracts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">contract</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">contracts</span><span class="p">:</span>
+
+            <span class="n">c</span> <span class="o">=</span> <span class="n">IBContract</span><span class="p">()</span>
+            <span class="n">c</span><span class="o">.</span><span class="n">symbol</span> <span class="o">=</span> <span class="n">contract</span><span class="o">.</span><span class="n">ticker</span>
+            <span class="n">c</span><span class="o">.</span><span class="n">secType</span> <span class="o">=</span> <span class="s1">&#39;STK&#39;</span>
+            <span class="n">c</span><span class="o">.</span><span class="n">exchange</span> <span class="o">=</span> <span class="s2">&quot;SMART&quot;</span>
+            <span class="n">c</span><span class="o">.</span><span class="n">currency</span> <span class="o">=</span> <span class="s2">&quot;USD&quot;</span>
+
+            <span class="k">if</span> <span class="n">contract</span><span class="o">.</span><span class="n">currency</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+                <span class="n">c</span><span class="o">.</span><span class="n">currency</span> <span class="o">=</span> <span class="n">contract</span><span class="o">.</span><span class="n">currency</span>
+
+            <span class="k">if</span> <span class="n">contract</span><span class="o">.</span><span class="n">exchange</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+                <span class="n">c</span><span class="o">.</span><span class="n">exchange</span> <span class="o">=</span> <span class="n">contract</span><span class="o">.</span><span class="n">exchange</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">ib_contracts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_clean_up_contracts</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">contract</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ib_contracts</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Downloading XML data&quot;</span><span class="p">):</span>
+
+            <span class="n">ticker</span> <span class="o">=</span> <span class="n">contract</span><span class="o">.</span><span class="n">symbol</span>
+            <span class="k">if</span> <span class="n">ticker</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">keep_dots_tickers</span><span class="p">:</span>
+                <span class="n">contract</span><span class="o">.</span><span class="n">symbol</span> <span class="o">=</span> <span class="n">contract</span><span class="o">.</span><span class="n">symbol</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="n">contract</span><span class="o">.</span><span class="n">symbol</span> <span class="o">=</span> <span class="n">contract</span><span class="o">.</span><span class="n">symbol</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;.&quot;</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">fin_statements</span><span class="p">[</span><span class="n">ticker</span><span class="p">]</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">reqFundamentalData</span><span class="p">(</span>
+                <span class="n">contract</span><span class="p">,</span> <span class="s1">&#39;ReportsFinStatements&#39;</span><span class="p">,</span> <span class="p">[])</span>
+
+        <span class="n">app</span><span class="o">.</span><span class="n">disconnect</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_save_xml_files</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="k">for</span> <span class="n">ticker</span><span class="p">,</span> <span class="n">xml</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fin_statements</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Saving XML files&quot;</span><span class="p">):</span>
+
+            <span class="n">ticker</span> <span class="o">=</span> <span class="n">ticker</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;.&quot;</span><span class="p">)</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">tree</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">XML</span><span class="p">(</span><span class="n">xml</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Ticker </span><span class="si">{</span><span class="n">ticker</span><span class="si">}</span><span class="s2"> has no data&quot;</span><span class="p">)</span>
+
+            <span class="n">target_file</span> <span class="o">=</span> <span class="n">data_path</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">ticker</span><span class="p">)</span> <span class="o">+</span> <span class="n">file_ending</span>
+            <span class="n">target_test_file</span> <span class="o">=</span> <span class="n">data_path</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">ticker</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;_test&quot;</span>
+            <span class="n">target_backup_file</span> <span class="o">=</span> <span class="n">data_backup_path</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">ticker</span><span class="p">)</span> <span class="o">+</span> <span class="n">file_ending</span>
+
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">data_path</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">ticker</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;_test&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">ET</span><span class="o">.</span><span class="n">tostring</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;unicode&quot;</span><span class="p">))</span>
+
+            <span class="n">file_exists</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">target_file</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">file_exists</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">filecmp</span><span class="o">.</span><span class="n">cmp</span><span class="p">(</span><span class="n">target_file</span><span class="p">,</span> <span class="n">target_test_file</span><span class="p">):</span>
+                    <span class="n">shutil</span><span class="o">.</span><span class="n">copyfile</span><span class="p">(</span><span class="n">target_file</span><span class="p">,</span> <span class="n">target_backup_file</span><span class="p">)</span>
+                    <span class="n">shutil</span><span class="o">.</span><span class="n">copyfile</span><span class="p">(</span><span class="n">target_test_file</span><span class="p">,</span> <span class="n">target_file</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">shutil</span><span class="o">.</span><span class="n">copyfile</span><span class="p">(</span><span class="n">target_test_file</span><span class="p">,</span> <span class="n">target_file</span><span class="p">)</span>
+
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">target_test_file</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">alias_ticker</span><span class="p">,</span> <span class="n">original_ticker</span> <span class="ow">in</span> <span class="n">same_company_tickers</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">original_ticker</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">fin_statements</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">alias_ticker</span> <span class="o">=</span> <span class="n">alias_ticker</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;.&quot;</span><span class="p">)</span>
+                <span class="n">original_ticker</span> <span class="o">=</span> <span class="n">original_ticker</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;.&quot;</span><span class="p">)</span>
+
+                <span class="n">shutil</span><span class="o">.</span><span class="n">copyfile</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">data_path</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">original_ticker</span><span class="p">)</span> <span class="o">+</span> <span class="n">file_ending</span><span class="p">),</span>
+                                <span class="nb">str</span><span class="p">(</span><span class="n">data_path</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">alias_ticker</span><span class="p">)</span> <span class="o">+</span> <span class="n">file_ending</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">_clean_up_contracts</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">contract</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ib_contracts</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">contract</span><span class="o">.</span><span class="n">symbol</span> <span class="ow">in</span> <span class="n">same_company_tickers</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">contract</span><span class="o">.</span><span class="n">symbol</span> <span class="o">=</span> <span class="n">same_company_tickers</span><span class="p">[</span><span class="n">contract</span><span class="o">.</span><span class="n">symbol</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">contract</span><span class="o">.</span><span class="n">symbol</span> <span class="ow">in</span> <span class="n">primary_exchange_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">contract</span><span class="o">.</span><span class="n">primaryExchange</span> <span class="o">=</span> <span class="n">primary_exchange_dict</span><span class="p">[</span><span class="n">contract</span><span class="o">.</span><span class="n">symbol</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">contract</span><span class="o">.</span><span class="n">symbol</span> <span class="ow">in</span> <span class="n">alternative_tickers</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">contract</span><span class="o">.</span><span class="n">symbol</span> <span class="o">=</span> <span class="n">alternative_tickers</span><span class="p">[</span><span class="n">contract</span><span class="o">.</span><span class="n">symbol</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">contract</span><span class="o">.</span><span class="n">currency</span> <span class="o">==</span> <span class="s2">&quot;PLN&quot;</span><span class="p">:</span>
+                <span class="n">contract</span><span class="o">.</span><span class="n">exchange</span> <span class="o">=</span> <span class="s2">&quot;WSE&quot;</span></div>
+
+
+
+<span class="n">keep_dots_tickers</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;AV.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;SSAB.A&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;BA.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;TW.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;JD.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;HL.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;RR.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;BP.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;QQ.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;SN.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;UU.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;NG.&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">same_company_tickers</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;BRK.B&quot;</span><span class="p">:</span> <span class="s2">&quot;BRK A&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;GOOG&quot;</span><span class="p">:</span> <span class="s2">&quot;GOOGL&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;FOX&quot;</span><span class="p">:</span> <span class="s2">&quot;FOXA&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;NWS&quot;</span><span class="p">:</span> <span class="s2">&quot;NWSA&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">alternative_tickers</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;BF.B&quot;</span><span class="p">:</span> <span class="s2">&quot;BF B&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;AV.L&quot;</span><span class="p">:</span> <span class="s2">&quot;AV.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;SSAB-B.ST&quot;</span><span class="p">:</span> <span class="s2">&quot;SSAB.A&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;BA.L&quot;</span><span class="p">:</span> <span class="s2">&quot;BA.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;TW.L&quot;</span><span class="p">:</span> <span class="s2">&quot;TW.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;STLA&quot;</span><span class="p">:</span> <span class="s2">&quot;STLAP&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;JD.L&quot;</span><span class="p">:</span> <span class="s2">&quot;JD.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;HL.L&quot;</span><span class="p">:</span> <span class="s2">&quot;HL.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;RR.L&quot;</span><span class="p">:</span> <span class="s2">&quot;RR.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;BP.L&quot;</span><span class="p">:</span> <span class="s2">&quot;BP.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;QQ.L&quot;</span><span class="p">:</span> <span class="s2">&quot;QQ.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;SN.L&quot;</span><span class="p">:</span> <span class="s2">&quot;SN.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;UU.L&quot;</span><span class="p">:</span> <span class="s2">&quot;UU.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;NG.L&quot;</span><span class="p">:</span> <span class="s2">&quot;NG.&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">primary_exchange_dict</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;ABNB&quot;</span><span class="p">:</span> <span class="s2">&quot;NASDAQ&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;CAT&quot;</span><span class="p">:</span> <span class="s2">&quot;NYSE&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;CSCO&quot;</span><span class="p">:</span> <span class="s2">&quot;NASDAQ&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;FANG&quot;</span><span class="p">:</span> <span class="s2">&quot;NASDAQ&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;IBM&quot;</span><span class="p">:</span> <span class="s2">&quot;NYSE&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;KEYS&quot;</span><span class="p">:</span> <span class="s2">&quot;NYSE&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;META&quot;</span><span class="p">:</span> <span class="s2">&quot;NASDAQ&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;WELL&quot;</span><span class="p">:</span> <span class="s2">&quot;NYSE&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Jakob Gamper, Benjamin Lantschner.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

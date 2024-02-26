@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>balance &mdash; StockMarket  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=3e08eec4" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=eafc0fe6" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="cashflow" href="stockMarket.core.financialStatement.cashflow.html" />
+    <link rel="prev" title="core.financialStatement" href="stockMarket.core.financialStatement.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            StockMarket
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../financialStatments/financialStatments.html">Financial Statements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stockMarket.html">Submodules</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="stockMarket.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="stockMarket.core.html">core</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="stockMarket.core.api.html">api</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stockMarket.core.contract.html">contract</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stockMarket.core.contracts.html">contracts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stockMarket.core.pricing.html">pricing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stockMarket.core.screener.html">screener</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stockMarket.core.technicals.html">technicals</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stockMarket.core.tickerGenerator.html">tickerGenerator</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="stockMarket.core.financialStatement.html">core.financialStatement</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#">balance</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stockMarket.core.financialStatement.cashflow.html">cashflow</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stockMarket.core.financialStatement.income.html">income</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="stockMarket.ib.html">ib</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stockMarket.ranking.html">ranking</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stockMarket.utils.html">utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stockMarket.yfinance.html">yfinance</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">StockMarket</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="stockMarket.html">Submodules</a></li>
+          <li class="breadcrumb-item"><a href="stockMarket.core.html">core</a></li>
+          <li class="breadcrumb-item"><a href="stockMarket.core.financialStatement.html">core.financialStatement</a></li>
+      <li class="breadcrumb-item active">balance</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/code/stockMarket.core.financialStatement.balance.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-stockMarket.core.financialStatement.balance">
+<span id="balance"></span><h1>balance<a class="headerlink" href="#module-stockMarket.core.financialStatement.balance" title="Link to this heading"></a></h1>
+<section id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Link to this heading"></a></h2>
+<p>Classes:</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#stockMarket.core.financialStatement.balance.BalanceSheet" title="stockMarket.core.financialStatement.balance.BalanceSheet"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BalanceSheet</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="reference">
+<h2>Reference<a class="headerlink" href="#reference" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.balance.BalanceSheet">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">BalanceSheet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/stockMarket/core/financialStatement/balance.html#BalanceSheet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#stockMarket.core.financialStatement.balance.BalanceSheet" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">FinancialStatementBase</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.balance.BalanceSheet.set_accrued_expenses">
+<span class="sig-name descname"><span class="pre">set_accrued_expenses</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockMarket.core.financialStatement.balance.BalanceSheet.set_accrued_expenses" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.balance.BalanceSheet.set_book_value_per_share">
+<span class="sig-name descname"><span class="pre">set_book_value_per_share</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockMarket.core.financialStatement.balance.BalanceSheet.set_book_value_per_share" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.balance.BalanceSheet.set_cash">
+<span class="sig-name descname"><span class="pre">set_cash</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockMarket.core.financialStatement.balance.BalanceSheet.set_cash" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.balance.BalanceSheet.set_cash_equivalents">
+<span class="sig-name descname"><span class="pre">set_cash_equivalents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockMarket.core.financialStatement.balance.BalanceSheet.set_cash_equivalents" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.balance.BalanceSheet.set_common_stocK_equity">
+<span class="sig-name descname"><span class="pre">set_common_stocK_equity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockMarket.core.financialStatement.balance.BalanceSheet.set_common_stocK_equity" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.balance.BalanceSheet.set_current_portion_of_long_term_debt_and_capital_lease_obligations">
+<span class="sig-name descname"><span class="pre">set_current_portion_of_long_term_debt_and_capital_lease_obligations</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span><a class="headerlink" href="#stockMarket.core.financialStatement.balance.BalanceSheet.set_current_portion_of_long_term_debt_and_capital_lease_obligations" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.balance.BalanceSheet.set_goodwill">
+<span class="sig-name descname"><span class="pre">set_goodwill</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockMarket.core.financialStatement.balance.BalanceSheet.set_goodwill" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.balance.BalanceSheet.set_other_current_assets">
+<span class="sig-name descname"><span class="pre">set_other_current_assets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockMarket.core.financialStatement.balance.BalanceSheet.set_other_current_assets" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.balance.BalanceSheet.set_prepaid_expenses">
+<span class="sig-name descname"><span class="pre">set_prepaid_expenses</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockMarket.core.financialStatement.balance.BalanceSheet.set_prepaid_expenses" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.balance.BalanceSheet.set_short_term_debt">
+<span class="sig-name descname"><span class="pre">set_short_term_debt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockMarket.core.financialStatement.balance.BalanceSheet.set_short_term_debt" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.balance.BalanceSheet.set_short_term_investments">
+<span class="sig-name descname"><span class="pre">set_short_term_investments</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockMarket.core.financialStatement.balance.BalanceSheet.set_short_term_investments" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.balance.BalanceSheet.set_total_assets">
+<span class="sig-name descname"><span class="pre">set_total_assets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockMarket.core.financialStatement.balance.BalanceSheet.set_total_assets" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.balance.BalanceSheet.set_total_debt">
+<span class="sig-name descname"><span class="pre">set_total_debt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockMarket.core.financialStatement.balance.BalanceSheet.set_total_debt" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.balance.BalanceSheet.set_total_inventory">
+<span class="sig-name descname"><span class="pre">set_total_inventory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockMarket.core.financialStatement.balance.BalanceSheet.set_total_inventory" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.balance.BalanceSheet.set_total_liabilities">
+<span class="sig-name descname"><span class="pre">set_total_liabilities</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockMarket.core.financialStatement.balance.BalanceSheet.set_total_liabilities" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.balance.BalanceSheet.set_total_long_term_debt">
+<span class="sig-name descname"><span class="pre">set_total_long_term_debt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockMarket.core.financialStatement.balance.BalanceSheet.set_total_long_term_debt" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.balance.BalanceSheet.set_total_outstanding_shares_common_stock">
+<span class="sig-name descname"><span class="pre">set_total_outstanding_shares_common_stock</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span><a class="headerlink" href="#stockMarket.core.financialStatement.balance.BalanceSheet.set_total_outstanding_shares_common_stock" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.balance.BalanceSheet.set_total_receivables_net">
+<span class="sig-name descname"><span class="pre">set_total_receivables_net</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockMarket.core.financialStatement.balance.BalanceSheet.set_total_receivables_net" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.balance.BalanceSheet.accrued_expenses">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">accrued_expenses</span></span><a class="headerlink" href="#stockMarket.core.financialStatement.balance.BalanceSheet.accrued_expenses" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.balance.BalanceSheet.asset_coverage_ratio">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">asset_coverage_ratio</span></span><a class="headerlink" href="#stockMarket.core.financialStatement.balance.BalanceSheet.asset_coverage_ratio" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.balance.BalanceSheet.book_value_per_share">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">book_value_per_share</span></span><a class="headerlink" href="#stockMarket.core.financialStatement.balance.BalanceSheet.book_value_per_share" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.balance.BalanceSheet.cash">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cash</span></span><a class="headerlink" href="#stockMarket.core.financialStatement.balance.BalanceSheet.cash" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.balance.BalanceSheet.cash_and_short_term_investments">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cash_and_short_term_investments</span></span><a class="headerlink" href="#stockMarket.core.financialStatement.balance.BalanceSheet.cash_and_short_term_investments" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.balance.BalanceSheet.cash_equivalents">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cash_equivalents</span></span><a class="headerlink" href="#stockMarket.core.financialStatement.balance.BalanceSheet.cash_equivalents" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.balance.BalanceSheet.coa_items">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">coa_items</span></span><a class="headerlink" href="#stockMarket.core.financialStatement.balance.BalanceSheet.coa_items" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.balance.BalanceSheet.common_stocK_equity">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">common_stocK_equity</span></span><a class="headerlink" href="#stockMarket.core.financialStatement.balance.BalanceSheet.common_stocK_equity" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.balance.BalanceSheet.current_portion_of_long_term_debt_and_capital_lease_obligations">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">current_portion_of_long_term_debt_and_capital_lease_obligations</span></span><a class="headerlink" href="#stockMarket.core.financialStatement.balance.BalanceSheet.current_portion_of_long_term_debt_and_capital_lease_obligations" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.balance.BalanceSheet.equity">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">equity</span></span><a class="headerlink" href="#stockMarket.core.financialStatement.balance.BalanceSheet.equity" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.balance.BalanceSheet.equity_ratio">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">equity_ratio</span></span><a class="headerlink" href="#stockMarket.core.financialStatement.balance.BalanceSheet.equity_ratio" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.balance.BalanceSheet.equity_shareholders">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">equity_shareholders</span></span><a class="headerlink" href="#stockMarket.core.financialStatement.balance.BalanceSheet.equity_shareholders" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.balance.BalanceSheet.gearing">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gearing</span></span><a class="headerlink" href="#stockMarket.core.financialStatement.balance.BalanceSheet.gearing" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.balance.BalanceSheet.goodwill">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">goodwill</span></span><a class="headerlink" href="#stockMarket.core.financialStatement.balance.BalanceSheet.goodwill" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.balance.BalanceSheet.goodwill_ratio">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">goodwill_ratio</span></span><a class="headerlink" href="#stockMarket.core.financialStatement.balance.BalanceSheet.goodwill_ratio" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.balance.BalanceSheet.other_current_assets">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">other_current_assets</span></span><a class="headerlink" href="#stockMarket.core.financialStatement.balance.BalanceSheet.other_current_assets" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.balance.BalanceSheet.prepaid_expenses">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">prepaid_expenses</span></span><a class="headerlink" href="#stockMarket.core.financialStatement.balance.BalanceSheet.prepaid_expenses" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.balance.BalanceSheet.short_term_debt">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">short_term_debt</span></span><a class="headerlink" href="#stockMarket.core.financialStatement.balance.BalanceSheet.short_term_debt" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.balance.BalanceSheet.short_term_investments">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">short_term_investments</span></span><a class="headerlink" href="#stockMarket.core.financialStatement.balance.BalanceSheet.short_term_investments" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.balance.BalanceSheet.third_order_liquidity">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">third_order_liquidity</span></span><a class="headerlink" href="#stockMarket.core.financialStatement.balance.BalanceSheet.third_order_liquidity" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.balance.BalanceSheet.total_assets">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">total_assets</span></span><a class="headerlink" href="#stockMarket.core.financialStatement.balance.BalanceSheet.total_assets" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.balance.BalanceSheet.total_current_assets">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">total_current_assets</span></span><a class="headerlink" href="#stockMarket.core.financialStatement.balance.BalanceSheet.total_current_assets" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.balance.BalanceSheet.total_debt">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">total_debt</span></span><a class="headerlink" href="#stockMarket.core.financialStatement.balance.BalanceSheet.total_debt" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.balance.BalanceSheet.total_inventory">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">total_inventory</span></span><a class="headerlink" href="#stockMarket.core.financialStatement.balance.BalanceSheet.total_inventory" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.balance.BalanceSheet.total_liabilities">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">total_liabilities</span></span><a class="headerlink" href="#stockMarket.core.financialStatement.balance.BalanceSheet.total_liabilities" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.balance.BalanceSheet.total_long_term_debt">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">total_long_term_debt</span></span><a class="headerlink" href="#stockMarket.core.financialStatement.balance.BalanceSheet.total_long_term_debt" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.balance.BalanceSheet.total_non_current_assets">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">total_non_current_assets</span></span><a class="headerlink" href="#stockMarket.core.financialStatement.balance.BalanceSheet.total_non_current_assets" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.balance.BalanceSheet.total_outstanding_shares_common_stock">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">total_outstanding_shares_common_stock</span></span><a class="headerlink" href="#stockMarket.core.financialStatement.balance.BalanceSheet.total_outstanding_shares_common_stock" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.balance.BalanceSheet.total_receivables_net">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">total_receivables_net</span></span><a class="headerlink" href="#stockMarket.core.financialStatement.balance.BalanceSheet.total_receivables_net" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.balance.BalanceSheet.total_short_term_debt">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">total_short_term_debt</span></span><a class="headerlink" href="#stockMarket.core.financialStatement.balance.BalanceSheet.total_short_term_debt" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="stockMarket.core.financialStatement.html" class="btn btn-neutral float-left" title="core.financialStatement" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="stockMarket.core.financialStatement.cashflow.html" class="btn btn-neutral float-right" title="cashflow" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Jakob Gamper, Benjamin Lantschner.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

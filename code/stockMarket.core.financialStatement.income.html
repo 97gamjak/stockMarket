@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>income &mdash; StockMarket  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=3e08eec4" />
+      <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=eafc0fe6" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../_static/doctools.js?v=888ff710"></script>
+        <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="ib" href="stockMarket.ib.html" />
+    <link rel="prev" title="cashflow" href="stockMarket.core.financialStatement.cashflow.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            StockMarket
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../financialStatments/financialStatments.html">Financial Statements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stockMarket.html">Submodules</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="stockMarket.html#subpackages">Subpackages</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="stockMarket.core.html">core</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="stockMarket.core.api.html">api</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stockMarket.core.contract.html">contract</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stockMarket.core.contracts.html">contracts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stockMarket.core.pricing.html">pricing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stockMarket.core.screener.html">screener</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stockMarket.core.technicals.html">technicals</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stockMarket.core.tickerGenerator.html">tickerGenerator</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="stockMarket.core.financialStatement.html">core.financialStatement</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="stockMarket.core.financialStatement.balance.html">balance</a></li>
+<li class="toctree-l4"><a class="reference internal" href="stockMarket.core.financialStatement.cashflow.html">cashflow</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">income</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="stockMarket.ib.html">ib</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stockMarket.ranking.html">ranking</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stockMarket.utils.html">utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="stockMarket.yfinance.html">yfinance</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">StockMarket</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="stockMarket.html">Submodules</a></li>
+          <li class="breadcrumb-item"><a href="stockMarket.core.html">core</a></li>
+          <li class="breadcrumb-item"><a href="stockMarket.core.financialStatement.html">core.financialStatement</a></li>
+      <li class="breadcrumb-item active">income</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/code/stockMarket.core.financialStatement.income.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-stockMarket.core.financialStatement.income">
+<span id="income"></span><h1>income<a class="headerlink" href="#module-stockMarket.core.financialStatement.income" title="Link to this heading"></a></h1>
+<section id="summary">
+<h2>Summary<a class="headerlink" href="#summary" title="Link to this heading"></a></h2>
+<p>Classes:</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#stockMarket.core.financialStatement.income.Income" title="stockMarket.core.financialStatement.income.Income"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Income</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#stockMarket.core.financialStatement.income.IncomeBank" title="stockMarket.core.financialStatement.income.IncomeBank"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IncomeBank</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#stockMarket.core.financialStatement.income.IncomeIndustry" title="stockMarket.core.financialStatement.income.IncomeIndustry"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IncomeIndustry</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+<p>Functions:</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#stockMarket.core.financialStatement.income.init_income_class" title="stockMarket.core.financialStatement.income.init_income_class"><code class="xref py py-obj docutils literal notranslate"><span class="pre">init_income_class</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="reference">
+<h2>Reference<a class="headerlink" href="#reference" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.income.Income">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Income</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/stockMarket/core/financialStatement/income.html#Income"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#stockMarket.core.financialStatement.income.Income" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">FinancialStatementBase</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.income.Income.set_net_income">
+<span class="sig-name descname"><span class="pre">set_net_income</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockMarket.core.financialStatement.income.Income.set_net_income" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.income.Income.coa_items">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">coa_items</span></span><a class="headerlink" href="#stockMarket.core.financialStatement.income.Income.coa_items" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.income.Income.ebit_margin">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ebit_margin</span></span><a class="headerlink" href="#stockMarket.core.financialStatement.income.Income.ebit_margin" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.income.Income.net_income">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">net_income</span></span><a class="headerlink" href="#stockMarket.core.financialStatement.income.Income.net_income" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.income.Income.netto_margin">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">netto_margin</span></span><a class="headerlink" href="#stockMarket.core.financialStatement.income.Income.netto_margin" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.income.IncomeBank">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">IncomeBank</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/stockMarket/core/financialStatement/income.html#IncomeBank"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#stockMarket.core.financialStatement.income.IncomeBank" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#stockMarket.core.financialStatement.income.Income" title="stockMarket.core.financialStatement.income.Income"><code class="xref py py-class docutils literal notranslate"><span class="pre">Income</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.income.IncomeBank.set_interest_income">
+<span class="sig-name descname"><span class="pre">set_interest_income</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockMarket.core.financialStatement.income.IncomeBank.set_interest_income" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.income.IncomeBank.set_net_interest_income">
+<span class="sig-name descname"><span class="pre">set_net_interest_income</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockMarket.core.financialStatement.income.IncomeBank.set_net_interest_income" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.income.IncomeBank.set_non_interest_income">
+<span class="sig-name descname"><span class="pre">set_non_interest_income</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockMarket.core.financialStatement.income.IncomeBank.set_non_interest_income" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.income.IncomeBank.coa_items">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">coa_items</span></span><a class="headerlink" href="#stockMarket.core.financialStatement.income.IncomeBank.coa_items" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.income.IncomeBank.ebit">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ebit</span></span><a class="headerlink" href="#stockMarket.core.financialStatement.income.IncomeBank.ebit" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.income.IncomeBank.interest_income">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">interest_income</span></span><a class="headerlink" href="#stockMarket.core.financialStatement.income.IncomeBank.interest_income" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.income.IncomeBank.net_interest_income">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">net_interest_income</span></span><a class="headerlink" href="#stockMarket.core.financialStatement.income.IncomeBank.net_interest_income" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.income.IncomeBank.non_interest_income">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">non_interest_income</span></span><a class="headerlink" href="#stockMarket.core.financialStatement.income.IncomeBank.non_interest_income" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.income.IncomeBank.revenue">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">revenue</span></span><a class="headerlink" href="#stockMarket.core.financialStatement.income.IncomeBank.revenue" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.income.IncomeIndustry">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">IncomeIndustry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/stockMarket/core/financialStatement/income.html#IncomeIndustry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#stockMarket.core.financialStatement.income.IncomeIndustry" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#stockMarket.core.financialStatement.income.Income" title="stockMarket.core.financialStatement.income.Income"><code class="xref py py-class docutils literal notranslate"><span class="pre">Income</span></code></a></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.income.IncomeIndustry.set_depreciation_amortization">
+<span class="sig-name descname"><span class="pre">set_depreciation_amortization</span></span><span class="sig-paren">(</span>
+
+<dl>
+<dd><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>,</dd>
+</dl>
+
+<span class="sig-paren">)</span><a class="headerlink" href="#stockMarket.core.financialStatement.income.IncomeIndustry.set_depreciation_amortization" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.income.IncomeIndustry.set_gross_profit">
+<span class="sig-name descname"><span class="pre">set_gross_profit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockMarket.core.financialStatement.income.IncomeIndustry.set_gross_profit" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.income.IncomeIndustry.set_research_development">
+<span class="sig-name descname"><span class="pre">set_research_development</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockMarket.core.financialStatement.income.IncomeIndustry.set_research_development" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.income.IncomeIndustry.set_revenue">
+<span class="sig-name descname"><span class="pre">set_revenue</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockMarket.core.financialStatement.income.IncomeIndustry.set_revenue" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.income.IncomeIndustry.set_selling_general_admin">
+<span class="sig-name descname"><span class="pre">set_selling_general_admin</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockMarket.core.financialStatement.income.IncomeIndustry.set_selling_general_admin" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.income.IncomeIndustry.set_total_operating_expenses">
+<span class="sig-name descname"><span class="pre">set_total_operating_expenses</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#stockMarket.core.financialStatement.income.IncomeIndustry.set_total_operating_expenses" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.income.IncomeIndustry.coa_items">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">coa_items</span></span><a class="headerlink" href="#stockMarket.core.financialStatement.income.IncomeIndustry.coa_items" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.income.IncomeIndustry.depreciation_amortization">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">depreciation_amortization</span></span><a class="headerlink" href="#stockMarket.core.financialStatement.income.IncomeIndustry.depreciation_amortization" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.income.IncomeIndustry.ebit">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">ebit</span></span><a class="headerlink" href="#stockMarket.core.financialStatement.income.IncomeIndustry.ebit" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.income.IncomeIndustry.gross_profit">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">gross_profit</span></span><a class="headerlink" href="#stockMarket.core.financialStatement.income.IncomeIndustry.gross_profit" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.income.IncomeIndustry.research_development">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">research_development</span></span><a class="headerlink" href="#stockMarket.core.financialStatement.income.IncomeIndustry.research_development" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.income.IncomeIndustry.revenue">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">revenue</span></span><a class="headerlink" href="#stockMarket.core.financialStatement.income.IncomeIndustry.revenue" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.income.IncomeIndustry.selling_general_admin">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">selling_general_admin</span></span><a class="headerlink" href="#stockMarket.core.financialStatement.income.IncomeIndustry.selling_general_admin" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.income.IncomeIndustry.total_operating_expenses">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">total_operating_expenses</span></span><a class="headerlink" href="#stockMarket.core.financialStatement.income.IncomeIndustry.total_operating_expenses" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="stockMarket.core.financialStatement.income.init_income_class">
+<span class="sig-name descname"><span class="pre">init_income_class</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coa_type</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/stockMarket/core/financialStatement/income.html#init_income_class"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#stockMarket.core.financialStatement.income.init_income_class" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="stockMarket.core.financialStatement.cashflow.html" class="btn btn-neutral float-left" title="cashflow" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="stockMarket.ib.html" class="btn btn-neutral float-right" title="ib" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Jakob Gamper, Benjamin Lantschner.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

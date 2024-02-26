@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>stockMarket.core.tickerGenerator &mdash; StockMarket  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=3e08eec4" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=eafc0fe6" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            StockMarket
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../financialStatments/financialStatments.html">Financial Statements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../code/stockMarket.html">Submodules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../code/stockMarket.html#subpackages">Subpackages</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">StockMarket</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">stockMarket.core.tickerGenerator</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for stockMarket.core.tickerGenerator</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+<span class="kn">from</span> <span class="nn">beartype.typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="kn">from</span> <span class="nn">stockMarket</span> <span class="kn">import</span> <span class="n">__data_path__</span>
+<span class="kn">from</span> <span class="nn">stockMarket.config</span> <span class="kn">import</span> <span class="n">tickers_to_ignore</span><span class="p">,</span> <span class="n">tickers_to_change_name</span>
+
+
+<div class="viewcode-block" id="get_tickers_from_index">
+<a class="viewcode-back" href="../../../code/stockMarket.core.tickerGenerator.html#stockMarket.core.tickerGenerator.get_tickers_from_index">[docs]</a>
+<span class="k">def</span> <span class="nf">get_tickers_from_index</span><span class="p">(</span><span class="n">index</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">return</span> <span class="n">TickerGenerator</span><span class="p">(</span><span class="n">index</span><span class="p">)</span><span class="o">.</span><span class="n">generate_tickers</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="get_ticker_from_isin">
+<a class="viewcode-back" href="../../../code/stockMarket.core.tickerGenerator.html#stockMarket.core.tickerGenerator.get_ticker_from_isin">[docs]</a>
+<span class="k">def</span> <span class="nf">get_ticker_from_isin</span><span class="p">(</span><span class="n">isin</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="n">url</span> <span class="o">=</span> <span class="s1">&#39;https://query1.finance.yahoo.com/v1/finance/search&#39;</span>
+
+    <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;User-Agent&#39;</span><span class="p">:</span> <span class="s1">&#39;Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.109 Safari/537.36&#39;</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="n">params</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+        <span class="n">q</span><span class="o">=</span><span class="n">isin</span><span class="p">,</span>
+        <span class="n">quotesCount</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">newsCount</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">listCount</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">quotesQueryId</span><span class="o">=</span><span class="s1">&#39;tss_match_phrase_query&#39;</span>
+    <span class="p">)</span>
+
+    <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+    <span class="k">if</span> <span class="s2">&quot;quotes&quot;</span> <span class="ow">in</span> <span class="n">data</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;quotes&quot;</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">ticker</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;quotes&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;symbol&quot;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ISIN </span><span class="si">{</span><span class="n">isin</span><span class="si">}</span><span class="s2"> not found&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ticker</span></div>
+
+
+
+<div class="viewcode-block" id="get_currencies_from_index">
+<a class="viewcode-back" href="../../../code/stockMarket.core.tickerGenerator.html#stockMarket.core.tickerGenerator.get_currencies_from_index">[docs]</a>
+<span class="k">def</span> <span class="nf">get_currencies_from_index</span><span class="p">(</span><span class="n">index</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+    <span class="k">return</span> <span class="n">TickerGenerator</span><span class="p">(</span><span class="n">index</span><span class="p">)</span><span class="o">.</span><span class="n">generate_currencies</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="TickerGenerator">
+<a class="viewcode-back" href="../../../code/stockMarket.core.tickerGenerator.html#stockMarket.core.tickerGenerator.TickerGenerator">[docs]</a>
+<span class="k">class</span> <span class="nc">TickerGenerator</span><span class="p">:</span>
+    <span class="n">russell_2000_file</span> <span class="o">=</span> <span class="n">__data_path__</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s2">&quot;russell2000.csv&quot;</span><span class="p">)</span>
+    <span class="n">euro_stoxx_600_file</span> <span class="o">=</span> <span class="n">__data_path__</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s2">&quot;euro_stoxx600.csv&quot;</span><span class="p">)</span>
+
+    <span class="n">sp500_names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;s&amp;p500&#39;</span><span class="p">,</span> <span class="s1">&#39;sp500&#39;</span><span class="p">]</span>
+    <span class="n">russell_2000_names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;russell2000&#39;</span><span class="p">]</span>
+    <span class="n">euro_stoxx_600_names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;eurostoxx600&#39;</span><span class="p">,</span> <span class="s1">&#39;euro_stoxx600&#39;</span><span class="p">,</span> <span class="s2">&quot;euro_stoxx_600&quot;</span><span class="p">]</span>
+    <span class="n">nasdaq_100_names</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;nasdaq100&#39;</span><span class="p">,</span> <span class="s1">&#39;nasdaq_100&#39;</span><span class="p">,</span> <span class="s1">&#39;nasdaq&#39;</span><span class="p">]</span>
+
+    <span class="n">indices_names</span> <span class="o">=</span> <span class="n">sp500_names</span> <span class="o">+</span> <span class="n">russell_2000_names</span> <span class="o">+</span> \
+        <span class="n">euro_stoxx_600_names</span> <span class="o">+</span> <span class="n">nasdaq_100_names</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indices</span><span class="o">=</span><span class="nb">str</span> <span class="o">|</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">indices</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">indices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;all&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">indices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">indices_names</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">indices</span> <span class="o">=</span> <span class="p">[</span><span class="n">index</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                        <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">indices</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">indices</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">index</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">indices_names</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Index not supported&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="TickerGenerator.generate_tickers">
+<a class="viewcode-back" href="../../../code/stockMarket.core.tickerGenerator.html#stockMarket.core.tickerGenerator.TickerGenerator.generate_tickers">[docs]</a>
+    <span class="k">def</span> <span class="nf">generate_tickers</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+
+        <span class="n">tickers</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">indices</span><span class="p">:</span>
+            <span class="n">tickers</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_tickers_single_index</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">tickers</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="TickerGenerator.generate_tickers_single_index">
+<a class="viewcode-back" href="../../../code/stockMarket.core.tickerGenerator.html#stockMarket.core.tickerGenerator.TickerGenerator.generate_tickers_single_index">[docs]</a>
+    <span class="k">def</span> <span class="nf">generate_tickers_single_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">index</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sp500_names</span><span class="p">:</span>
+            <span class="n">tickers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_sp500_tickers</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">index</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">russell_2000_names</span><span class="p">:</span>
+            <span class="n">tickers</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">russell_2000_file</span><span class="p">)</span>
+                           <span class="p">[</span><span class="s2">&quot;Ticker&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">index</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">euro_stoxx_600_names</span><span class="p">:</span>
+            <span class="n">tickers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_euro_stoxx_600_tickers</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">index</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">nasdaq_100_names</span><span class="p">:</span>
+            <span class="n">tickers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_nasdaq_100_tickers</span><span class="p">()</span>
+
+        <span class="n">tickers_cleaned</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">ticker</span> <span class="ow">in</span> <span class="n">tickers</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">ticker</span> <span class="ow">in</span> <span class="n">tickers_to_ignore</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="k">if</span> <span class="n">ticker</span> <span class="ow">in</span> <span class="n">tickers_to_change_name</span><span class="p">:</span>
+                <span class="n">ticker</span> <span class="o">=</span> <span class="n">tickers_to_change_name</span><span class="p">[</span><span class="n">ticker</span><span class="p">]</span>
+
+            <span class="n">tickers_cleaned</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ticker</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">tickers_cleaned</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="TickerGenerator.get_russell_2000_tickers">
+<a class="viewcode-back" href="../../../code/stockMarket.core.tickerGenerator.html#stockMarket.core.tickerGenerator.TickerGenerator.get_russell_2000_tickers">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_russell_2000_tickers</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">russell_2000_file</span><span class="p">)[</span><span class="s2">&quot;Ticker&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="TickerGenerator.get_sp500_tickers">
+<a class="viewcode-back" href="../../../code/stockMarket.core.tickerGenerator.html#stockMarket.core.tickerGenerator.TickerGenerator.get_sp500_tickers">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_sp500_tickers</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">read_html</span><span class="p">(</span><span class="s1">&#39;https://en.wikipedia.org/wiki/List_of_S%26P_500_companies&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;Symbol&#39;</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="TickerGenerator.get_nasdaq_100_tickers">
+<a class="viewcode-back" href="../../../code/stockMarket.core.tickerGenerator.html#stockMarket.core.tickerGenerator.TickerGenerator.get_nasdaq_100_tickers">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_nasdaq_100_tickers</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">read_html</span><span class="p">(</span><span class="s1">&#39;https://de.wikipedia.org/wiki/NASDAQ-100&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;Symbol&#39;</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="TickerGenerator.get_euro_stoxx_600_tickers">
+<a class="viewcode-back" href="../../../code/stockMarket.core.tickerGenerator.html#stockMarket.core.tickerGenerator.TickerGenerator.get_euro_stoxx_600_tickers">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_euro_stoxx_600_tickers</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">euro_stoxx_600_file</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="s2">&quot;Ticker&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">isins</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;ISIN&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+            <span class="n">tickers</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="k">for</span> <span class="n">isin</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">isins</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Getting Euro Stoxx 600 tickers from ISINs&quot;</span><span class="p">):</span>
+
+                <span class="n">name</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;ISIN&quot;</span><span class="p">]</span> <span class="o">==</span>
+                              <span class="n">isin</span><span class="p">,</span> <span class="s2">&quot;Name&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">isin</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">):</span>
+                    <span class="n">ticker</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">elif</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names_to_ignore</span><span class="p">:</span>
+                    <span class="n">ticker</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">ticker</span> <span class="o">=</span> <span class="n">get_ticker_from_isin</span><span class="p">(</span><span class="n">isin</span><span class="p">)</span>
+
+                <span class="n">tickers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ticker</span><span class="p">)</span>
+
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Ticker&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tickers</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">euro_stoxx_600_file</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="n">tickers</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Ticker&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">tickers</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">ticker</span> <span class="k">for</span> <span class="n">ticker</span> <span class="ow">in</span> <span class="n">tickers</span> <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ticker</span><span class="p">,</span> <span class="nb">float</span><span class="p">)]</span>
+
+        <span class="k">return</span> <span class="n">tickers</span></div>
+
+
+<div class="viewcode-block" id="TickerGenerator.generate_currencies">
+<a class="viewcode-back" href="../../../code/stockMarket.core.tickerGenerator.html#stockMarket.core.tickerGenerator.TickerGenerator.generate_currencies">[docs]</a>
+    <span class="k">def</span> <span class="nf">generate_currencies</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+        <span class="n">ticker_currency_tuples</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># TODO:</span>
+        <span class="n">crude_hack</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;TUI&quot;</span><span class="p">:</span> <span class="s2">&quot;TUI1.F&quot;</span><span class="p">}</span>
+
+        <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">indices</span><span class="p">:</span>
+            <span class="n">tickers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_tickers_single_index</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">index</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">euro_stoxx_600_names</span><span class="p">:</span>
+                <span class="n">currencies</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;USD&quot;</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">tickers</span><span class="p">]</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">euro_stoxx_600_file</span><span class="p">)</span>
+                <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">euro_stoxx_600_file</span><span class="p">)</span>
+
+                <span class="n">currencies</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="k">for</span> <span class="n">ticker</span> <span class="ow">in</span> <span class="n">tickers</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">ticker</span> <span class="ow">in</span> <span class="n">crude_hack</span><span class="p">:</span>
+                        <span class="n">ticker</span> <span class="o">=</span> <span class="n">crude_hack</span><span class="p">[</span><span class="n">ticker</span><span class="p">]</span>
+                    <span class="n">currency</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;Ticker&quot;</span><span class="p">]</span> <span class="o">==</span>
+                                      <span class="n">ticker</span><span class="p">,</span> <span class="s2">&quot;Currency&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+                    <span class="n">currencies</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">currency</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">ticker</span><span class="p">,</span> <span class="n">currency</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">tickers</span><span class="p">,</span> <span class="n">currencies</span><span class="p">):</span>
+                <span class="n">ticker_currency_tuples</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">ticker</span><span class="p">,</span> <span class="n">currency</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">ticker_currency_tuples</span><span class="p">))</span></div>
+</div>
+
+
+
+<span class="n">names_to_ignore</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;KESKO ORD&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;DEUTSCHE GLOBAL LIQUIDITY SERI&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;NMC HEALTH PLC&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Jakob Gamper, Benjamin Lantschner.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

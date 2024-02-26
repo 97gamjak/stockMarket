@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>stockMarket.ranking.ranking &mdash; StockMarket  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=3e08eec4" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=eafc0fe6" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            StockMarket
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../financialStatments/financialStatments.html">Financial Statements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../code/stockMarket.html">Submodules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../code/stockMarket.html#subpackages">Subpackages</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">StockMarket</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">stockMarket.ranking.ranking</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for stockMarket.ranking.ranking</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">matplotlib.ticker</span> <span class="k">as</span> <span class="nn">mtick</span>
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
+
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">gaussian_kde</span>
+<span class="kn">from</span> <span class="nn">beartype.typing</span> <span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Callable</span>
+
+<span class="kn">from</span> <span class="nn">.rankingFlag</span> <span class="kn">import</span> <span class="n">RankingFlag</span>
+<span class="kn">from</span> <span class="nn">.rankingResult</span> <span class="kn">import</span> <span class="n">RankingResult</span>
+<span class="kn">from</span> <span class="nn">.rankingObject</span> <span class="kn">import</span> <span class="n">RankingObject</span>
+<span class="kn">from</span> <span class="nn">stockMarket.core</span> <span class="kn">import</span> <span class="n">Contracts</span>
+
+
+<div class="viewcode-block" id="Ranking">
+<a class="viewcode-back" href="../../../code/stockMarket.ranking.ranking.html#stockMarket.ranking.ranking.Ranking">[docs]</a>
+<span class="k">class</span> <span class="nc">Ranking</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">contracts</span><span class="p">:</span> <span class="n">Contracts</span><span class="p">,</span> <span class="n">ranking_objects</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">RankingObject</span><span class="p">],</span> <span class="n">date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">years_back</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">date</span> <span class="o">=</span> <span class="n">date</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">years_back</span> <span class="o">=</span> <span class="n">years_back</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">contracts</span> <span class="o">=</span> <span class="n">contracts</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ranking_objects</span> <span class="o">=</span> <span class="n">ranking_objects</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ranking_objects</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ranking_objects</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">Callable</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">ranking_objects</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ranking_objects</span><span class="p">[</span><span class="n">i</span><span class="p">](</span>
+                    <span class="n">date</span><span class="p">,</span> <span class="n">years_back</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Ranking.rank">
+<a class="viewcode-back" href="../../../code/stockMarket.ranking.ranking.html#stockMarket.ranking.ranking.Ranking.rank">[docs]</a>
+    <span class="k">def</span> <span class="nf">rank</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ranking</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="n">index</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">contracts</span><span class="o">.</span><span class="n">tickers</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Name&quot;</span><span class="p">,</span> <span class="s2">&quot;Sector&quot;</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ranking</span><span class="p">[</span><span class="s2">&quot;Name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">contracts</span><span class="o">.</span><span class="n">long_names</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ranking</span><span class="p">[</span><span class="s2">&quot;Sector&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">contracts</span><span class="o">.</span><span class="n">sectors</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">contract_scores</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">contract</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">contracts</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">contract_scores</span><span class="p">[</span><span class="n">contract</span><span class="o">.</span><span class="n">ticker</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">ranking_object</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ranking_objects</span><span class="p">:</span>
+            <span class="n">ranking_results</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">contract</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">contracts</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">ranking_result</span> <span class="o">=</span> <span class="n">ranking_object</span><span class="o">.</span><span class="n">rank</span><span class="p">(</span>
+                        <span class="n">contract</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">date</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">years_back</span><span class="p">)</span>
+                <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                    <span class="n">ranking_result</span> <span class="o">=</span> <span class="n">RankingResult</span><span class="p">(</span>
+                        <span class="n">flag</span><span class="o">=</span><span class="n">RankingFlag</span><span class="o">.</span><span class="n">NODATA</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+                <span class="n">ranking_results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ranking_result</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">contract_scores</span><span class="p">[</span><span class="n">contract</span><span class="o">.</span><span class="n">ticker</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ranking_result</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">ranking</span><span class="p">[</span><span class="n">ranking_object</span><span class="o">.</span><span class="n">description</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">ranking_result</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">ranking_result</span> <span class="ow">in</span> <span class="n">ranking_results</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ranking</span><span class="p">[</span><span class="n">ranking_object</span><span class="o">.</span><span class="n">description</span> <span class="o">+</span> <span class="s2">&quot; Score&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">ranking_result</span><span class="o">.</span><span class="n">score</span> <span class="k">for</span> <span class="n">ranking_result</span> <span class="ow">in</span> <span class="n">ranking_results</span><span class="p">]</span>
+
+        <span class="n">relative_scores</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">total_scores</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">no_data_constraints</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">ticker</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">contracts</span><span class="o">.</span><span class="n">tickers</span><span class="p">:</span>
+            <span class="n">total_score</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">ranking_result</span><span class="o">.</span><span class="n">score</span> <span class="k">for</span> <span class="n">ranking_result</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">contract_scores</span><span class="p">[</span><span class="n">ticker</span><span class="p">]])</span>
+            <span class="n">total_max_score</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span>
+                <span class="p">[</span><span class="mi">1</span> <span class="k">if</span> <span class="n">ranking_result</span><span class="o">.</span><span class="n">max_score</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">ranking_result</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">contract_scores</span><span class="p">[</span><span class="n">ticker</span><span class="p">]])</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">relative_scores</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">total_score</span><span class="o">/</span><span class="n">total_max_score</span><span class="si">:</span><span class="s2">.2%</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ZeroDivisionError</span><span class="p">:</span>
+                <span class="n">relative_scores</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;0.00%&quot;</span><span class="p">)</span>
+
+            <span class="n">total_scores</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">total_score</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">total_max_score</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="n">no_data</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="mi">1</span> <span class="k">for</span> <span class="n">ranking_result</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">contract_scores</span><span class="p">[</span><span class="n">ticker</span><span class="p">]</span>
+                           <span class="k">if</span> <span class="n">ranking_result</span><span class="o">.</span><span class="n">flag</span> <span class="o">==</span> <span class="n">RankingFlag</span><span class="o">.</span><span class="n">NODATA</span><span class="p">])</span>
+
+            <span class="n">constraints</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="mi">1</span> <span class="k">for</span> <span class="n">ranking_result</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">contract_scores</span><span class="p">[</span><span class="n">ticker</span><span class="p">]</span>
+                               <span class="k">if</span> <span class="n">ranking_result</span><span class="o">.</span><span class="n">flag</span> <span class="o">==</span> <span class="n">RankingFlag</span><span class="o">.</span><span class="n">CONSTRAINT</span><span class="p">])</span>
+
+            <span class="n">no_data_constraints</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">no_data</span><span class="si">}</span><span class="s2">*</span><span class="si">{</span><span class="n">constraints</span><span class="si">}</span><span class="s2">*</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ranking_objects</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ranking</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;Relative Score&quot;</span><span class="p">,</span> <span class="n">relative_scores</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ranking</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;Absolute Score&quot;</span><span class="p">,</span> <span class="n">total_scores</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ranking</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;No Data/Constraints/Tot.&quot;</span><span class="p">,</span> <span class="n">no_data_constraints</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ranking</span><span class="p">[</span><span class="s2">&quot;sorting&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ranking</span><span class="p">[</span><span class="s2">&quot;Relative Score&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+            <span class="s1">&#39;%&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ranking</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ranking</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;sorting&quot;</span><span class="p">,</span> <span class="s2">&quot;Sector&quot;</span><span class="p">,</span> <span class="s2">&quot;Name&quot;</span><span class="p">],</span>
+                                                <span class="n">ascending</span><span class="o">=</span><span class="p">[</span><span class="kc">False</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">])</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;sorting&quot;</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="Ranking.find_index_of_ranking_object">
+<a class="viewcode-back" href="../../../code/stockMarket.ranking.ranking.html#stockMarket.ranking.ranking.Ranking.find_index_of_ranking_object">[docs]</a>
+    <span class="k">def</span> <span class="nf">find_index_of_ranking_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ranking_object</span><span class="p">:</span> <span class="n">RankingObject</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">_ranking_object</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ranking_objects</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">_ranking_object</span><span class="o">.</span><span class="n">description</span> <span class="o">==</span> <span class="n">ranking_object</span><span class="o">.</span><span class="n">description</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">i</span>
+
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Ranking object </span><span class="si">{</span><span class="n">ranking_object</span><span class="o">.</span><span class="n">description</span><span class="si">}</span><span class="s2"> not found&quot;</span><span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Jakob Gamper, Benjamin Lantschner.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

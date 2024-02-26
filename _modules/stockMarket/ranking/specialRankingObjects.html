@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>stockMarket.ranking.specialRankingObjects &mdash; StockMarket  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=3e08eec4" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=eafc0fe6" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            StockMarket
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../financialStatments/financialStatments.html">Financial Statements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../code/stockMarket.html">Submodules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../code/stockMarket.html#subpackages">Subpackages</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">StockMarket</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">stockMarket.ranking.specialRankingObjects</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for stockMarket.ranking.specialRankingObjects</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">operator</span>
+
+<span class="kn">from</span> <span class="nn">.rankingObject</span> <span class="kn">import</span> <span class="n">RangeRankingObject</span><span class="p">,</span> <span class="n">ValueRankingConstraint</span>
+
+
+<div class="viewcode-block" id="create_equity_ratio_ranker">
+<a class="viewcode-back" href="../../../code/stockMarket.ranking.specialRankingObjects.html#stockMarket.ranking.specialRankingObjects.create_equity_ratio_ranker">[docs]</a>
+<span class="k">def</span> <span class="nf">create_equity_ratio_ranker</span><span class="p">(</span><span class="n">cutoffs</span><span class="o">=</span><span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">30</span><span class="p">],</span> <span class="n">scores</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]):</span>
+    <span class="k">return</span> <span class="n">RangeRankingObject</span><span class="p">(</span><span class="s2">&quot;Equity Ratio&quot;</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">equity_ratio</span><span class="p">,</span> <span class="n">cutoffs</span><span class="p">,</span> <span class="n">scores</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="create_netto_margin_ranker">
+<a class="viewcode-back" href="../../../code/stockMarket.ranking.specialRankingObjects.html#stockMarket.ranking.specialRankingObjects.create_netto_margin_ranker">[docs]</a>
+<span class="k">def</span> <span class="nf">create_netto_margin_ranker</span><span class="p">(</span><span class="n">cutoffs</span><span class="o">=</span><span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">],</span> <span class="n">scores</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]):</span>
+    <span class="k">return</span> <span class="n">RangeRankingObject</span><span class="p">(</span><span class="s2">&quot;Netto Margin&quot;</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">netto_margin</span><span class="p">,</span> <span class="n">cutoffs</span><span class="p">,</span> <span class="n">scores</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="create_return_on_assets_ranker">
+<a class="viewcode-back" href="../../../code/stockMarket.ranking.specialRankingObjects.html#stockMarket.ranking.specialRankingObjects.create_return_on_assets_ranker">[docs]</a>
+<span class="k">def</span> <span class="nf">create_return_on_assets_ranker</span><span class="p">(</span><span class="n">cutoffs</span><span class="o">=</span><span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">],</span> <span class="n">scores</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]):</span>
+    <span class="k">return</span> <span class="n">RangeRankingObject</span><span class="p">(</span><span class="s2">&quot;Return on Assets&quot;</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">return_on_assets</span><span class="p">,</span> <span class="n">cutoffs</span><span class="p">,</span> <span class="n">scores</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="create_goodwill_ranker">
+<a class="viewcode-back" href="../../../code/stockMarket.ranking.specialRankingObjects.html#stockMarket.ranking.specialRankingObjects.create_goodwill_ranker">[docs]</a>
+<span class="k">def</span> <span class="nf">create_goodwill_ranker</span><span class="p">(</span><span class="n">cutoffs</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">30</span><span class="p">],</span> <span class="n">scores</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]):</span>
+    <span class="k">return</span> <span class="n">RangeRankingObject</span><span class="p">(</span><span class="s2">&quot;Goodwill&quot;</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">goodwill_ratio</span><span class="p">,</span> <span class="n">cutoffs</span><span class="p">,</span> <span class="n">scores</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="create_gearing_ranker">
+<a class="viewcode-back" href="../../../code/stockMarket.ranking.specialRankingObjects.html#stockMarket.ranking.specialRankingObjects.create_gearing_ranker">[docs]</a>
+<span class="k">def</span> <span class="nf">create_gearing_ranker</span><span class="p">(</span><span class="n">cutoffs</span><span class="o">=</span><span class="p">[</span><span class="mi">20</span><span class="p">,</span> <span class="mi">60</span><span class="p">],</span> <span class="n">scores</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]):</span>
+    <span class="k">return</span> <span class="n">RangeRankingObject</span><span class="p">(</span><span class="s2">&quot;Gearing&quot;</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">gearing</span><span class="p">,</span> <span class="n">cutoffs</span><span class="p">,</span> <span class="n">scores</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="create_dynamic_gearing_ranker">
+<a class="viewcode-back" href="../../../code/stockMarket.ranking.specialRankingObjects.html#stockMarket.ranking.specialRankingObjects.create_dynamic_gearing_ranker">[docs]</a>
+<span class="k">def</span> <span class="nf">create_dynamic_gearing_ranker</span><span class="p">(</span><span class="n">cutoffs</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">],</span> <span class="n">scores</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]):</span>
+    <span class="k">return</span> <span class="n">RangeRankingObject</span><span class="p">(</span><span class="s2">&quot;Dynamic Gearing&quot;</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">dynamic_gearing</span><span class="p">,</span> <span class="n">cutoffs</span><span class="p">,</span> <span class="n">scores</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="create_asset_coverage_ratio_ranker">
+<a class="viewcode-back" href="../../../code/stockMarket.ranking.specialRankingObjects.html#stockMarket.ranking.specialRankingObjects.create_asset_coverage_ratio_ranker">[docs]</a>
+<span class="k">def</span> <span class="nf">create_asset_coverage_ratio_ranker</span><span class="p">(</span><span class="n">cutoffs</span><span class="o">=</span><span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">200</span><span class="p">],</span> <span class="n">scores</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]):</span>
+    <span class="k">return</span> <span class="n">RangeRankingObject</span><span class="p">(</span><span class="s2">&quot;Asset Coverage Ratio&quot;</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">asset_coverage_ratio</span><span class="p">,</span> <span class="n">cutoffs</span><span class="p">,</span> <span class="n">scores</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="create_third_order_liquidity_ranker">
+<a class="viewcode-back" href="../../../code/stockMarket.ranking.specialRankingObjects.html#stockMarket.ranking.specialRankingObjects.create_third_order_liquidity_ranker">[docs]</a>
+<span class="k">def</span> <span class="nf">create_third_order_liquidity_ranker</span><span class="p">(</span><span class="n">cutoffs</span><span class="o">=</span><span class="p">[</span><span class="mi">130</span><span class="p">,</span> <span class="mi">150</span><span class="p">],</span> <span class="n">scores</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]):</span>
+    <span class="k">return</span> <span class="n">RangeRankingObject</span><span class="p">(</span><span class="s2">&quot;Third Order Liquidity&quot;</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">third_order_liquidity</span><span class="p">,</span> <span class="n">cutoffs</span><span class="p">,</span> <span class="n">scores</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="create_peg_ranker">
+<a class="viewcode-back" href="../../../code/stockMarket.ranking.specialRankingObjects.html#stockMarket.ranking.specialRankingObjects.create_peg_ranker">[docs]</a>
+<span class="k">def</span> <span class="nf">create_peg_ranker</span><span class="p">(</span><span class="n">growth_years</span><span class="p">,</span> <span class="n">cutoffs</span><span class="o">=</span><span class="p">[</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">],</span> <span class="n">scores</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">years_back</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="n">pe_constraint</span> <span class="o">=</span> <span class="n">ValueRankingConstraint</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">price_to_earnings</span><span class="p">(</span><span class="n">years_back</span><span class="o">=</span><span class="n">years_back</span><span class="p">),</span> <span class="n">operator</span><span class="o">.</span><span class="n">gt</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">growth_eps_constraint</span> <span class="o">=</span> <span class="n">ValueRankingConstraint</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">earnings_per_share_growth</span><span class="p">(</span><span class="n">growth_years</span><span class="p">),</span> <span class="n">operator</span><span class="o">.</span><span class="n">gt</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">peg_ranking</span> <span class="o">=</span> <span class="n">RangeRankingObject</span><span class="p">(</span>
+        <span class="s2">&quot;PEG&quot;</span><span class="p">,</span>
+        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">peg</span><span class="p">(</span><span class="n">growth_years</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="n">date</span><span class="p">,</span> <span class="n">years_back</span><span class="o">=</span><span class="n">years_back</span><span class="p">),</span>
+        <span class="n">cutoffs</span><span class="p">,</span>
+        <span class="n">scores</span><span class="p">,</span>
+        <span class="n">constraints</span><span class="o">=</span><span class="p">[</span><span class="n">pe_constraint</span><span class="p">,</span> <span class="n">growth_eps_constraint</span><span class="p">]</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">peg_ranking</span></div>
+
+
+
+<div class="viewcode-block" id="create_prg_ranker">
+<a class="viewcode-back" href="../../../code/stockMarket.ranking.specialRankingObjects.html#stockMarket.ranking.specialRankingObjects.create_prg_ranker">[docs]</a>
+<span class="k">def</span> <span class="nf">create_prg_ranker</span><span class="p">(</span><span class="n">growth_years</span><span class="p">,</span> <span class="n">cutoffs</span><span class="o">=</span><span class="p">[</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">],</span> <span class="n">scores</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">years_back</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="n">pr_constraint</span> <span class="o">=</span> <span class="n">ValueRankingConstraint</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">price_to_revenue</span><span class="p">(</span><span class="n">years_back</span><span class="o">=</span><span class="n">years_back</span><span class="p">),</span> <span class="n">operator</span><span class="o">.</span><span class="n">gt</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">growth_pr_constraint</span> <span class="o">=</span> <span class="n">ValueRankingConstraint</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">revenue_per_share_growth</span><span class="p">(</span><span class="n">growth_years</span><span class="p">),</span> <span class="n">operator</span><span class="o">.</span><span class="n">gt</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">prg_ranking</span> <span class="o">=</span> <span class="n">RangeRankingObject</span><span class="p">(</span>
+        <span class="s2">&quot;PRG&quot;</span><span class="p">,</span>
+        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">prg</span><span class="p">(</span><span class="n">growth_years</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="n">date</span><span class="p">,</span> <span class="n">years_back</span><span class="o">=</span><span class="n">years_back</span><span class="p">),</span>
+        <span class="n">cutoffs</span><span class="p">,</span>
+        <span class="n">scores</span><span class="p">,</span>
+        <span class="n">constraints</span><span class="o">=</span><span class="p">[</span><span class="n">pr_constraint</span><span class="p">,</span> <span class="n">growth_pr_constraint</span><span class="p">]</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">prg_ranking</span></div>
+
+
+
+<div class="viewcode-block" id="create_pfcg_ranker">
+<a class="viewcode-back" href="../../../code/stockMarket.ranking.specialRankingObjects.html#stockMarket.ranking.specialRankingObjects.create_pfcg_ranker">[docs]</a>
+<span class="k">def</span> <span class="nf">create_pfcg_ranker</span><span class="p">(</span><span class="n">growth_years</span><span class="p">,</span> <span class="n">cutoffs</span><span class="o">=</span><span class="p">[</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">],</span> <span class="n">scores</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">years_back</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="n">pfc_constraint</span> <span class="o">=</span> <span class="n">ValueRankingConstraint</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">price_to_free_cashflow</span><span class="p">(</span><span class="n">years_back</span><span class="o">=</span><span class="n">years_back</span><span class="p">),</span> <span class="n">operator</span><span class="o">.</span><span class="n">gt</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">growth_pfc_constraint</span> <span class="o">=</span> <span class="n">ValueRankingConstraint</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">free_cashflow_per_share_growth</span><span class="p">(</span><span class="n">growth_years</span><span class="p">),</span> <span class="n">operator</span><span class="o">.</span><span class="n">gt</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">pfcg_ranking</span> <span class="o">=</span> <span class="n">RangeRankingObject</span><span class="p">(</span>
+        <span class="s2">&quot;PFCG&quot;</span><span class="p">,</span>
+        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">pfcg</span><span class="p">(</span><span class="n">growth_years</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="n">date</span><span class="p">,</span> <span class="n">years_back</span><span class="o">=</span><span class="n">years_back</span><span class="p">),</span>
+        <span class="n">cutoffs</span><span class="p">,</span>
+        <span class="n">scores</span><span class="p">,</span>
+        <span class="n">constraints</span><span class="o">=</span><span class="p">[</span><span class="n">pfc_constraint</span><span class="p">,</span> <span class="n">growth_pfc_constraint</span><span class="p">]</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">pfcg_ranking</span></div>
+
+
+
+<div class="viewcode-block" id="create_pbg_ranker">
+<a class="viewcode-back" href="../../../code/stockMarket.ranking.specialRankingObjects.html#stockMarket.ranking.specialRankingObjects.create_pbg_ranker">[docs]</a>
+<span class="k">def</span> <span class="nf">create_pbg_ranker</span><span class="p">(</span><span class="n">growth_years</span><span class="p">,</span> <span class="n">cutoffs</span><span class="o">=</span><span class="p">[</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">],</span> <span class="n">scores</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">date</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">years_back</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="n">pb_constraint</span> <span class="o">=</span> <span class="n">ValueRankingConstraint</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">price_to_book</span><span class="p">(</span><span class="n">years_back</span><span class="o">=</span><span class="n">years_back</span><span class="p">),</span> <span class="n">operator</span><span class="o">.</span><span class="n">gt</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">growth_pbg_constraint</span> <span class="o">=</span> <span class="n">ValueRankingConstraint</span><span class="p">(</span>
+        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">book_value_per_share_growth</span><span class="p">(</span><span class="n">growth_years</span><span class="p">),</span> <span class="n">operator</span><span class="o">.</span><span class="n">gt</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">pbg_ranking</span> <span class="o">=</span> <span class="n">RangeRankingObject</span><span class="p">(</span>
+        <span class="s2">&quot;PBG&quot;</span><span class="p">,</span>
+        <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">pbg</span><span class="p">(</span><span class="n">growth_years</span><span class="p">,</span> <span class="n">date</span><span class="o">=</span><span class="n">date</span><span class="p">,</span> <span class="n">years_back</span><span class="o">=</span><span class="n">years_back</span><span class="p">),</span>
+        <span class="n">cutoffs</span><span class="p">,</span>
+        <span class="n">scores</span><span class="p">,</span>
+        <span class="n">constraints</span><span class="o">=</span><span class="p">[</span><span class="n">pb_constraint</span><span class="p">,</span> <span class="n">growth_pbg_constraint</span><span class="p">]</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">pbg_ranking</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Jakob Gamper, Benjamin Lantschner.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

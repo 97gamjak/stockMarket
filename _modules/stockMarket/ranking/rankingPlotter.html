@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>stockMarket.ranking.rankingPlotter &mdash; StockMarket  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=3e08eec4" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=eafc0fe6" />
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+        <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+        <script src="../../../_static/doctools.js?v=888ff710"></script>
+        <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            StockMarket
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../financialStatments/financialStatments.html">Financial Statements</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../code/stockMarket.html">Submodules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../code/stockMarket.html#subpackages">Subpackages</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">StockMarket</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">stockMarket.ranking.rankingPlotter</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for stockMarket.ranking.rankingPlotter</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">seaborn</span> <span class="k">as</span> <span class="nn">sns</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">matplotlib.ticker</span> <span class="k">as</span> <span class="nn">mtick</span>
+
+<span class="kn">from</span> <span class="nn">scipy.stats</span> <span class="kn">import</span> <span class="n">gaussian_kde</span>
+<span class="kn">from</span> <span class="nn">beartype.typing</span> <span class="kn">import</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">from</span> <span class="nn">.ranking</span> <span class="kn">import</span> <span class="n">Ranking</span>
+<span class="kn">from</span> <span class="nn">.rankingFlag</span> <span class="kn">import</span> <span class="n">RankingFlag</span>
+<span class="kn">from</span> <span class="nn">.rankingObject</span> <span class="kn">import</span> <span class="n">RankingObject</span>
+
+
+<div class="viewcode-block" id="RankingPlotter">
+<a class="viewcode-back" href="../../../code/stockMarket.ranking.rankingPlotter.html#stockMarket.ranking.rankingPlotter.RankingPlotter">[docs]</a>
+<span class="k">class</span> <span class="nc">RankingPlotter</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ranking</span><span class="p">:</span> <span class="n">Ranking</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ranking</span> <span class="o">=</span> <span class="n">ranking</span>
+
+<div class="viewcode-block" id="RankingPlotter.plot">
+<a class="viewcode-back" href="../../../code/stockMarket.ranking.rankingPlotter.html#stockMarket.ranking.rankingPlotter.RankingPlotter.plot">[docs]</a>
+    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+             <span class="n">ranking_object</span><span class="p">:</span> <span class="n">RankingObject</span><span class="p">,</span>
+             <span class="n">filename</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+             <span class="n">xlim</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+             <span class="n">bins</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span>
+             <span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ranking_object</span> <span class="o">=</span> <span class="n">ranking_object</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ranking_object_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ranking</span><span class="o">.</span><span class="n">find_index_of_ranking_object</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ranking_object</span><span class="p">)</span>
+
+        <span class="n">data</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_data_correct</span><span class="p">(</span><span class="n">xlim</span><span class="p">)</span>
+        <span class="n">no_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_no_date</span><span class="p">()</span>
+        <span class="n">constraint</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_constrained_data</span><span class="p">()</span>
+
+        <span class="n">total_data</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ranking</span><span class="o">.</span><span class="n">contract_scores</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="n">total_displayed_data</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">/</span> <span class="n">total_data</span>
+
+        <span class="n">_plt</span> <span class="o">=</span> <span class="n">sns</span><span class="o">.</span><span class="n">displot</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="n">bins</span><span class="p">,</span> <span class="n">kde</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">min_y_value</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">max_y_value</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">min_x_value</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">max_x_value</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">()[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="n">y_range</span> <span class="o">=</span> <span class="n">max_y_value</span> <span class="o">-</span> <span class="n">min_y_value</span>
+        <span class="n">x_range</span> <span class="o">=</span> <span class="n">max_x_value</span> <span class="o">-</span> <span class="n">min_x_value</span>
+
+        <span class="n">ax2</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">twinx</span><span class="p">()</span>
+        <span class="n">ax2</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">tick_right</span><span class="p">()</span>
+        <span class="n">ax2</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">ax2</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_label_position</span><span class="p">(</span><span class="s1">&#39;right&#39;</span><span class="p">)</span>
+        <span class="n">ax2</span><span class="o">.</span><span class="n">yaxis</span><span class="o">.</span><span class="n">set_major_formatter</span><span class="p">(</span><span class="n">mtick</span><span class="o">.</span><span class="n">PercentFormatter</span><span class="p">(</span><span class="mf">1.0</span><span class="p">))</span>
+
+        <span class="n">kde</span> <span class="o">=</span> <span class="n">gaussian_kde</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="n">x_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="o">-</span><span class="mi">10</span><span class="o">*</span><span class="n">x_range</span><span class="p">,</span>
+                               <span class="nb">max</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">+</span> <span class="mi">10</span><span class="o">*</span><span class="n">x_range</span><span class="p">,</span> <span class="mi">10000</span><span class="p">)</span>
+        <span class="n">cdf</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">kde</span><span class="p">(</span><span class="n">x_values</span><span class="p">))</span> <span class="o">*</span> \
+            <span class="p">(</span><span class="n">x_values</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">x_values</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">*</span><span class="n">total_displayed_data</span>
+        <span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_values</span><span class="p">,</span> <span class="n">cdf</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">cutoff</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ranking</span><span class="o">.</span><span class="n">ranking_objects</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">ranking_object_index</span><span class="p">]</span><span class="o">.</span><span class="n">cutoffs</span><span class="p">:</span>
+            <span class="n">height</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">cutoff</span><span class="p">,</span> <span class="n">x_values</span><span class="p">,</span> <span class="n">cdf</span><span class="p">)</span>
+
+            <span class="n">ax2</span><span class="o">.</span><span class="n">hlines</span><span class="p">(</span><span class="n">height</span><span class="p">,</span> <span class="n">min_x_value</span><span class="p">,</span> <span class="n">max_x_value</span><span class="p">,</span>
+                       <span class="n">colors</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">linestyles</span><span class="o">=</span><span class="s2">&quot;dotted&quot;</span><span class="p">)</span>
+            <span class="n">ax2</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">max_x_value</span> <span class="o">-</span> <span class="mf">0.15</span><span class="o">*</span><span class="n">x_range</span><span class="p">,</span> <span class="n">height</span> <span class="o">-</span> <span class="mf">0.01</span><span class="p">,</span>
+                     <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">height</span><span class="si">:</span><span class="s1">.0%</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s1">&#39;top&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span>
+
+            <span class="n">_plt</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">vlines</span><span class="p">(</span><span class="n">cutoff</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">max_y_value</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">)</span>
+            <span class="n">_plt</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">cutoff</span> <span class="o">+</span> <span class="n">x_range</span><span class="o">*</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">max_y_value</span> <span class="o">-</span> <span class="mf">0.03</span><span class="o">*</span><span class="n">y_range</span><span class="p">,</span>
+                         <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">cutoff</span><span class="si">:</span><span class="s1">.1f</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s1">&#39;center&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">90</span><span class="p">)</span>
+
+        <span class="n">_plt</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ranking_object</span><span class="o">.</span><span class="n">description</span><span class="p">)</span>
+        <span class="n">_plt</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">data</span><span class="p">),</span> <span class="nb">max</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+        <span class="n">ax2</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">_plt</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span>
+            <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;N(n.d.): </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">no_data</span><span class="p">)</span><span class="o">/</span><span class="n">total_data</span><span class="si">:</span><span class="s2">.2%</span><span class="si">}</span><span class="se">\n</span><span class="s2">N(c.): </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">constraint</span><span class="p">)</span><span class="o">/</span><span class="n">total_data</span><span class="si">:</span><span class="s2">.2%</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s1">&#39;upper right&#39;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">filename</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">savefig</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="RankingPlotter.get_data_correct">
+<a class="viewcode-back" href="../../../code/stockMarket.ranking.rankingPlotter.html#stockMarket.ranking.rankingPlotter.RankingPlotter.get_data_correct">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_data_correct</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xlim</span><span class="p">):</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">out_of_range_data</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">ranking_results</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ranking</span><span class="o">.</span><span class="n">contract_scores</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">ranking_results</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">ranking_object_index</span><span class="p">]</span><span class="o">.</span><span class="n">flag</span> <span class="o">==</span> <span class="n">RankingFlag</span><span class="o">.</span><span class="n">OK</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="n">ranking_results</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">ranking_object_index</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+                <span class="k">if</span> <span class="n">xlim</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">xlim</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">value</span> <span class="o">&lt;=</span> <span class="n">xlim</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+                    <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">out_of_range_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">data</span><span class="p">,</span> <span class="n">out_of_range_data</span></div>
+
+
+<div class="viewcode-block" id="RankingPlotter.get_no_date">
+<a class="viewcode-back" href="../../../code/stockMarket.ranking.rankingPlotter.html#stockMarket.ranking.rankingPlotter.RankingPlotter.get_no_date">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_no_date</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">no_data</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">ranking_results</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ranking</span><span class="o">.</span><span class="n">contract_scores</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">ranking_results</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">ranking_object_index</span><span class="p">]</span><span class="o">.</span><span class="n">flag</span> <span class="o">==</span> <span class="n">RankingFlag</span><span class="o">.</span><span class="n">NODATA</span><span class="p">:</span>
+                <span class="n">no_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ranking_results</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">ranking_object_index</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">no_data</span></div>
+
+
+<div class="viewcode-block" id="RankingPlotter.get_constrained_data">
+<a class="viewcode-back" href="../../../code/stockMarket.ranking.rankingPlotter.html#stockMarket.ranking.rankingPlotter.RankingPlotter.get_constrained_data">[docs]</a>
+    <span class="k">def</span> <span class="nf">get_constrained_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">constraint</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">ranking_results</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ranking</span><span class="o">.</span><span class="n">contract_scores</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">ranking_results</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">ranking_object_index</span><span class="p">]</span><span class="o">.</span><span class="n">flag</span> <span class="o">==</span> <span class="n">RankingFlag</span><span class="o">.</span><span class="n">CONSTRAINT</span><span class="p">:</span>
+                <span class="n">constraint</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ranking_results</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">ranking_object_index</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">constraint</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Jakob Gamper, Benjamin Lantschner.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
