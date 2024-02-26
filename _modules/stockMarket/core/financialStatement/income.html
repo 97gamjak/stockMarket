@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>stockMarket.core.financialStatement.income &mdash; StockMarket  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="../../../../_static/css/custom.css?v=3e08eec4" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/custom.css?v=09f73366" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=eafc0fe6" />
 
   
@@ -121,7 +121,6 @@
 <span class="k">class</span> <span class="nc">IncomeBank</span><span class="p">(</span><span class="n">Income</span><span class="p">):</span>
     <span class="n">_attributes</span> <span class="o">=</span> <span class="p">[</span>
         <span class="s2">&quot;interest_income&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;net_interest_income&quot;</span><span class="p">,</span>
         <span class="s2">&quot;non_interest_income&quot;</span><span class="p">,</span>
     <span class="p">]</span>
 
@@ -137,7 +136,6 @@
     <span class="k">def</span> <span class="nf">coa_items</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">coa_items</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">coa_items</span>
         <span class="n">coa_items</span><span class="p">[</span><span class="s2">&quot;SIIB&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_interest_income</span>
-        <span class="n">coa_items</span><span class="p">[</span><span class="s2">&quot;ENII&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_net_interest_income</span>
         <span class="n">coa_items</span><span class="p">[</span><span class="s2">&quot;SNII&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_non_interest_income</span>
         <span class="k">return</span> <span class="n">coa_items</span></div>
 
@@ -150,7 +148,6 @@
         <span class="s2">&quot;revenue&quot;</span><span class="p">,</span>
         <span class="s2">&quot;gross_profit&quot;</span><span class="p">,</span>
         <span class="s2">&quot;selling_general_admin&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;depreciation_amortization&quot;</span><span class="p">,</span>
         <span class="s2">&quot;total_operating_expenses&quot;</span><span class="p">,</span>
     <span class="p">]</span>
 
@@ -172,7 +169,6 @@
         <span class="n">coa_items</span><span class="p">[</span><span class="s2">&quot;RTLR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_revenue</span>
         <span class="n">coa_items</span><span class="p">[</span><span class="s2">&quot;SGRP&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_gross_profit</span>
         <span class="n">coa_items</span><span class="p">[</span><span class="s2">&quot;SSGA&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_selling_general_admin</span>
-        <span class="n">coa_items</span><span class="p">[</span><span class="s2">&quot;SDPR&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_depreciation_amortization</span>
         <span class="n">coa_items</span><span class="p">[</span><span class="s2">&quot;ETOE&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_total_operating_expenses</span>
 
         <span class="n">coa_items</span><span class="p">[</span><span class="s2">&quot;ERAD&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_research_development</span>
@@ -188,7 +184,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023, Jakob Gamper, Benjamin Lantschner.</p>
+    <p>&#169; Copyright 2024, Jakob Gamper, Benjamin Lantschner.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

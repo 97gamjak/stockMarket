@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>General &mdash; StockMarket  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=3e08eec4" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=09f73366" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=eafc0fe6" />
 
   
@@ -19,9 +19,12 @@
         <script src="../_static/documentation_options.js?v=5929fcd5"></script>
         <script src="../_static/doctools.js?v=888ff710"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" /> 
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Income Statement" href="incomeStatement.html" />
+    <link rel="prev" title="Financial Statements" href="financialStatments.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -43,8 +46,14 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="financialStatments.html">Financial Statements</a></li>
+              <ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="financialStatments.html">Financial Statements</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">General</a></li>
+<li class="toctree-l2"><a class="reference internal" href="incomeStatement.html">Income Statement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="balanceSheet.html">Balance Sheet</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cashflow.html">Cash Flow</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../code/stockMarket.html">Submodules</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../code/stockMarket.html#subpackages">Subpackages</a></li>
 </ul>
@@ -63,6 +72,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="financialStatments.html">Financial Statements</a></li>
       <li class="breadcrumb-item active">General</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/financialStatments/general.rst.txt" rel="nofollow"> View page source</a>
@@ -74,21 +84,116 @@
            <div itemprop="articleBody">
              
   <section id="general">
-<span id="id1"></span><h1>General<a class="headerlink" href="#general" title="Link to this heading"></a></h1>
+<h1>General<a class="headerlink" href="#general" title="Link to this heading"></a></h1>
 <section id="derived-kpis">
 <h2>Derived KPIs<a class="headerlink" href="#derived-kpis" title="Link to this heading"></a></h2>
+<div class="admonition-growth-rate admonition">
+<p class="admonition-title">Growth Rate</p>
+<div class="math notranslate nohighlight">
+\[Growth(KPI, n_{\text{years}}) = \frac{KPI_{\text{new}}}{KPI_{\text{old}}}^{1/n_{\text{years}}} - 1\]</div>
+</div>
+<div class="admonition-earnings-per-share admonition">
+<p class="admonition-title">Earnings Per Share</p>
+<div class="math notranslate nohighlight">
+\[EPS = \frac{Net Income}{Total Outstanding Shares Common Stock}\]</div>
+</div>
+<div class="admonition-revenue-per-share admonition">
+<p class="admonition-title">Revenue Per Share</p>
+<div class="math notranslate nohighlight">
+\[RPS = \frac{Revenue}{Total Outstanding Shares Common Stock}\]</div>
+</div>
+<div class="admonition-operating-cash-flow-per-share admonition">
+<p class="admonition-title">Operating Cash Flow Per Share</p>
+<div class="math notranslate nohighlight">
+\[OCPS = \frac{Operatong Cash Flow}{Total Outstanding Shares Common Stock}\]</div>
+</div>
+<div class="admonition-free-cash-flow-per-share admonition">
+<p class="admonition-title">Free Cash Flow Per Share</p>
+<div class="math notranslate nohighlight">
+\[FCPS = \frac{Free Cash Flow}{Total Outstanding Shares Common Stock}\]</div>
+</div>
+<div class="admonition-ebitda admonition">
+<p class="admonition-title">EBITDA</p>
+<div class="math notranslate nohighlight">
+\[EBITDA = EBIT + DEPRECIATION \&amp; AMORTIZATION\]</div>
+</div>
+<div class="admonition-ebidta-margin admonition">
+<p class="admonition-title">EBIDTA Margin</p>
+<div class="math notranslate nohighlight">
+\[EBIDTA MARGIN = \frac{EBITDA}{REVENUE}\]</div>
+</div>
+<div class="admonition-return-on-assets admonition">
+<p class="admonition-title">Return On Assets</p>
+<div class="math notranslate nohighlight">
+\[Return On Assets = \frac{Net Income}{Total Assets}\]</div>
+</div>
+<div class="admonition-price-earnings admonition">
+<p class="admonition-title">Price/Earnings</p>
+<div class="math notranslate nohighlight">
+\[P/E = \frac{Price}{EPS}\]</div>
+</div>
+<div class="admonition-price-revenue admonition">
+<p class="admonition-title">Price/Revenue</p>
+<div class="math notranslate nohighlight">
+\[P/R = \frac{Price}{RPS}\]</div>
+</div>
+<div class="admonition-price-operating-cash-flow admonition">
+<p class="admonition-title">Price/Operating Cash Flow</p>
+<div class="math notranslate nohighlight">
+\[P/OC = \frac{Price}{OCPS}\]</div>
+</div>
+<div class="admonition-price-free-cash-flow admonition">
+<p class="admonition-title">Price/Free Cash Flow</p>
+<div class="math notranslate nohighlight">
+\[P/FC = \frac{Price}{FCPS}\]</div>
+</div>
+<div class="admonition-price-book-value admonition">
+<p class="admonition-title">Price/Book Value</p>
+<blockquote>
+<div><div class="math notranslate nohighlight">
+\[P/B = \frac{Price}{BPS}\]</div>
+</div></blockquote>
+</div>
+<div class="admonition-price-to-earnings-growth admonition">
+<p class="admonition-title">Price To Earnings Growth</p>
+<div class="math notranslate nohighlight">
+\[PEG = \frac{P/E}{Growth(EPS, n)}\]</div>
+</div>
+<div class="admonition-price-to-revenue-growth admonition">
+<p class="admonition-title">Price To Revenue Growth</p>
+<div class="math notranslate nohighlight">
+\[PRG = \frac{P/R}{Growth(RPS, n)}\]</div>
+</div>
+<div class="admonition-price-to-operating-cash-flow-growth admonition">
+<p class="admonition-title">Price To Operating Cash Flow Growth</p>
+<div class="math notranslate nohighlight">
+\[POCG = \frac{P/OC}{Growth(OCPS, n)}\]</div>
+</div>
+<div class="admonition-price-to-free-cash-flow-growth admonition">
+<p class="admonition-title">Price To Free Cash Flow Growth</p>
+<div class="math notranslate nohighlight">
+\[PFCG = \frac{P/FC}{Growth(FCPS, n)}\]</div>
+</div>
+<div class="admonition-price-to-book-value-growth admonition">
+<p class="admonition-title">Price To Book Value Growth</p>
+<div class="math notranslate nohighlight">
+\[PBG = \frac{P/B}{Growth(BPS, n)}\]</div>
+</div>
 </section>
 </section>
 
 
            </div>
           </div>
-          <footer>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="financialStatments.html" class="btn btn-neutral float-left" title="Financial Statements" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="incomeStatement.html" class="btn btn-neutral float-right" title="Income Statement" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023, Jakob Gamper, Benjamin Lantschner.</p>
+    <p>&#169; Copyright 2024, Jakob Gamper, Benjamin Lantschner.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

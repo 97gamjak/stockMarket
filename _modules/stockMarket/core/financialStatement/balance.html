@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>stockMarket.core.financialStatement.balance &mdash; StockMarket  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="../../../../_static/css/custom.css?v=3e08eec4" />
+      <link rel="stylesheet" type="text/css" href="../../../../_static/css/custom.css?v=09f73366" />
       <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=eafc0fe6" />
 
   
@@ -82,12 +82,11 @@
 <a class="viewcode-back" href="../../../../code/stockMarket.core.financialStatement.balance.html#stockMarket.core.financialStatement.balance.BalanceSheet">[docs]</a>
 <span class="k">class</span> <span class="nc">BalanceSheet</span><span class="p">(</span><span class="n">FinancialStatementBase</span><span class="p">):</span>
     <span class="n">_attributes</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="s2">&quot;common_stocK_equity&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;equity&quot;</span><span class="p">,</span>
         <span class="s2">&quot;total_liabilities&quot;</span><span class="p">,</span>
         <span class="s2">&quot;total_current_liabilities&quot;</span><span class="p">,</span>
         <span class="s2">&quot;total_assets&quot;</span><span class="p">,</span>
         <span class="s2">&quot;total_outstanding_shares_common_stock&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;book_value_per_share&quot;</span><span class="p">,</span>
     <span class="p">]</span>
 
     <span class="n">_attributes_with_setters</span> <span class="o">=</span> <span class="p">[</span>
@@ -103,22 +102,20 @@
         <span class="s2">&quot;cash&quot;</span><span class="p">,</span>
         <span class="s2">&quot;cash_equivalents&quot;</span><span class="p">,</span>
         <span class="s2">&quot;short_term_investments&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;intangible_assets&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+
+    <span class="n">_attributes_to_assert</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;book_value_per_share_assert&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;total_debt_assert&quot;</span><span class="p">,</span>
     <span class="p">]</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">equity_shareholders</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_assets</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_liabilities</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">equity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">equity_shareholders</span>
-
-    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">equity_ratio</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">equity_shareholders</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_assets</span> <span class="o">*</span> <span class="mi">100</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">equity</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_assets</span> <span class="o">*</span> <span class="mi">100</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">goodwill_ratio</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -165,12 +162,32 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cash</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">cash_equivalents</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">short_term_investments</span>
 
     <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">book_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">equity</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">goodwill</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">intangible_assets</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">book_value_per_share</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">book_value</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_outstanding_shares_common_stock</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">assert_balance</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">book_value_per_share</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">book_value_per_share_assert</span><span class="p">,</span>
+                           <span class="n">rtol</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Book value per share: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">book_value_per_share</span><span class="si">}</span><span class="s2"> != </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">book_value_per_share_assert</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">total_debt</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_debt_assert</span><span class="p">,</span>
+                           <span class="n">rtol</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Total debt: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">total_debt</span><span class="si">}</span><span class="s2"> != </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">total_debt_assert</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">allclos</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">equity</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_assets</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_liabilities</span><span class="p">,</span>
+                          <span class="n">rtol</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Equity: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">equity</span><span class="si">}</span><span class="s2"> != </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">total_assets</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">total_liabilities</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Balance sheet assertion passed&quot;</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">coa_items</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">{</span>
-            <span class="s2">&quot;QTLE&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_common_stocK_equity</span><span class="p">,</span>
+            <span class="s2">&quot;QTLE&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_equity</span><span class="p">,</span>
             <span class="s2">&quot;LTLL&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_total_liabilities</span><span class="p">,</span>
             <span class="s2">&quot;LTCL&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_total_current_liabilities</span><span class="p">,</span>
-            <span class="s2">&quot;STLD&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_total_debt</span><span class="p">,</span>
             <span class="s2">&quot;ATOT&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_total_assets</span><span class="p">,</span>
             <span class="s2">&quot;QTCO&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_total_outstanding_shares_common_stock</span><span class="p">,</span>
             <span class="s2">&quot;AGWI&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_goodwill</span><span class="p">,</span>
@@ -178,7 +195,6 @@
             <span class="s2">&quot;LCLD&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_current_portion_of_long_term_debt_and_capital_lease_obligations</span><span class="p">,</span>
             <span class="s2">&quot;LAEX&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_accrued_expenses</span><span class="p">,</span>
             <span class="s2">&quot;LTTD&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_total_long_term_debt</span><span class="p">,</span>
-            <span class="s2">&quot;STBP&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_book_value_per_share</span><span class="p">,</span>
             <span class="s2">&quot;ATRC&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_total_receivables_net</span><span class="p">,</span>
             <span class="s2">&quot;AITL&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_total_inventory</span><span class="p">,</span>
             <span class="s2">&quot;SOCA&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_other_current_assets</span><span class="p">,</span>
@@ -186,6 +202,10 @@
             <span class="s2">&quot;ACSH&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_cash</span><span class="p">,</span>
             <span class="s2">&quot;ACAE&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_cash_equivalents</span><span class="p">,</span>
             <span class="s2">&quot;ASTI&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_short_term_investments</span><span class="p">,</span>
+            <span class="s2">&quot;AINT&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_intangible_assets</span><span class="p">,</span>
+
+            <span class="s2">&quot;STBP&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_book_value_per_share_assert</span><span class="p">,</span>
+            <span class="s2">&quot;STLD&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_total_debt_assert</span><span class="p">,</span>
         <span class="p">}</span></div>
 
 </pre></div>
@@ -197,7 +217,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023, Jakob Gamper, Benjamin Lantschner.</p>
+    <p>&#169; Copyright 2024, Jakob Gamper, Benjamin Lantschner.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

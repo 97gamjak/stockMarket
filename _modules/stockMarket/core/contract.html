@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>stockMarket.core.contract &mdash; StockMarket  documentation</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=80d5e7a1" />
-      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=3e08eec4" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=09f73366" />
       <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=eafc0fe6" />
 
   
@@ -140,6 +140,41 @@
     <span class="n">pays_dividend</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
 
     <span class="n">full_pricing_info</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ebitda</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">depreciation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cashflow</span><span class="o">.</span><span class="n">depreciation</span><span class="p">)</span>
+        <span class="n">amortization</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cashflow</span><span class="o">.</span><span class="n">amortization</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">income</span><span class="o">.</span><span class="n">ebit</span> <span class="o">+</span> <span class="n">depreciation</span> <span class="o">+</span> <span class="n">amortization</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">earnings_per_share</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">income</span><span class="o">.</span><span class="n">net_income</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">balance</span><span class="o">.</span><span class="n">total_outstanding_shares_common_stock</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">revenue_per_share</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">income</span><span class="o">.</span><span class="n">revenue</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">balance</span><span class="o">.</span><span class="n">total_outstanding_shares_common_stock</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">operating_cashflow_per_share</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cashflow</span><span class="o">.</span><span class="n">operating_cashflow</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">balance</span><span class="o">.</span><span class="n">total_outstanding_shares_common_stock</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">free_cashflow_per_share</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cashflow</span><span class="o">.</span><span class="n">free_cashflow</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">balance</span><span class="o">.</span><span class="n">total_outstanding_shares_common_stock</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ebitda_margin</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ebitda</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">income</span><span class="o">.</span><span class="n">revenue</span> <span class="o">*</span> <span class="mi">100</span>
+
+    <span class="c1"># NOTE: This should include the average of total assets from the last two years - not implemented yet</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">return_on_assets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">income</span><span class="o">.</span><span class="n">net_income</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">balance</span><span class="o">.</span><span class="n">total_assets</span> <span class="o">*</span> <span class="mi">100</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">dynamic_gearing</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">total_short_term_debt</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_long_term_debt</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">cash_and_short_term_investments</span><span class="p">)</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">cashflow</span><span class="o">.</span><span class="n">free_cashflow</span>
 
 <div class="viewcode-block" id="Contract.earnings_per_share_growth">
 <a class="viewcode-back" href="../../../code/stockMarket.core.contract.html#stockMarket.core.contract.Contract.earnings_per_share_growth">[docs]</a>
@@ -284,42 +319,7 @@
         <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
             <span class="n">result</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
         <span class="k">return</span> <span class="n">result</span></div>
-
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">ebitda</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">depreciation</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cashflow</span><span class="o">.</span><span class="n">depreciation</span><span class="p">)</span>
-        <span class="n">amortization</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cashflow</span><span class="o">.</span><span class="n">amortization</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">income</span><span class="o">.</span><span class="n">ebit</span> <span class="o">+</span> <span class="n">depreciation</span> <span class="o">+</span> <span class="n">amortization</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">earnings_per_share</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">income</span><span class="o">.</span><span class="n">net_income</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">balance</span><span class="o">.</span><span class="n">total_outstanding_shares_common_stock</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">revenue_per_share</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">income</span><span class="o">.</span><span class="n">revenue</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">balance</span><span class="o">.</span><span class="n">total_outstanding_shares_common_stock</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">operating_cashflow_per_share</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cashflow</span><span class="o">.</span><span class="n">operating_cashflow</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">balance</span><span class="o">.</span><span class="n">total_outstanding_shares_common_stock</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">free_cashflow_per_share</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">cashflow</span><span class="o">.</span><span class="n">free_cashflow</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">balance</span><span class="o">.</span><span class="n">total_outstanding_shares_common_stock</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">ebitda_margin</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ebitda</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">income</span><span class="o">.</span><span class="n">revenue</span> <span class="o">*</span> <span class="mi">100</span>
-
-    <span class="c1"># NOTE: This should include the average of total assets from the last two years - not implemented yet</span>
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">return_on_assets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">income</span><span class="o">.</span><span class="n">net_income</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">balance</span><span class="o">.</span><span class="n">total_assets</span> <span class="o">*</span> <span class="mi">100</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">dynamic_gearing</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">total_short_term_debt</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">total_long_term_debt</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">cash_and_short_term_investments</span><span class="p">)</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">cashflow</span><span class="o">.</span><span class="n">free_cashflow</span></div>
+</div>
 
 </pre></div>
 
@@ -330,7 +330,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2023, Jakob Gamper, Benjamin Lantschner.</p>
+    <p>&#169; Copyright 2024, Jakob Gamper, Benjamin Lantschner.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>utils &mdash; StockMarket  documentation</title>
+  <title>Cash Flow &mdash; StockMarket  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=09f73366" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=eafc0fe6" />
@@ -19,11 +19,12 @@
         <script src="../_static/documentation_options.js?v=5929fcd5"></script>
         <script src="../_static/doctools.js?v=888ff710"></script>
         <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="emails" href="stockMarket.utils.emails.html" />
-    <link rel="prev" title="specialRankingObjects" href="stockMarket.ranking.specialRankingObjects.html" /> 
+    <link rel="next" title="Submodules" href="../code/stockMarket.html" />
+    <link rel="prev" title="Balance Sheet" href="balanceSheet.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -46,20 +47,15 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="../financialStatments/financialStatments.html">Financial Statements</a></li>
-<li class="toctree-l1"><a class="reference internal" href="stockMarket.html">Submodules</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="stockMarket.html#subpackages">Subpackages</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="stockMarket.core.html">core</a></li>
-<li class="toctree-l2"><a class="reference internal" href="stockMarket.ib.html">ib</a></li>
-<li class="toctree-l2"><a class="reference internal" href="stockMarket.ranking.html">ranking</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">utils</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="stockMarket.utils.emails.html">emails</a></li>
-<li class="toctree-l3"><a class="reference internal" href="stockMarket.utils.period.html">period</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="financialStatments.html">Financial Statements</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="general.html">General</a></li>
+<li class="toctree-l2"><a class="reference internal" href="incomeStatement.html">Income Statement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="balanceSheet.html">Balance Sheet</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Cash Flow</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="stockMarket.yfinance.html">yfinance</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="../code/stockMarket.html">Submodules</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../code/stockMarket.html#subpackages">Subpackages</a></li>
 </ul>
 
         </div>
@@ -76,10 +72,10 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
-          <li class="breadcrumb-item"><a href="stockMarket.html">Submodules</a></li>
-      <li class="breadcrumb-item active">utils</li>
+          <li class="breadcrumb-item"><a href="financialStatments.html">Financial Statements</a></li>
+      <li class="breadcrumb-item active">Cash Flow</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/code/stockMarket.utils.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/financialStatments/cashflow.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -87,15 +83,28 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="module-stockMarket.utils">
-<span id="utils"></span><h1>utils<a class="headerlink" href="#module-stockMarket.utils" title="Link to this heading"></a></h1>
-<section id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading"></a></h2>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="stockMarket.utils.emails.html">emails</a></li>
-<li class="toctree-l1"><a class="reference internal" href="stockMarket.utils.period.html">period</a></li>
+  <section id="cash-flow">
+<h1>Cash Flow<a class="headerlink" href="#cash-flow" title="Link to this heading"></a></h1>
+<section id="basic-kpis">
+<h2>Basic KPIs<a class="headerlink" href="#basic-kpis" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Operating Cash Flow</p></li>
+<li><p>Depreciation</p></li>
+<li><p>Amortization</p></li>
+<li><p>Capital Expenditure</p></li>
 </ul>
+</section>
+<section id="derived-kpis">
+<h2>Derived KPIs<a class="headerlink" href="#derived-kpis" title="Link to this heading"></a></h2>
+<div class="admonition-free-cash-flow admonition">
+<p class="admonition-title">Free Cash Flow</p>
+<div class="math notranslate nohighlight">
+\[Free Cash Flow = Operation Cash Flow - Capital Expanditures\]</div>
+</div>
+<div class="admonition-depreciation-amortization admonition">
+<p class="admonition-title">Depreciation &amp; Amortization</p>
+<div class="math notranslate nohighlight">
+\[Depreciation &amp; Amortization = Depreciation + Amortization\]</div>
 </div>
 </section>
 </section>
@@ -104,8 +113,8 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="stockMarket.ranking.specialRankingObjects.html" class="btn btn-neutral float-left" title="specialRankingObjects" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="stockMarket.utils.emails.html" class="btn btn-neutral float-right" title="emails" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="balanceSheet.html" class="btn btn-neutral float-left" title="Balance Sheet" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../code/stockMarket.html" class="btn btn-neutral float-right" title="Submodules" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
