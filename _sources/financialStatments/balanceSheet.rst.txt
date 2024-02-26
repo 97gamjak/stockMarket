@@ -51,7 +51,7 @@ Basic KPIs
     * - Total Long Term Debt
       - TotLongTermDebt
       - Total long term debt represents the debt that is due after one year.
-      - LTLD
+      - LTTD
     * - Total Receivables Net
       - TotRecNet
       - Total receivables net represents the total amount of money owed to the entity by its customers, minus any allowances for doubtful accounts.
