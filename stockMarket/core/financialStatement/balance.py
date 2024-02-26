@@ -6,8 +6,8 @@ from ._base import FinancialStatementBase
 class BalanceSheet(FinancialStatementBase):
     _attributes = [
         "common_stocK_equity",
-        "total_debt",
         "total_liabilities",
+        "total_current_liabilities",
         "total_assets",
         "total_outstanding_shares_common_stock",
         "book_value_per_share",
@@ -56,8 +56,12 @@ class BalanceSheet(FinancialStatementBase):
         return self.cash_and_short_term_investments + self.total_receivables_net + self.total_inventory + self.other_current_assets + self.prepaid_expenses
 
     @property
+    def total_debt(self):
+        return self.total_short_term_debt + self.total_long_term_debt
+
+    @property
     def gearing(self):
-        return (self.total_short_term_debt + self.total_long_term_debt - self.cash_and_short_term_investments)/self.equity * 100
+        return (self.total_debt - self.cash_and_short_term_investments)/self.equity * 100
 
     @property
     def total_non_current_assets(self):
@@ -69,15 +73,15 @@ class BalanceSheet(FinancialStatementBase):
 
     @property
     def third_order_liquidity(self):
-        total_short_term_debt = []
-        for debt in self.total_short_term_debt:
+        total_current_liabilities = []
+        for debt in self.total_current_liabilities:
             if debt == 0:
-                total_short_term_debt.append(1e-10)
+                total_current_liabilities.append(1e-10)
             else:
-                total_short_term_debt.append(debt)
-        total_short_term_debt = np.array(total_short_term_debt)
+                total_current_liabilities.append(debt)
+        total_current_liabilities = np.array(total_current_liabilities)
 
-        return self.total_current_assets / total_short_term_debt * 100
+        return self.total_current_assets / total_current_liabilities * 100
 
     @property
     def cash_and_short_term_investments(self):
@@ -88,19 +92,20 @@ class BalanceSheet(FinancialStatementBase):
         return {
             "QTLE": self.set_common_stocK_equity,
             "LTLL": self.set_total_liabilities,
-            "STLD": self.set_total_debt,#
-            "ATOT": self.set_total_assets,#
+            "LTCL": self.set_total_current_liabilities,
+            "STLD": self.set_total_debt,
+            "ATOT": self.set_total_assets,
             "QTCO": self.set_total_outstanding_shares_common_stock,
-            "AGWI": self.set_goodwill,#
+            "AGWI": self.set_goodwill,
             "LSTD": self.set_short_term_debt,
             "LCLD": self.set_current_portion_of_long_term_debt_and_capital_lease_obligations,
-            "LAEX": self.set_accrued_expenses,#
-            "LTTD": self.set_total_long_term_debt,#
-            "STBP": self.set_book_value_per_share,#
+            "LAEX": self.set_accrued_expenses,
+            "LTTD": self.set_total_long_term_debt,
+            "STBP": self.set_book_value_per_share,
             "ATRC": self.set_total_receivables_net,
             "AITL": self.set_total_inventory,
-            "SOCA": self.set_other_current_assets,#
-            "APPY": self.set_prepaid_expenses,#
+            "SOCA": self.set_other_current_assets,
+            "APPY": self.set_prepaid_expenses,
             "ACSH": self.set_cash,
             "ACAE": self.set_cash_equivalents,
             "ASTI": self.set_short_term_investments,
