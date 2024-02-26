@@ -60,7 +60,7 @@ Derived KPIs
     Gearing
 
     .. math::
-        \text{Gearing} = \frac{\text{Total Shert Term Debt} + \text{Total Long Term Debt} - \text{Cash & Short Term Investments}{\text{Total Assets}}
+        \text{Gearing} = \frac{\text{Total Shert Term Debt} + \text{Total Long Term Debt} - \text{Cash & Short Term Investments}}{\text{Total Assets}}
 
 .. admonition::
     Total Non Current Assets
@@ -72,7 +72,7 @@ Derived KPIs
     Asset Coverage Ratio\*
 
     .. math::
-        \text{Asset Coverage Ratio} = \frec{\text{Equity} + \text{Total Long Term Debt}}{\text{Total Non Current Assets}}
+        \text{Asset Coverage Ratio} = \frac{\text{Equity} + \text{Total Long Term Debt}}{\text{Total Non Current Assets}}
 
 .. admonition::
     third order liquidity
