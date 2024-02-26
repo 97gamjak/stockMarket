@@ -1,13 +1,14 @@
 .. _financialStatements:
 
-####################
 Financial Statements
 ####################
 
 .. toctree::
-   :hidden:
-   :maxdepth: -1
+   :maxdepth: 2
+   
+   incomeStatement.rst
+   balanceSheet.rst
 
-   general.rst
 
-.. include:: incomeStatement.rst
+
+

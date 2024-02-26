@@ -12,6 +12,6 @@ StockMarket
    :maxdepth: -1
 
    financialStatments/financialStatments.rst
-   code/stockMarker.rst
+   code/stockMarket.rst
 
 :ref:`financialStatements`

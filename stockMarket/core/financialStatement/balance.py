@@ -49,7 +49,7 @@ class BalanceSheet(FinancialStatementBase):
 
     @property
     def total_short_term_debt(self):
-        return self.short_term_debt + self.current_portion_of_long_term_debt_and_capital_lease_obligations + self.accrued_expenses
+        return self.short_term_debt + self.current_portion_of_long_term_debt_and_capital_lease_obligations
 
     @property
     def total_current_assets(self):
