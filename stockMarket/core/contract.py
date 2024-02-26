@@ -61,6 +61,41 @@ class Contract(BaseMixin):
 
     full_pricing_info: pd.DataFrame | None = None
 
+    @property
+    def ebitda(self):
+        depreciation = np.nan_to_num(self.cashflow.depreciation)
+        amortization = np.nan_to_num(self.cashflow.amortization)
+        return self.income.ebit + depreciation + amortization
+
+    @property
+    def earnings_per_share(self):
+        return self.income.net_income / self.balance.total_outstanding_shares_common_stock
+
+    @property
+    def revenue_per_share(self):
+        return self.income.revenue / self.balance.total_outstanding_shares_common_stock
+
+    @property
+    def operating_cashflow_per_share(self):
+        return self.cashflow.operating_cashflow / self.balance.total_outstanding_shares_common_stock
+
+    @property
+    def free_cashflow_per_share(self):
+        return self.cashflow.free_cashflow / self.balance.total_outstanding_shares_common_stock
+
+    @property
+    def ebitda_margin(self):
+        return self.ebitda / self.income.revenue * 100
+
+    # NOTE: This should include the average of total assets from the last two years - not implemented yet
+    @property
+    def return_on_assets(self):
+        return self.income.net_income / self.balance.total_assets * 100
+
+    @property
+    def dynamic_gearing(self):
+        return (self.total_short_term_debt + self.total_long_term_debt - self.cash_and_short_term_investments)/self.cashflow.free_cashflow
+
     def earnings_per_share_growth(self, years: int = 1):
         return self.growth(self.earnings_per_share, years)
 
@@ -154,38 +189,3 @@ class Contract(BaseMixin):
         except Exception:
             result = np.nan
         return result
-
-    @property
-    def ebitda(self):
-        depreciation = np.nan_to_num(self.cashflow.depreciation)
-        amortization = np.nan_to_num(self.cashflow.amortization)
-        return self.income.ebit + depreciation + amortization
-
-    @property
-    def earnings_per_share(self):
-        return self.income.net_income / self.balance.total_outstanding_shares_common_stock
-
-    @property
-    def revenue_per_share(self):
-        return self.income.revenue / self.balance.total_outstanding_shares_common_stock
-
-    @property
-    def operating_cashflow_per_share(self):
-        return self.cashflow.operating_cashflow / self.balance.total_outstanding_shares_common_stock
-
-    @property
-    def free_cashflow_per_share(self):
-        return self.cashflow.free_cashflow / self.balance.total_outstanding_shares_common_stock
-
-    @property
-    def ebitda_margin(self):
-        return self.ebitda / self.income.revenue * 100
-
-    # NOTE: This should include the average of total assets from the last two years - not implemented yet
-    @property
-    def return_on_assets(self):
-        return self.income.net_income / self.balance.total_assets * 100
-
-    @property
-    def dynamic_gearing(self):
-        return (self.total_short_term_debt + self.total_long_term_debt - self.cash_and_short_term_investments)/self.cashflow.free_cashflow

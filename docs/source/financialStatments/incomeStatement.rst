@@ -1,19 +1,48 @@
 Income Statement
 ****************
 
-Basic KPIs
-==========
+KPIs
+====
 
-* Revenue (Excluding Financial Services)
-* Gross Profit
-* Selling, General & Administrative Expenses
-* Depreciation & Amortization
-* Total Operating Expenses
-* Net Income
-* Net Interest Income (Financial Services) 
-* Non-Interest Income (Financial Services)
-* Interest Income (Financial Services)
+.. list-table::
+   :header-rows: 1
 
+   * - KPI
+     - Description
+     - ID
+     - Derived from
+   * - REV
+     - Revenue (Excluding Financial Services)
+     - RTLR
+     -
+   * - REV (Financial Services)
+     - Revenue (Financial Services)
+     - RTLR
+     - II, NII, 
+   * - GRP
+     - Gross Profit
+     - SGRP
+     -
+   * - SGA
+     - Selling, General & Administrative Expenses
+     - SSGA
+     -
+   * - TOE
+     - Total Operating Expenses
+     - ETOE
+     -
+   * - NINC
+     - Net Income
+     - NINC
+     -
+   * - NII
+     - Non-Interest Income (Financial Services)
+     - SNII
+     -
+   * - II
+     - Interest Income (Financial Services)
+     - SIIB
+     -
 Derived KPIs
 ============
 
@@ -21,24 +50,24 @@ Derived KPIs
     Revenue (Financial Services)
    
     .. math::
-        \textrm{Revenue} = \textrm{Non-Interest Income} + \textrm{Interest Income}
+        REV = NII + II
 
 .. admonition::
     EBIT (Excluding Financial Services)
 
     .. math::
-        \textrm{EBIT} = \textrm{Revenue} - \textrm{Total Operating Expenses}
+        EBIT = REV - TOE
 
 .. admonition::
     EBIT Margin (Excluding Financial Services)
     
     .. math::
-        \textrm{EBIT Margin} = \frac{\textrm{EBIT}}{\textrm{Revenue}}
+        EBIT\text{ }Margin = \frac{EBIT}{REV}
 
 .. admonition::
     Netto Margin
     
     .. math::
-        \textrm{Netto Margin} = \frac{\textrm{Net Income}}{\textrm{Revenue}}
+        Netto\text{ }Margin = \frac{NINC}{REV}
 
 

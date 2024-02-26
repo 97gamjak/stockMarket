@@ -15,6 +15,10 @@ class CashFlow(FinancialStatementBase):
         super().__init__(**kwargs)
 
     @property
+    def free_cashflow(self):
+        return self.operating_cashflow - self.capital_expenditure    
+
+    @property
     def coa_items(self):
         return {
             "OTLO": self.set_operating_cashflow,
@@ -22,7 +26,3 @@ class CashFlow(FinancialStatementBase):
             "SAMT": self.set_amortization,
             "SCEX": self.set_capital_expenditure,
         }
-
-    @property
-    def free_cashflow(self):
-        return self.operating_cashflow - self.capital_expenditure

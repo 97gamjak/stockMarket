@@ -13,7 +13,7 @@ import os
 sys.path.insert(0, os.path.abspath('../../'))
 
 project = 'StockMarket'
-copyright = '2023, Jakob Gamper, Benjamin Lantschner'
+copyright = '2024, Jakob Gamper, Benjamin Lantschner'
 author = 'Jakob Gamper, Benjamin Lantschner'
 
 # -- General configuration ---------------------------------------------------

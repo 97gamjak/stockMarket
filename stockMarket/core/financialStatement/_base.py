@@ -40,11 +40,16 @@ class FinancialStatementBase:
         else:
             _attributes_with_setters = []
 
-        _attributes = cls._attributes + _attributes_with_setters
+        if "_attributes_to_assert" in cls.__dict__:
+            _attributes_to_assert = cls._attributes_to_assert
+        else:
+            _attributes_to_assert = []
+
+        _attributes = cls._attributes + _attributes_with_setters + _attributes_to_assert
 
         for attr in _attributes:
             getter, setter = property_factory(
-                attr, attr in _attributes_with_setters)
+                attr, attr in _attributes_with_setters + _attributes_to_assert)
 
             setattr(cls, attr, getter)
             setattr(cls, "set_" + attr, setter)

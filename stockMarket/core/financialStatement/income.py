@@ -38,7 +38,6 @@ class Income(FinancialStatementBase):
 class IncomeBank(Income):
     _attributes = [
         "interest_income",
-        "net_interest_income",
         "non_interest_income",
     ]
 
@@ -54,7 +53,6 @@ class IncomeBank(Income):
     def coa_items(self):
         coa_items = super().coa_items
         coa_items["SIIB"] = self.set_interest_income
-        coa_items["ENII"] = self.set_net_interest_income
         coa_items["SNII"] = self.set_non_interest_income
         return coa_items
 
@@ -64,7 +62,6 @@ class IncomeIndustry(Income):
         "revenue",
         "gross_profit",
         "selling_general_admin",
-        "depreciation_amortization",
         "total_operating_expenses",
     ]
 
@@ -86,7 +83,6 @@ class IncomeIndustry(Income):
         coa_items["RTLR"] = self.set_revenue
         coa_items["SGRP"] = self.set_gross_profit
         coa_items["SSGA"] = self.set_selling_general_admin
-        coa_items["SDPR"] = self.set_depreciation_amortization
         coa_items["ETOE"] = self.set_total_operating_expenses
 
         coa_items["ERAD"] = self.set_research_development

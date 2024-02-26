@@ -5,12 +5,11 @@ from ._base import FinancialStatementBase
 
 class BalanceSheet(FinancialStatementBase):
     _attributes = [
-        "common_stocK_equity",
+        "equity",
         "total_liabilities",
         "total_current_liabilities",
         "total_assets",
         "total_outstanding_shares_common_stock",
-        "book_value_per_share",
     ]
 
     _attributes_with_setters = [
@@ -26,22 +25,20 @@ class BalanceSheet(FinancialStatementBase):
         "cash",
         "cash_equivalents",
         "short_term_investments",
+        "intangible_assets",
+    ]
+
+    _attributes_to_assert = [
+        "book_value_per_share_assert",
+        "total_debt_assert",
     ]
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
     @property
-    def equity_shareholders(self):
-        return self.total_assets - self.total_liabilities
-
-    @property
-    def equity(self):
-        return self.equity_shareholders
-
-    @property
     def equity_ratio(self):
-        return (self.equity_shareholders) / self.total_assets * 100
+        return (self.equity) / self.total_assets * 100
 
     @property
     def goodwill_ratio(self):
@@ -88,12 +85,32 @@ class BalanceSheet(FinancialStatementBase):
         return self.cash + self.cash_equivalents + self.short_term_investments
 
     @property
+    def book_value(self):
+        return self.equity - self.goodwill - self.intangible_assets
+
+    @property
+    def book_value_per_share(self):
+        return self.book_value / self.total_outstanding_shares_common_stock
+
+    @property
+    def assert_balance(self):
+        assert np.allclose(self.book_value_per_share, self.book_value_per_share_assert,
+                           rtol=1), f"Book value per share: {self.book_value_per_share} != {self.book_value_per_share_assert}"
+
+        assert np.allclose(self.total_debt, self.total_debt_assert,
+                           rtol=1), f"Total debt: {self.total_debt} != {self.total_debt_assert}"
+
+        assert np.allclos(self.equity, self.total_assets - self.total_liabilities,
+                          rtol=1), f"Equity: {self.equity} != {self.total_assets - self.total_liabilities}"
+
+        print("Balance sheet assertion passed")
+
+    @property
     def coa_items(self):
         return {
-            "QTLE": self.set_common_stocK_equity,
+            "QTLE": self.set_equity,
             "LTLL": self.set_total_liabilities,
             "LTCL": self.set_total_current_liabilities,
-            "STLD": self.set_total_debt,
             "ATOT": self.set_total_assets,
             "QTCO": self.set_total_outstanding_shares_common_stock,
             "AGWI": self.set_goodwill,
@@ -101,7 +118,6 @@ class BalanceSheet(FinancialStatementBase):
             "LCLD": self.set_current_portion_of_long_term_debt_and_capital_lease_obligations,
             "LAEX": self.set_accrued_expenses,
             "LTTD": self.set_total_long_term_debt,
-            "STBP": self.set_book_value_per_share,
             "ATRC": self.set_total_receivables_net,
             "AITL": self.set_total_inventory,
             "SOCA": self.set_other_current_assets,
@@ -109,4 +125,8 @@ class BalanceSheet(FinancialStatementBase):
             "ACSH": self.set_cash,
             "ACAE": self.set_cash_equivalents,
             "ASTI": self.set_short_term_investments,
+            "AINT": self.set_intangible_assets,
+
+            "STBP": self.set_book_value_per_share_assert,
+            "STLD": self.set_total_debt_assert,
         }
