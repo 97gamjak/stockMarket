@@ -35,6 +35,9 @@ jobs:
           && pip3 install sphinx-sitemap
           && pip3 install myst-parser
           && pip3 install better-apidoc
+          && pip3 install --upgrade --no-cache-dir git+https://github.com/rongardF/tvdatafeed.git
+          && pip3 install .
+
 
       - name: Build
         run: |
