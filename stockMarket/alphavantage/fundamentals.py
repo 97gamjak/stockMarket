@@ -38,4 +38,4 @@ class Fundamentals:
 
         list_of_files = glob.glob(str(self.data_path / '*.csv'))
 
-        print(f"{len(list_of_files)/(len(self.tickers)*3)} files downloaded")
+        print(f"{len(list_of_files)/(len(self.tickers)*3):.1%} files downloaded")
