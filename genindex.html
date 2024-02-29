@@ -295,6 +295,12 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="code/stockMarket.core.contract.html#stockMarket.core.contract.Contract.dividend_yield">dividend_yield (Contract attribute)</a>
 </li>
+      <li><a href="code/stockMarket.sec_edgar.downloader.html#stockMarket.sec_edgar.downloader.Downloader.download_10k_reports">download_10k_reports() (Downloader method)</a>
+</li>
+      <li><a href="code/stockMarket.sec_edgar.downloader.html#stockMarket.sec_edgar.downloader.Downloader.download_financial_statements_xlsx">download_financial_statements_xlsx() (Downloader method)</a>
+</li>
+      <li><a href="code/stockMarket.sec_edgar.downloader.html#stockMarket.sec_edgar.downloader.Downloader">Downloader (class in stockMarket.sec_edgar.downloader)</a>
+</li>
       <li><a href="code/stockMarket.core.contract.html#stockMarket.core.contract.Contract.dynamic_gearing">dynamic_gearing (Contract property)</a>
 </li>
   </ul></td>
@@ -369,6 +375,10 @@
 <h2 id="F">F</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="code/stockMarket.sec_edgar.downloader.html#stockMarket.sec_edgar.downloader.Downloader.filings_path">filings_path (Downloader attribute)</a>
+</li>
+      <li><a href="code/stockMarket.sec_edgar.financialReportReader.html#stockMarket.sec_edgar.financialReportReader.FinancialReportReader">FinancialReportReader (class in stockMarket.sec_edgar.financialReportReader)</a>
+</li>
       <li><a href="code/stockMarket.ranking.ranking.html#stockMarket.ranking.ranking.Ranking.find_index_of_ranking_object">find_index_of_ranking_object() (Ranking method)</a>
 </li>
       <li><a href="code/stockMarket.ib.finReports.html#stockMarket.ib.finReports.FinReports">FinReports (class in stockMarket.ib.finReports)</a>
@@ -377,10 +387,10 @@
 </li>
       <li><a href="code/stockMarket.core.contract.html#stockMarket.core.contract.Contract.fiscal_year_end_dates">fiscal_year_end_dates (Contract property)</a>
 </li>
-      <li><a href="code/stockMarket.core.contract.html#stockMarket.core.contract.Contract.fiscal_years">fiscal_years (Contract property)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="code/stockMarket.core.contract.html#stockMarket.core.contract.Contract.fiscal_years">fiscal_years (Contract property)</a>
+</li>
       <li><a href="code/stockMarket.core.contract.html#stockMarket.core.contract.Contract.forward_pe">forward_pe (Contract attribute)</a>
 </li>
       <li><a href="code/stockMarket.core.financialStatement.cashflow.html#stockMarket.core.financialStatement.cashflow.CashFlow.free_cashflow">free_cashflow (CashFlow property)</a>
@@ -595,6 +605,12 @@
 </li>
         <li><a href="code/stockMarket.ranking.specialRankingObjects.html#module-stockMarket.ranking.specialRankingObjects">stockMarket.ranking.specialRankingObjects</a>
 </li>
+        <li><a href="code/stockMarket.sec_edgar.html#module-stockMarket.sec_edgar">stockMarket.sec_edgar</a>
+</li>
+        <li><a href="code/stockMarket.sec_edgar.downloader.html#module-stockMarket.sec_edgar.downloader">stockMarket.sec_edgar.downloader</a>
+</li>
+        <li><a href="code/stockMarket.sec_edgar.financialReportReader.html#module-stockMarket.sec_edgar.financialReportReader">stockMarket.sec_edgar.financialReportReader</a>
+</li>
         <li><a href="code/stockMarket.utils.html#module-stockMarket.utils">stockMarket.utils</a>
 </li>
         <li><a href="code/stockMarket.utils.emails.html#module-stockMarket.utils.emails">stockMarket.utils.emails</a>
@@ -756,8 +772,16 @@
 </li>
       <li><a href="code/stockMarket.ranking.rankingResult.html#stockMarket.ranking.rankingResult.RankingResult">RankingResult (class in stockMarket.ranking.rankingResult)</a>
 </li>
+      <li><a href="code/stockMarket.sec_edgar.financialReportReader.html#stockMarket.sec_edgar.financialReportReader.FinancialReportReader.read">read() (FinancialReportReader method)</a>
+</li>
+      <li><a href="code/stockMarket.sec_edgar.financialReportReader.html#stockMarket.sec_edgar.financialReportReader.FinancialReportReader.read_balance">read_balance() (FinancialReportReader method)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="code/stockMarket.sec_edgar.financialReportReader.html#stockMarket.sec_edgar.financialReportReader.FinancialReportReader.read_cashflow">read_cashflow() (FinancialReportReader method)</a>
+</li>
+      <li><a href="code/stockMarket.sec_edgar.financialReportReader.html#stockMarket.sec_edgar.financialReportReader.FinancialReportReader.read_income">read_income() (FinancialReportReader method)</a>
+</li>
       <li><a href="code/stockMarket.core.contract.html#stockMarket.core.contract.Contract.reporting_dates">reporting_dates (Contract property)</a>
 </li>
       <li><a href="code/stockMarket.core.contract.html#stockMarket.core.contract.Contract.research_development">research_development (Contract property)</a>
@@ -918,8 +942,6 @@
         <li><a href="code/stockMarket.core.html#module-stockMarket.core">module</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     stockMarket.core.api
 
@@ -934,6 +956,8 @@
         <li><a href="code/stockMarket.core.contract.html#module-stockMarket.core.contract">module</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li>
     stockMarket.core.contracts
 
@@ -1065,6 +1089,27 @@
 
       <ul>
         <li><a href="code/stockMarket.ranking.specialRankingObjects.html#module-stockMarket.ranking.specialRankingObjects">module</a>
+</li>
+      </ul></li>
+      <li>
+    stockMarket.sec_edgar
+
+      <ul>
+        <li><a href="code/stockMarket.sec_edgar.html#module-stockMarket.sec_edgar">module</a>
+</li>
+      </ul></li>
+      <li>
+    stockMarket.sec_edgar.downloader
+
+      <ul>
+        <li><a href="code/stockMarket.sec_edgar.downloader.html#module-stockMarket.sec_edgar.downloader">module</a>
+</li>
+      </ul></li>
+      <li>
+    stockMarket.sec_edgar.financialReportReader
+
+      <ul>
+        <li><a href="code/stockMarket.sec_edgar.financialReportReader.html#module-stockMarket.sec_edgar.financialReportReader">module</a>
 </li>
       </ul></li>
       <li>
