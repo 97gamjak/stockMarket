@@ -1,4 +1,5 @@
 import numpy as np
+import datetime as dt
 import requests
 import warnings
 import glob
@@ -37,6 +38,7 @@ class Downloader:
 
     def download_financial_statements_xlsx(self, from_year: Optional[int] = None):
         from_year = int(str(from_year)[-2:])
+        max_year = int(str(dt.date.today().year)[-2:])
         mapper = StockMapper()
 
         for ticker in tqdm(self.tickers):
@@ -56,12 +58,13 @@ class Downloader:
 
                 year = int(report.name.split("-")[-2])
 
-                if from_year and year < from_year:
+                if from_year and year < from_year and year > max_year:
                     continue
 
                 report_number = str(report).split("/")[-1].replace("-", "")
 
-                url = f"https://www.sec.gov/Archives/edgar/data/{cik}/{report_number}/Financial_Report.xlsx"
+                url = f"https://www.sec.gov/Archives/edgar/data/{
+                    cik}/{report_number}/Financial_Report.xlsx"
                 response = requests.get(url, headers=headers)
 
                 if response.status_code != 200:

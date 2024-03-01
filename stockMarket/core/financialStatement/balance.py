@@ -100,8 +100,8 @@ class BalanceSheet(FinancialStatementBase):
         assert np.allclose(self.total_debt, self.total_debt_assert,
                            rtol=1), f"Total debt: {self.total_debt} != {self.total_debt_assert}"
 
-        assert np.allclos(self.equity, self.total_assets - self.total_liabilities,
-                          rtol=1), f"Equity: {self.equity} != {self.total_assets - self.total_liabilities}"
+        assert np.allclose(self.equity, self.total_assets - self.total_liabilities,
+                           rtol=1), f"Equity: {self.equity} != {self.total_assets - self.total_liabilities}"
 
         print("Balance sheet assertion passed")
 
