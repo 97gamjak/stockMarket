@@ -63,8 +63,7 @@ class Downloader:
 
                 report_number = str(report).split("/")[-1].replace("-", "")
 
-                url = f"https://www.sec.gov/Archives/edgar/data/{
-                    cik}/{report_number}/Financial_Report.xlsx"
+                url = f"https://www.sec.gov/Archives/edgar/data/{cik}/{report_number}/Financial_Report.xlsx"
                 response = requests.get(url, headers=headers)
 
                 if response.status_code != 200:
