@@ -74,6 +74,7 @@
              
   <h1>Source code for stockMarket.sec_edgar.downloader</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">datetime</span> <span class="k">as</span> <span class="nn">dt</span>
 <span class="kn">import</span> <span class="nn">requests</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
 <span class="kn">import</span> <span class="nn">glob</span>
@@ -119,6 +120,7 @@
 <a class="viewcode-back" href="../../../code/stockMarket.sec_edgar.downloader.html#stockMarket.sec_edgar.downloader.Downloader.download_financial_statements_xlsx">[docs]</a>
     <span class="k">def</span> <span class="nf">download_financial_statements_xlsx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_year</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="n">from_year</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">from_year</span><span class="p">)[</span><span class="o">-</span><span class="mi">2</span><span class="p">:])</span>
+        <span class="n">max_year</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">dt</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">today</span><span class="p">()</span><span class="o">.</span><span class="n">year</span><span class="p">)[</span><span class="o">-</span><span class="mi">2</span><span class="p">:])</span>
         <span class="n">mapper</span> <span class="o">=</span> <span class="n">StockMapper</span><span class="p">()</span>
 
         <span class="k">for</span> <span class="n">ticker</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tickers</span><span class="p">):</span>
@@ -138,7 +140,7 @@
 
                 <span class="n">year</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">report</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span>
 
-                <span class="k">if</span> <span class="n">from_year</span> <span class="ow">and</span> <span class="n">year</span> <span class="o">&lt;</span> <span class="n">from_year</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">from_year</span> <span class="ow">and</span> <span class="n">year</span> <span class="o">&lt;</span> <span class="n">from_year</span> <span class="ow">and</span> <span class="n">year</span> <span class="o">&gt;</span> <span class="n">max_year</span><span class="p">:</span>
                     <span class="k">continue</span>
 
                 <span class="n">report_number</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">report</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>

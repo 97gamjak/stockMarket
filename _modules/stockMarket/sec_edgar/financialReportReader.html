@@ -74,6 +74,19 @@
              
   <h1>Source code for stockMarket.sec_edgar.financialReportReader</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">openpyxl</span> <span class="k">as</span> <span class="nn">xl</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">datetime</span> <span class="k">as</span> <span class="nn">dt</span>
+<span class="kn">import</span> <span class="nn">collections</span>
+<span class="kn">import</span> <span class="nn">re</span>
+
+<span class="kn">from</span> <span class="nn">._sheet_config</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">possible_income_sheet_combinations</span><span class="p">,</span>
+    <span class="n">possible_income_sheet_names</span><span class="p">,</span>
+    <span class="n">special_ticker_income_sheet_combinations</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="kn">from</span> <span class="nn">._revenue_config</span> <span class="kn">import</span> <span class="n">revenue_keys</span><span class="p">,</span> <span class="n">revenue_key_combinations</span>
 
 
 <div class="viewcode-block" id="FinancialReportReader">
@@ -81,33 +94,44 @@
 <span class="k">class</span> <span class="nc">FinancialReportReader</span><span class="p">:</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ticker</span> <span class="o">=</span> <span class="n">filename</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">4</span><span class="p">]</span>
+        <span class="n">wb</span> <span class="o">=</span> <span class="n">xl</span><span class="o">.</span><span class="n">load_workbook</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sheet_names</span> <span class="o">=</span> <span class="n">wb</span><span class="o">.</span><span class="n">sheetnames</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sheet_names_lower_case</span> <span class="o">=</span> <span class="p">[</span><span class="n">sheet</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+                                       <span class="k">for</span> <span class="n">sheet</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sheet_names</span><span class="p">]</span>
 
 <div class="viewcode-block" id="FinancialReportReader.read">
 <a class="viewcode-back" href="../../../code/stockMarket.sec_edgar.financialReportReader.html#stockMarket.sec_edgar.financialReportReader.FinancialReportReader.read">[docs]</a>
     <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">read_income</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">read_balance</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">read_cashflow</span><span class="p">()</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">read_income</span><span class="p">()</span></div>
 
+        <span class="c1"># self.read_balance()</span>
+        <span class="c1"># self.read_cashflow()</span>
 
 <div class="viewcode-block" id="FinancialReportReader.read_income">
 <a class="viewcode-back" href="../../../code/stockMarket.sec_edgar.financialReportReader.html#stockMarket.sec_edgar.financialReportReader.FinancialReportReader.read_income">[docs]</a>
     <span class="k">def</span> <span class="nf">read_income</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">sheet_name</span> <span class="o">=</span> <span class="s2">&quot;Consolidated Statements of Inco&quot;</span>
-
-        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_sheet</span><span class="p">(</span><span class="n">sheet_name</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sheet_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_sheet_name</span><span class="p">(</span><span class="n">possible_income_sheet_names</span><span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_sheet</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sheet_name</span><span class="p">)</span>
 
         <span class="n">key_column</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
         <span class="n">date</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_date</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
 
-        <span class="n">income_keys</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;revenue&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;sales&quot;</span><span class="p">,</span> <span class="s2">&quot;net sales&quot;</span><span class="p">],</span>
-        <span class="p">}</span>
+        <span class="n">revenue</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_value_from_df</span><span class="p">(</span>
+            <span class="n">df</span><span class="p">,</span> <span class="s2">&quot;revenue&quot;</span><span class="p">,</span> <span class="n">key_column</span><span class="p">,</span> <span class="n">revenue_keys</span><span class="p">,</span> <span class="n">strategy</span><span class="o">=</span><span class="s2">&quot;max&quot;</span><span class="p">)</span>
 
-        <span class="n">bool_array</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">key</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="n">income_keys</span><span class="p">[</span><span class="s2">&quot;revenue&quot;</span><span class="p">]</span>
-                      <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">df</span><span class="p">[</span><span class="n">key_column</span><span class="p">]]</span>
-        <span class="n">value</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">bool_array</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
+        <span class="n">dictionary</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;revenue&quot;</span><span class="p">:</span> <span class="n">revenue</span><span class="p">}</span>
+
+        <span class="k">if</span> <span class="s2">&quot;$ in thousands&quot;</span> <span class="ow">in</span> <span class="n">key_column</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+            <span class="n">dictionary</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span><span class="o">/</span><span class="mi">1000</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">dictionary</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+        <span class="k">elif</span> <span class="s2">&quot;$ in millions&quot;</span> <span class="ow">in</span> <span class="n">key_column</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+            <span class="n">dictionary</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">dictionary</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">dictionary</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">value</span><span class="o">/</span><span class="mi">1000000</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span>
+                          <span class="n">value</span> <span class="ow">in</span> <span class="n">dictionary</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+
+        <span class="k">return</span> <span class="n">date</span><span class="p">,</span> <span class="n">dictionary</span></div>
 
 
 <div class="viewcode-block" id="FinancialReportReader.read_balance">
@@ -132,18 +156,148 @@
         <span class="n">date</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_read_date</span><span class="p">(</span><span class="n">df</span><span class="p">)</span></div>
 
 
+    <span class="k">def</span> <span class="nf">_get_value_from_df</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">,</span> <span class="n">key_to_find</span><span class="p">,</span> <span class="n">key_column</span><span class="p">,</span> <span class="n">possible_keys</span><span class="p">,</span> <span class="n">strategy</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">possible_keys</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">possible_keys</span><span class="p">}</span>
+        <span class="n">df_keys</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">key_column</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="n">df_keys</span> <span class="o">=</span> <span class="n">df_keys</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot; \(.*&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">df_keys</span> <span class="o">=</span> <span class="n">df_keys</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot; 1 &amp; 2.*&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">bool_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="kc">False</span><span class="p">]</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">df_keys</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">df_keys</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">possible_keys</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">([</span><span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="ow">or</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]):</span>
+                <span class="n">bool_array</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="n">found_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">df_keys</span><span class="p">[</span><span class="n">bool_array</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">key_combinations</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">found_keys</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">found_key</span> <span class="o">=</span> <span class="kc">None</span>
+
+            <span class="k">for</span> <span class="n">combination</span> <span class="ow">in</span> <span class="n">revenue_key_combinations</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">compare</span><span class="p">(</span><span class="n">combination</span><span class="p">,</span> <span class="n">found_keys</span><span class="p">):</span>
+                    <span class="n">found_key</span> <span class="o">=</span> <span class="n">combination</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="k">break</span>
+
+            <span class="k">if</span> <span class="n">found_key</span><span class="p">:</span>
+                <span class="n">key_value_pairs</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df_keys</span> <span class="o">==</span> <span class="n">found_key</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Ambiguous </span><span class="si">{</span><span class="n">key_to_find</span><span class="si">}</span><span class="s2"> keys found in file </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s2">: found keys </span><span class="si">{</span><span class="n">found_keys</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">key_value_pairs</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">bool_array</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+
+        <span class="n">values</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">key_value_pair</span> <span class="ow">in</span> <span class="n">key_value_pairs</span><span class="p">:</span>
+            <span class="n">single_key_values</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">value</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">key_value_pair</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">value</span><span class="p">)]</span>
+            <span class="k">if</span> <span class="n">single_key_values</span><span class="p">:</span>
+                <span class="n">values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">single_key_values</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">values</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;No </span><span class="si">{</span><span class="n">key_to_find</span><span class="si">}</span><span class="s2"> found in sheet </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sheet_name</span><span class="si">}</span><span class="s2"> for file </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">strategy</span> <span class="o">==</span> <span class="s2">&quot;max&quot;</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="nb">max</span><span class="p">(</span><span class="n">values</span><span class="p">),</span> <span class="nb">sum</span><span class="p">(</span><span class="n">values</span><span class="p">),</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">):</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Multiple </span><span class="si">{</span><span class="n">key_to_find</span><span class="si">}</span><span class="s2">s found for file </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s2">: found keys </span><span class="si">{</span><span class="n">found_keys</span><span class="si">}</span><span class="s2"> with values </span><span class="si">{</span><span class="n">values</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_sheet_name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">possible_sheet_names</span><span class="p">):</span>
+        <span class="n">found_sheets</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">sheet</span> <span class="k">for</span> <span class="n">sheet</span> <span class="ow">in</span> <span class="n">possible_sheet_names</span> <span class="k">if</span> <span class="n">sheet</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">sheet_names_lower_case</span>
+        <span class="p">}</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">found_sheets</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;No income statement found in file </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">found_sheets</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">sheet_name</span> <span class="o">=</span> <span class="kc">None</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">ticker</span> <span class="ow">in</span> <span class="n">special_ticker_income_sheet_combinations</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="k">for</span> <span class="n">combination</span> <span class="ow">in</span> <span class="n">special_ticker_income_sheet_combinations</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">ticker</span><span class="p">]:</span>
+                    <span class="k">if</span> <span class="n">compare</span><span class="p">(</span><span class="n">combination</span><span class="p">,</span> <span class="n">found_sheets</span><span class="p">):</span>
+                        <span class="n">sheet_name</span> <span class="o">=</span> <span class="n">combination</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                        <span class="k">break</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">sheet_name</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">combination</span> <span class="ow">in</span> <span class="n">possible_income_sheet_combinations</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">compare</span><span class="p">(</span><span class="n">combination</span><span class="p">,</span> <span class="n">found_sheets</span><span class="p">):</span>
+                        <span class="n">sheet_name</span> <span class="o">=</span> <span class="n">combination</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                        <span class="k">break</span>
+
+            <span class="k">if</span> <span class="n">sheet_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Multiple income statements found in file </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="si">}</span><span class="s2">: found sheets </span><span class="si">{</span><span class="n">found_sheets</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">sheet_name</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">found_sheets</span><span class="p">))</span>
+
+        <span class="n">sheet_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sheet_names_lower_case</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">sheet_name</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+        <span class="n">sheet_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sheet_names</span><span class="p">[</span><span class="n">sheet_index</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">sheet_name</span>
+
     <span class="k">def</span> <span class="nf">_read_sheet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sheet_name</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="n">sheet_name</span><span class="o">=</span><span class="n">sheet_name</span><span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_excel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">,</span> <span class="n">sheet_name</span><span class="o">=</span><span class="n">sheet_name</span><span class="p">)</span>
+        <span class="n">columns</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span>
+        <span class="n">column_indices_to_remove</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">three_months_ended</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">while</span> <span class="n">index</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">columns</span><span class="p">):</span>
+            <span class="k">if</span> <span class="s2">&quot;3 months ended&quot;</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+                <span class="n">column_indices_to_remove</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+                <span class="n">three_months_ended</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="n">index</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">continue</span>
+
+            <span class="k">if</span> <span class="n">three_months_ended</span> <span class="ow">and</span> <span class="s2">&quot;unnamed&quot;</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+                <span class="n">column_indices_to_remove</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">three_months_ended</span><span class="p">:</span>
+                <span class="k">break</span>
+
+            <span class="n">index</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="n">column_indices_to_remove</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">df</span>
 
     <span class="k">def</span> <span class="nf">_read_date</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">date</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-            <span class="n">date</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">column</span> <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="k">if</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span>
+                <span class="n">column</span><span class="p">,</span> <span class="n">dt</span><span class="o">.</span><span class="n">datetime</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">column</span><span class="p">,</span> <span class="nb">str</span><span class="p">))</span> <span class="ow">and</span> <span class="s2">&quot;unnamed&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">column</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span>
+            <span class="c1"># filter all columns that contain a date with pattern &quot;aaa. dd, yyyy&quot; as a substring</span>
+            <span class="c1"># and remove all characters that are not part of substring</span>
+            <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;.*?(\w</span><span class="si">{3}</span><span class="s2">\. \d{1,2}, \d</span><span class="si">{4}</span><span class="s2">).*&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;\1&quot;</span><span class="p">,</span> <span class="n">column</span><span class="p">)</span>
+                       <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">columns</span> <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;.*?(\w</span><span class="si">{3}</span><span class="s2">\. \d{1,2}, \d</span><span class="si">{4}</span><span class="s2">).*&quot;</span><span class="p">,</span> <span class="n">column</span><span class="p">)]</span>
+            <span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">column</span><span class="p">)</span> <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">columns</span><span class="p">]</span>
+            <span class="n">date</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">columns</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="n">new_df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;USD.*&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">regex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">values</span> <span class="o">=</span> <span class="n">new_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+            <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="n">value</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">values</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span>
+                <span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">dt</span><span class="o">.</span><span class="n">datetime</span><span class="p">)]</span>
+            <span class="n">date</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 
         <span class="n">date</span> <span class="o">=</span> <span class="n">date</span><span class="o">.</span><span class="n">to_pydatetime</span><span class="p">()</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">date</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">date</span></div>
+
+
+
+<div class="viewcode-block" id="compare">
+<a class="viewcode-back" href="../../../code/stockMarket.sec_edgar.financialReportReader.html#stockMarket.sec_edgar.financialReportReader.compare">[docs]</a>
+<span class="k">def</span> <span class="nf">compare</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span> <span class="k">return</span> <span class="n">collections</span><span class="o">.</span><span class="n">Counter</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">==</span> <span class="n">collections</span><span class="o">.</span><span class="n">Counter</span><span class="p">(</span><span class="n">y</span><span class="p">)</span></div>
 
 </pre></div>
 
