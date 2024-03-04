@@ -4,6 +4,7 @@ import pandas as pd
 import warnings
 import glob
 from tqdm import tqdm
+from joblib import Parallel, delayed
 
 from beartype.typing import List, Optional
 
@@ -25,54 +26,60 @@ class FinancialReportCollecter:
         if from_year is not None:
             from_year = int(str(from_year)[2:])
 
-        for ticker in tqdm(self.tickers):
-            ticker_path = self.sec_edgar_path / ticker / '10-K'
+        # for ticker in tqdm(self.tickers):
+        #     self.collect_single_ticker(ticker, from_year, update)
 
-            csv_file = ticker_path / 'full_income.csv'
+        Parallel(n_jobs=-1)(delayed(self.collect_single_ticker)
+                            (ticker, from_year, update) for ticker in tqdm(self.tickers))
 
-            if csv_file.exists() and not update:
+    def collect_single_ticker(self, ticker, from_year, update):
+        ticker_path = self.sec_edgar_path / ticker / '10-K'
+
+        csv_file = ticker_path / 'full_income.csv'
+
+        if csv_file.exists() and not update:
+            return
+
+        csv_file = str(csv_file)
+
+        if not ticker_path.exists():
+            raise FileNotFoundError(
+                f'{ticker} is not found in the sec-edgar-filings directory')
+
+        list_of_reports = glob.glob(
+            str(ticker_path) + '/*/Financial_Report.xlsx')
+
+        available_years = self.find_years_from_paths(
+            list_of_reports, from_year, ticker)
+
+        list_of_reports = [report for report in list_of_reports if int(report.split(
+            '-')[-2]) in available_years]
+        list_of_reports = sorted(
+            list_of_reports, key=lambda x: int(x.split('-')[-2]))
+
+        df = pd.DataFrame()
+
+        for report_file in list_of_reports:
+            try:
+                reader = FinancialReportReader(report_file)
+                date, data = reader.read_income()
+            except Exception as e:
+                self.error_messages.append(
+                    f'Error reading {report_file} for {ticker}: {e}')
+                if self.max_errors is not None and len(self.error_messages) > self.max_errors:
+                    print(self.error_messages)
+                    raise e
+
                 continue
 
-            csv_file = str(csv_file)
+            dictionary = {"endDate": date}
+            for key, value in data.items():
+                dictionary[key] = value
 
-            if not ticker_path.exists():
-                raise FileNotFoundError(
-                    f'{ticker} is not found in the sec-edgar-filings directory')
+            data_df = pd.DataFrame([dictionary])
+            df = pd.concat([df, data_df])
 
-            list_of_reports = glob.glob(
-                str(ticker_path) + '/*/Financial_Report.xlsx')
-
-            available_years = self.find_years_from_paths(
-                list_of_reports, from_year, ticker)
-
-            list_of_reports = [report for report in list_of_reports if int(report.split(
-                '-')[-2]) in available_years]
-            list_of_reports = sorted(
-                list_of_reports, key=lambda x: int(x.split('-')[-2]))
-
-            df = pd.DataFrame()
-
-            for report_file in list_of_reports:
-                try:
-                    reader = FinancialReportReader(report_file)
-                    date, data = reader.read_income()
-                except Exception as e:
-                    self.error_messages.append(
-                        f'Error reading {report_file} for {ticker}: {e}')
-                    if self.max_errors is not None and len(self.error_messages) > self.max_errors:
-                        print(self.error_messages)
-                        raise e
-
-                    continue
-
-                dictionary = {"endDate": date}
-                for key, value in data.items():
-                    dictionary[key] = value
-
-                data_df = pd.DataFrame([dictionary])
-                df = pd.concat([df, data_df])
-
-            df.to_csv(csv_file, index=False)
+        df.to_csv(csv_file, index=False)
 
     def find_years_from_paths(self, paths: List[str], from_year, ticker) -> List[int]:
         available_years = []

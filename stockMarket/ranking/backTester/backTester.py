@@ -71,10 +71,8 @@ class BackTester:
         performance_dates = [date + period.period_time for date in dates]
 
         self.plotting_title += f"{dates[0]} - {performance_dates[-1]}\n"
-        self.plotting_title += f"Period: {
-            period.period_string} * {period.amount}\n"
-        self.plotting_title += f"Frequency: {
-            frequency.period_string} * {frequency.amount}\n"
+        self.plotting_title += f"Period: {period.period_string} * {period.amount}\n"
+        self.plotting_title += f"Frequency: {frequency.period_string} * {frequency.amount}\n"
         self.plotting_title += f"Average over {len(dates)} periods\n"
 
         return dates, performance_dates

@@ -11,7 +11,11 @@ from ._sheet_config import (
     special_ticker_income_sheet_combinations,
 )
 
-from ._revenue_config import revenue_keys, revenue_key_combinations
+from ._revenue_config import (
+    revenue_keys,
+    revenue_key_combinations,
+    special_ticker_revenue_combinations,
+)
 
 
 class FinancialReportReader:
@@ -41,9 +45,15 @@ class FinancialReportReader:
 
         dictionary = {"revenue": revenue}
 
-        if "$ in thousands" in key_column.lower():
+        first_key_column_entry = df[key_column].values[0]
+        first_key_column_entry = first_key_column_entry.lower() if isinstance(
+            first_key_column_entry, str) else ""
+        first_key_column_entry = re.sub(
+            r"share data in [a-z]{8}", "", first_key_column_entry)
+
+        if "$ in thousands" in key_column.lower() or "in thousands" in first_key_column_entry:
             dictionary = {key: value/1000 for key, value in dictionary.items()}
-        elif "$ in millions" in key_column.lower():
+        elif "$ in millions" in key_column.lower() or "in millions" in first_key_column_entry:
             dictionary = {key: value for key, value in dictionary.items()}
         else:
             dictionary = {key: value/1000000 for key,
@@ -70,7 +80,7 @@ class FinancialReportReader:
     def _get_value_from_df(self, df, key_to_find, key_column, possible_keys, strategy=None):
         possible_keys = {key.lower() for key in possible_keys}
         df_keys = df[key_column].str.lower()
-        df_keys = df_keys.str.replace(r" \(.*", "", regex=True)
+        # df_keys = df_keys.str.replace(r" \(.*", "", regex=True)
         df_keys = df_keys.str.replace(r" 1 & 2.*", "", regex=True)
 
         bool_array = np.array([False]*len(df_keys))
@@ -89,10 +99,16 @@ class FinancialReportReader:
         if len(found_keys) > 1:
             found_key = None
 
-            for combination in revenue_key_combinations:
+            for combination in special_ticker_revenue_combinations.get(self.ticker, []):
                 if compare(combination, found_keys):
                     found_key = combination[0]
                     break
+
+            if not found_key:
+                for combination in revenue_key_combinations:
+                    if compare(combination, found_keys):
+                        found_key = combination[0]
+                        break
 
             if found_key:
                 key_value_pairs = df.loc[df_keys == found_key].values
@@ -164,25 +180,34 @@ class FinancialReportReader:
         df = pd.read_excel(self.filename, sheet_name=sheet_name)
         columns = df.columns
         column_indices_to_remove = []
-        index = 0
-        three_months_ended = False
-        while index < len(columns):
-            if "3 months ended" in columns[index].lower():
-                column_indices_to_remove.append(index)
-                three_months_ended = True
-                index += 1
-                continue
 
-            if three_months_ended and "unnamed" in columns[index].lower():
-                column_indices_to_remove.append(index)
-            elif three_months_ended:
-                break
-
-            index += 1
+        for i in range(12):
+            column_indices_to_remove += self.get_columns_to_remove_months_ended(
+                i, columns)
 
         df = df.drop(columns=df.columns[column_indices_to_remove])
 
         return df
+
+    def get_columns_to_remove_months_ended(self, months, columns):
+        column_indices_to_remove = []
+        index = 0
+        months_ended = False
+        while index < len(columns):
+            if f"{months} months ended" in columns[index].lower() and "12 months" not in columns[index].lower():
+                column_indices_to_remove.append(index)
+                months_ended = True
+                index += 1
+                continue
+
+            if months_ended and "unnamed" in columns[index].lower():
+                column_indices_to_remove.append(index)
+            elif months_ended:
+                break
+
+            index += 1
+
+        return column_indices_to_remove
 
     def _read_date(self, df):
         try:
@@ -199,7 +224,9 @@ class FinancialReportReader:
             values = new_df.iloc[0].values[1:]
             values = [value for value in values if isinstance(
                 value, str) or isinstance(value, dt.datetime)]
-            date = pd.Timestamp(values[0])
+
+            date = pd.Timestamp(
+                re.sub(r".*?(\w{3}\. \d{1,2}, \d{4}).*", r"\1", values[0]))
 
         date = date.to_pydatetime().date()
         return date
