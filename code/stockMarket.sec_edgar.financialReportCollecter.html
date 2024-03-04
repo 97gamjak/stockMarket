@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>financialReportCollecter &mdash; StockMarket  documentation</title>
+  <title>stockMarket.sec_edgar.financialReportCollecter module &mdash; StockMarket  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=09f73366" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=eafc0fe6" />
@@ -55,7 +55,7 @@
 <li class="toctree-l2 current"><a class="reference internal" href="stockMarket.sec_edgar.html">sec_edgar</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="stockMarket.sec_edgar.downloader.html">downloader</a></li>
 <li class="toctree-l3"><a class="reference internal" href="stockMarket.sec_edgar.financialReportChecker.html">financialReportChecker</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">financialReportCollecter</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">stockMarket.sec_edgar.financialReportCollecter module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="stockMarket.sec_edgar.financialReportReader.html">financialReportReader</a></li>
 </ul>
 </li>
@@ -81,7 +81,7 @@
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="stockMarket.html">Submodules</a></li>
           <li class="breadcrumb-item"><a href="stockMarket.sec_edgar.html">sec_edgar</a></li>
-      <li class="breadcrumb-item active">financialReportCollecter</li>
+      <li class="breadcrumb-item active">stockMarket.sec_edgar.financialReportCollecter module</li>
       <li class="wy-breadcrumbs-aside">
             <a href="../_sources/code/stockMarket.sec_edgar.financialReportCollecter.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -91,65 +91,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="module-stockMarket.sec_edgar.financialReportCollecter">
-<span id="financialreportcollecter"></span><h1>financialReportCollecter<a class="headerlink" href="#module-stockMarket.sec_edgar.financialReportCollecter" title="Link to this heading"></a></h1>
-<section id="summary">
-<h2>Summary<a class="headerlink" href="#summary" title="Link to this heading"></a></h2>
-<p>Classes:</p>
-<table class="autosummary longtable docutils align-default">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#stockMarket.sec_edgar.financialReportCollecter.FinancialReportCollecter" title="stockMarket.sec_edgar.financialReportCollecter.FinancialReportCollecter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FinancialReportCollecter</span></code></a></p></td>
-<td><p></p></td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="reference">
-<h2>Reference<a class="headerlink" href="#reference" title="Link to this heading"></a></h2>
-<dl class="py class">
-<dt class="sig sig-object py" id="stockMarket.sec_edgar.financialReportCollecter.FinancialReportCollecter">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">FinancialReportCollecter</span></span><span class="sig-paren">(</span>
-
-<dl>
-<dd><em class="sig-param"><span class="n"><span class="pre">tickers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">str</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">max_errors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>,</dd>
-</dl>
-
-<span class="sig-paren">)</span><a class="reference internal" href="../_modules/stockMarket/sec_edgar/financialReportCollecter.html#FinancialReportCollecter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#stockMarket.sec_edgar.financialReportCollecter.FinancialReportCollecter" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<dl class="py method">
-<dt class="sig sig-object py" id="stockMarket.sec_edgar.financialReportCollecter.FinancialReportCollecter.collect">
-<span class="sig-name descname"><span class="pre">collect</span></span><span class="sig-paren">(</span>
-
-<dl>
-<dd><em class="sig-param"><span class="n"><span class="pre">from_year</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">update</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>,</dd>
-</dl>
-
-<span class="sig-paren">)</span><a class="reference internal" href="../_modules/stockMarket/sec_edgar/financialReportCollecter.html#FinancialReportCollecter.collect"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#stockMarket.sec_edgar.financialReportCollecter.FinancialReportCollecter.collect" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="stockMarket.sec_edgar.financialReportCollecter.FinancialReportCollecter.find_years_from_paths">
-<span class="sig-name descname"><span class="pre">find_years_from_paths</span></span><span class="sig-paren">(</span>
-
-<dl>
-<dd><em class="sig-param"><span class="n"><span class="pre">paths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">from_year</span></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">ticker</span></span></em>,</dd>
-</dl>
-
-<span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/stockMarket/sec_edgar/financialReportCollecter.html#FinancialReportCollecter.find_years_from_paths"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#stockMarket.sec_edgar.financialReportCollecter.FinancialReportCollecter.find_years_from_paths" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="stockMarket.sec_edgar.financialReportCollecter.FinancialReportCollecter.sec_edgar_path">
-<span class="sig-name descname"><span class="pre">sec_edgar_path</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">PosixPath('/home/runner/work/stockMarket/stockMarket/stockMarket/../data/sec-edgar-filings')</span></em><a class="headerlink" href="#stockMarket.sec_edgar.financialReportCollecter.FinancialReportCollecter.sec_edgar_path" title="Link to this definition"></a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-</section>
+  <section id="stockmarket-sec-edgar-financialreportcollecter-module">
+<h1>stockMarket.sec_edgar.financialReportCollecter module<a class="headerlink" href="#stockmarket-sec-edgar-financialreportcollecter-module" title="Link to this heading"></a></h1>
 </section>
 
 
