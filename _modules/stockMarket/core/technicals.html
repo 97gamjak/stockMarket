@@ -144,6 +144,13 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">bbands</span></div>
 
 
+<div class="viewcode-block" id="Technicals.calc_ema">
+<a class="viewcode-back" href="../../../code/stockMarket.core.technicals.html#stockMarket.core.technicals.Technicals.calc_ema">[docs]</a>
+    <span class="k">def</span> <span class="nf">calc_ema</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">length</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">20</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ema</span> <span class="o">=</span> <span class="n">talib</span><span class="o">.</span><span class="n">EMA</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pricing_data</span><span class="o">.</span><span class="n">close</span><span class="p">,</span> <span class="n">timeperiod</span><span class="o">=</span><span class="n">length</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ema</span></div>
+
+
 <div class="viewcode-block" id="Technicals.plot">
 <a class="viewcode-back" href="../../../code/stockMarket.core.technicals.html#stockMarket.core.technicals.Technicals.plot">[docs]</a>
     <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">logarithmic_scale</span><span class="o">=</span><span class="s2">&quot;linear&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
