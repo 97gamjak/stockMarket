@@ -55,6 +55,10 @@ class Technicals:
             self.pricing_data.close, nbdevup=nbdevup, nbdevdn=nbdevdn, timeperiod=time_period)
         return self.bbands
 
+    def calc_ema(self, length: int = 20):
+        self.ema = talib.EMA(self.pricing_data.close, timeperiod=length)
+        return self.ema
+
     def plot(self, logarithmic_scale="linear", **kwargs):
         add_plots = []
 
