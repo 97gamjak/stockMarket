@@ -13,7 +13,6 @@ from .tickerGenerator import (
     get_tickers_from_index,
     get_currencies_from_index
 )
-from .technicals import Technicals
 
 from .api import growth_y2y
 from .api import growth_total

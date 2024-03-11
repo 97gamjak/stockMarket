@@ -6,8 +6,9 @@ import warnings
 
 from tvDatafeed import TvDatafeed
 
-from .contract import Contract
+from stockMarket.core.contract import Contract
 from stockMarket.utils import Period
+from .indicators import EMA
 
 
 class Technicals:
@@ -56,7 +57,7 @@ class Technicals:
         return self.bbands
 
     def calc_ema(self, length: int = 20):
-        self.ema = talib.EMA(self.pricing_data.close, timeperiod=length)
+        self.ema = EMA(self.pricing_data.close, length).calculate()
         return self.ema
 
     def plot(self, logarithmic_scale="linear", **kwargs):
