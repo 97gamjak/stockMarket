@@ -214,9 +214,6 @@ class Strategy:
                 rule_type = value[0]
                 xlsx_sheet.cell(row=row, column=1).value = date
                 xlsx_sheet.cell(row=row, column=2).value = ticker
-                xlsx_sheet.cell(
-                    row=row, column=3).value = self.candle_period.period_string
-                xlsx_sheet.cell(row=row, column=4).value = rule_type
                 xlsx_sheet.cell(row=row, column=5).value = candle.close
                 xlsx_sheet.cell(row=row, column=6).value = candle.low
                 row += 1
