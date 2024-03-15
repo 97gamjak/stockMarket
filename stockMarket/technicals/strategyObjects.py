@@ -131,7 +131,8 @@ class EMAStrategy(StrategyObject):
                     key_j = self.indicator_keys[j]
                     ratio = self.indicator_values[key_i][date] / \
                         self.indicator_values[key_j][date]
-                    self.meta_data[date_index] += f"\t{key_i:7} / {key_j:7}: {ratio:8.2f}\n"
+                    self.meta_data[date_index] += f"\t{
+                        key_i:7} / {key_j:7}: {ratio:8.2f}\n"
 
     def _evaluate_bullish_rules(self):
         is_bullish = True
@@ -157,16 +158,16 @@ class EMAStrategy(StrategyObject):
         for i in range(len(self.periods) - 1):
             key_i = self.indicator_keys[i]
             key_j = self.indicator_keys[i + 1]
-            if not compare_operator(self.indicator_values[key_i][self.index], self.indicator_values[key_j][self.index]):
+            if not compare_operator(self.indicator_values[key_i].iloc[self.index], self.indicator_values[key_j].iloc[self.index]):
                 return False
         return True
 
     def _bullish_candle_rule(self):
-        if self.data.iloc[self.index].low <= self.indicator_values[self.indicator_keys[0]][self.index]:
+        if self.data.iloc[self.index].low <= self.indicator_values[self.indicator_keys[0]].iloc[self.index]:
             return True
         return False
 
     def _bearish_candle_rule(self):
-        if self.data.iloc[self.index].high >= self.indicator_values[self.indicator_keys[0]][self.index]:
+        if self.data.iloc[self.index].high >= self.indicator_values[self.indicator_keys[0]].iloc[self.index]:
             return True
         return False

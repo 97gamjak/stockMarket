@@ -8,6 +8,7 @@ import shutil
 from pathlib import Path
 from beartype.typing import List
 from tqdm import tqdm
+from openpyxl import load_workbook
 
 from .technicals import Technicals
 from .strategyObjects import StrategyObject, RuleEnum
@@ -35,8 +36,8 @@ class Strategy:
 
         self.compile_strategy(strategy_objects, rule_enums)
 
-        self.result_logger_filename = "result_logger.txt"
-        self.error_logger_filename = "error_logger.txt"
+        self.result_logger_filename = str(self.dir_path / "result_logger.txt")
+        self.error_logger_filename = str(self.dir_path / "error_logger.txt")
 
         self.result_logger = {}
         self.meta_data_logger = {}
@@ -82,8 +83,13 @@ class Strategy:
                     f"Directory {self.dir_path} already exists, aborting")
 
         elif self.storing_behavior == "full_overwrite":
+            print(self.dir_path)
             if self.dir_path.exists():
+                print(self.dir_path)
                 shutil.rmtree(self.dir_path)
+
+            if self.dir_path.exists():
+                print(self.dir_path)
 
         self.dir_path.mkdir()
 
@@ -109,11 +115,16 @@ class Strategy:
 
         logger_file = open(self.result_logger_filename, "w")
         error_file = open(self.error_logger_filename, "w")
-        meta_file = open("meta_data_logger.txt", "w")
+        meta_file = open(str(self.dir_path / "meta_data_logger.txt"), "w")
 
         #fmt: off
         logger_file.write(f"Screening for {self.candle_period.period_string} candles from {self.start_date} to {self.end_date}\n\n\n")
         #fmt: on
+
+        xlsx_file = load_workbook(filename=str(
+            self.base_path / "template.xlsx"))
+
+        xlsx_sheet = xlsx_file["screening"]
 
         for ticker in tqdm(self.tickers):
             contract = Technicals(ticker=ticker)
@@ -195,8 +206,24 @@ class Strategy:
                 meta_file.write("\n")
                 meta_file.flush()
 
+        row = 2
+        for i, ticker in enumerate(self.tickers):
+            for key, value in self.result_logger[ticker].items():
+                date = key.date()
+                candle = value[1]
+                rule_type = value[0]
+                xlsx_sheet.cell(row=row, column=1).value = date
+                xlsx_sheet.cell(row=row, column=2).value = ticker
+                xlsx_sheet.cell(
+                    row=row, column=3).value = self.candle_period.period_string
+                xlsx_sheet.cell(row=row, column=4).value = rule_type
+                xlsx_sheet.cell(row=row, column=5).value = candle.close
+                xlsx_sheet.cell(row=row, column=6).value = candle.low
+                row += 1
+
         logger_file.close()
         meta_file.close()
+        xlsx_file.save(str(self.dir_path / "screening.xlsx"))
 
 
 def _check_dates(start_date: str, end_date: str) -> tuple[dt.date, dt.date]:
