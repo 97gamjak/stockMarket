@@ -6,7 +6,7 @@ import glob
 import shutil
 
 from pathlib import Path
-from beartype.typing import List
+from beartype.typing import List, Optional
 from tqdm import tqdm
 from openpyxl import load_workbook
 
@@ -106,8 +106,6 @@ class Strategy:
         self.n_bars = np.ceil(
             period_time / self.candle_period.period_time.days)
         self.n_bars = int(self.n_bars) + 100
-
-    # def read_xlsx(self, file_path: str) -> pd.DataFrame:
 
     def screen(self, tickers: List[str] | str) -> None:
 
