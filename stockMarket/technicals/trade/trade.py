@@ -211,6 +211,7 @@ class Trade:
                 self.trade_executed = False
                 self.trade_status = TradeStatus.TP_B_TC_B_TO_LOW_RATIO_TOO_SMALL
 
+    @check_trade_status
     def calc_R_ENTRY(self, pricing: pd.DataFrame):
 
         if self.TC_index != len(pricing)-1:
