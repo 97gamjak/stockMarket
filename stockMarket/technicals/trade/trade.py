@@ -295,7 +295,7 @@ class Trade:
                     self.EXIT = TP
                 else:
                     self.EXIT = None
-                    self.trade_status = 
+                    self.trade_status = TradeStatus.AMBIGUOUS_EXIT_DATE
 
                 self.EXIT_date = TP_date
 
