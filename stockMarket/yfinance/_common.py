@@ -41,3 +41,10 @@ def write_to_csv(df: pd.DataFrame, file: str):
     with open(file, "w") as f:
         f.write(f"{pd.Timestamp.today().isoformat()}\n")
     df.to_csv(file, mode="a")
+
+
+def adjust_price_data_from_df(df):
+    columns = df.columns
+    columns_lower_case = [column.lower() for column in columns]
+    df = df.rename(columns=dict(zip(columns, columns_lower_case)))
+    return df

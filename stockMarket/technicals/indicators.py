@@ -87,3 +87,21 @@ def candle_body_outside_range(data, percentages):
     fib = FIB(data, percentages)
     boolean_check = fib.candle_body_outside_range()
     return boolean_check, fib.indicator_values
+
+
+class RSI(Indicator):
+    def __init__(self, data, period, key=None):
+        super().__init__(data, key)
+        self.indicator = "rsi"
+        self.period = period
+
+    def calculate(self):
+        self.indicator_values = talib.RSI(self.data, timeperiod=self.period)
+        return self.indicator_values
+
+
+def calculate_rsi(data, period, key=None, cache=None):
+    if cache is not None:
+        return cache
+    else:
+        return RSI(data, period, key).calculate()

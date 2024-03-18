@@ -1,7 +1,7 @@
 from beartype.typing import List
 from enum import Enum
 
-from .indicators import calculate_ema, candle_body_outside_range
+from .indicators import calculate_ema, candle_body_outside_range, calculate_rsi
 
 
 class RuleEnum(Enum):
@@ -20,11 +20,13 @@ class StrategyObject:
 
         if rule_enums is None:
             rule_enums = self.rules.keys()
+        else:
+            rule_enums = [rule_enum.value for rule_enum in rule_enums]
 
         rules_outcome = {}
 
         for rule_enum in rule_enums:
-            rules_outcome[rule_enum.value] = self.rules[rule_enum.value]()
+            rules_outcome[rule_enum] = self.rules[rule_enum]()
 
         return rules_outcome
 
@@ -131,8 +133,9 @@ class EMAStrategy(StrategyObject):
                     key_j = self.indicator_keys[j]
                     ratio = self.indicator_values[key_i][date] / \
                         self.indicator_values[key_j][date]
-                    self.meta_data[date_index] += f"\t{
-                        key_i:7} / {key_j:7}: {ratio:8.2f}\n"
+                    #fmt: off
+                    self.meta_data[date_index] += f"\t{key_i:7} / {key_j:7}: {ratio:8.2f}\n"
+                    #fmt: on
 
     def _evaluate_bullish_rules(self):
         is_bullish = True
@@ -169,5 +172,30 @@ class EMAStrategy(StrategyObject):
 
     def _bearish_candle_rule(self):
         if self.data.iloc[self.index].high >= self.indicator_values[self.indicator_keys[0]].iloc[self.index]:
+            return True
+        return False
+
+
+class RSIStrategy(StrategyObject):
+    strategy_name = "RSI"
+
+    def __init__(self, period: int, overbought: int, oversold: int):
+        super().__init__()
+        self.period = period
+        self.overbought = overbought
+        self.oversold = oversold
+        self.indicator_keys = ["rsi"]
+
+    def calculate_indicators(self):
+        self.indicator_values = {}
+        self.indicator_values["rsi"] = calculate_rsi(self.data, self.period)
+
+    def _evaluate_bullish_rules(self):
+        if self.indicator_values["rsi"].iloc[self.index] < self.oversold:
+            return True
+        return False
+
+    def _evaluate_bearish_rules(self):
+        if self.indicator_values["rsi"].iloc[self.index] > self.overbought:
             return True
         return False
