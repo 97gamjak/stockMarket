@@ -5,6 +5,12 @@ class ChartEnum(Enum):
     LAST_HIGH = "last high"
 
 
+class TradeOutcome(Enum):
+    NONE = "none"
+    WIN = "win"
+    LOSS = "loss"
+
+
 class TradeStatus(Enum):
     UNKNOWN = "UNKNOWN"
     OPEN = "OPEN"

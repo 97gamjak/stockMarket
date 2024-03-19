@@ -6,7 +6,10 @@ import re
 import glob
 import shutil
 import os
+import matplotlib.pyplot as plt
+import inspect
 
+from decorator import decorator
 from pathlib import Path
 from beartype.typing import List, Optional
 from tqdm import tqdm
@@ -15,13 +18,59 @@ from finance_calendars import finance_calendars as fc
 
 from .strategyObjects import StrategyObject, RuleEnum
 from .trade.trade import Trade, TradeSettings
+from .trade.enums import TradeOutcome
 from stockMarket.utils import Period
 from stockMarket.yfinance._common import adjust_price_data_from_df
+
+
+@decorator
+def finalize(func, *args, **kwargs):
+    self = args[0]
+    func(*args, **kwargs)
+    for command in self.finalize_commands:
+        os.system(command)
+
+
+class StrategyFileSettings:
+    def __init__(self,
+                 base_path: str = "strategy_testing",
+                 template_xlsx_path: Optional[str] = None,
+                 template_xlsx_file: str = "template.xlsx",
+                 xlsx_file: str = "screening.xlsx",
+                 json_file: str = "strategy.json",
+                 ) -> None:
+        self.base_path = Path(base_path)
+        self.template_xlsx_file = str(template_xlsx_path / template_xlsx_file)
+        self.xlsx_filename = str(self.dir_path / xlsx_file)
+        self.json_file = str(self.dir_path / json_file)
+
+        if template_xlsx_path is not None:
+            template_xlsx_path = Path(template_xlsx_path)
+        else:
+            template_xlsx_path = Path(__file__).parent / "templates"
+        self.template_xlsx_file = str(template_xlsx_path / template_xlsx_file)
+        self.xlsx_filename = str(self.dir_path / xlsx_file)
+
+        self.json_file = str(self.dir_path / json_file)
+
+    def build_dir_path(self, strategy_objects: List[StrategyObject]):
+
+        strategy_names = [
+            strategy_object.strategy_name for strategy_object in strategy_objects]
+        return "_".join([name for name in sorted(strategy_names)])
 
 
 class Strategy:
     storing_behavior_flags = (
         "full_overwrite", "matching_overwrite", "append", "abort", "numerical")
+
+    default_file_options = {
+        "base_path": "strategy_testing",
+        "template_xlsx_path": None,
+        "template_xlsx_file": "template.xlsx",
+        "xlsx_file": "screening.xlsx",
+        "json_file": "strategy.json"
+    }
 
     def __init__(self,
                  strategy_objects: List[StrategyObject],
@@ -30,20 +79,17 @@ class Strategy:
                  rule_enums: List[RuleEnum] = [RuleEnum.BULLISH],
                  trade_settings: Optional[TradeSettings] = None,
                  candle_period: str | Period | None = None,
-                 base_path: str = "strategy_testing",
                  storing_behavior: str | None = "numerical",
-                 template_xlsx_path: Optional[str] = None,
-                 template_xlsx_file: str = "template.xlsx",
-                 xlsx_file: str = "screening.xlsx",
                  use_earnings_dates: bool = False,
                  finalize_commands=None,
+                 **kwargs
                  ) -> None:
 
         self.setup_dates(start_date, end_date, candle_period)
 
         self.storing_behavior = storing_behavior.lower()
-        self.base_path = Path(base_path)
 
+        self.strategy_objects = strategy_objects
         self.compile_strategy(strategy_objects, rule_enums)
 
         self.trade_settings = trade_settings if trade_settings is not None else TradeSettings()
@@ -51,13 +97,6 @@ class Strategy:
 
         self.result_logger_filename = str(self.dir_path / "result_logger.txt")
         self.error_logger_filename = str(self.dir_path / "error_logger.txt")
-
-        if template_xlsx_path is not None:
-            template_xlsx_path = Path(template_xlsx_path)
-        else:
-            template_xlsx_path = Path(__file__).parent / "templates"
-        self.template_xlsx_file = str(template_xlsx_path / template_xlsx_file)
-        self.xlsx_filename = str(self.dir_path / xlsx_file)
 
         self.trades = {}
         self.meta_data_logger = {}
@@ -70,11 +109,29 @@ class Strategy:
 
         self.finalize_commands = np.atleast_1d(finalize_commands)
 
+    def setup_files(self, **kwargs):
+        args_of_init = inspect.getfullargspec(
+            StrategyFileSettings.__init__).args
+
+        kwargs_for_file_settings = {}
+        for key, value in kwargs.items():
+            if key in args_of_init:
+                kwargs_for_file_settings[key] = value
+
+        file_settings = StrategyFileSettings(**kwargs_for_file_settings)
+        self.base_path = file_settings.base_path
+        self.template_xlsx_file = file_settings.template_xlsx_file
+        self.xlsx_filename = file_settings.xlsx_filename
+        self.json_file = file_settings.json_file
+        self.dir_name = file_settings.build_dir_path(self.strategy_objects)
+
+    def write_json(self, file_path: str) -> None:
+        pass
+
     def compile_strategy(self,
                          strategy_objects: List[StrategyObject],
                          rule_enums: List[RuleEnum]
                          ) -> None:
-        self.strategy_objects = strategy_objects
         self.rule_enums = rule_enums
 
         strategy_names = [
@@ -198,6 +255,7 @@ class Strategy:
 
             row += 1
 
+    @finalize
     def screen(self, tickers: List[str] | str) -> None:
 
         self.tickers = sorted(np.atleast_1d(tickers))
@@ -220,8 +278,6 @@ class Strategy:
 
         logger_file.close()
         meta_file.close()
-        for command in self.finalize_commands:
-            os.system(command)
 
     def populate_pricing_data(self, ticker: str) -> None:
         error_file = open(self.error_logger_filename, "w")
@@ -298,6 +354,45 @@ class Strategy:
                     for strategy_object in self.strategy_objects:
                         if hasattr(strategy_object, "meta_data"):
                             self.meta_data_logger[ticker][date] = strategy_object.meta_data[index]
+
+    @finalize
+    def plot_PL_histogramm(self):
+        PL_win_values = []
+        PL_loss_values = []
+        for trades in self.trades.values():
+            for trade in trades:
+                if trade.outcome == TradeOutcome.WIN:
+                    PL_win_values.append(trade.PL)
+                elif trade.outcome == TradeOutcome.LOSS:
+                    PL_loss_values.append(trade.PL)
+
+        # Define the bins
+        bins = np.arange(0, 6, 0.25)
+
+        # Calculate the counts of 'win' and 'loss' trades in each bin
+        win_counts, _ = np.histogram(PL_win_values, bins=bins)
+        loss_counts, _ = np.histogram(PL_loss_values, bins=bins)
+
+        # Calculate the PL ratio for each bin
+        PL_ratio = win_counts / (win_counts + loss_counts)
+
+        # Create a figure and a subplot
+        fig, ax1 = plt.subplots()
+
+        # Plot the histogram on ax1
+        ax1.hist([PL_win_values, PL_loss_values], bins=bins, alpha=0.5,
+                 label=['win', 'loss'], stacked=True, color=["g", "r"])
+        ax1.legend(loc='upper left')
+
+        # Create a second y-axis
+        ax2 = ax1.twinx()
+
+        # Plot the PL ratio on ax2
+        ax2.plot(bins[:-1], PL_ratio, color='k', label='PL ratio')
+        ax2.legend(loc='upper right')
+        ax2.set_ylim(0, 1)
+
+        plt.savefig(str(self.dir_path / "PL_histogramm.png"))
 
 
 def _check_dates(start_date: str, end_date: str) -> tuple[dt.date, dt.date]:

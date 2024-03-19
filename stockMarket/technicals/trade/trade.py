@@ -24,10 +24,9 @@ import yfinance as yf
 import numpy as np
 
 from beartype.typing import Optional
-from scipy import stats
 
 from stockMarket.yfinance._common import adjust_price_data_from_df
-from .enums import ChartEnum, TradeStatus
+from .enums import ChartEnum, TradeStatus, TradeOutcome
 from .tradeSettings import TradeSettings
 from .decorators import ignore_trade_exceptions, check_trade_status
 from .common import (
@@ -61,6 +60,8 @@ class Trade:
         self.trade_status = TradeStatus.UNKNOWN
         self.settings = settings if settings is not None else TradeSettings()
 
+        self.outcome = TradeOutcome.NONE
+
     @ignore_trade_exceptions
     def execute_trade(self, pricing: pd.DataFrame):
         self.TC_index = pricing.index.get_loc(self.TC.name)
@@ -85,6 +86,17 @@ class Trade:
         self.calc_R_ENTRY(pricing)
 
         self.calc_EXIT(pricing, self.ENTRY_date)
+
+        self.determine_trade_outcome()
+
+    def determine_trade_outcome(self):
+        if self.trade_status == TradeStatus.CLOSED:
+            if self.EXIT > self.R_ENTRY:
+                self.outcome = TradeOutcome.WIN
+            elif self.EXIT < self.R_ENTRY:
+                self.outcome = TradeOutcome.LOSS
+        else:
+            self.outcome = TradeOutcome.NONE
 
     @check_trade_status
     def check_PL_RATIOS(self):
