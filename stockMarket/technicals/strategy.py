@@ -32,7 +32,8 @@ class Strategy:
                  candle_period: str | Period | None = None,
                  base_path: str = "strategy_testing",
                  storing_behavior: str | None = "numerical",
-                 template_xlsx_file: str = "template_new.xlsx",
+                 template_xlsx_path: Optional[str] = None,
+                 template_xlsx_file: str = "template.xlsx",
                  xlsx_file: str = "screening.xlsx",
                  use_earnings_dates: bool = False,
                  finalize_commands=None,
@@ -44,11 +45,18 @@ class Strategy:
         self.base_path = Path(base_path)
 
         self.compile_strategy(strategy_objects, rule_enums)
-        self.trade_settings = trade_settings
+
+        self.trade_settings = trade_settings if trade_settings is not None else TradeSettings()
+        self.store_trade_settings()
 
         self.result_logger_filename = str(self.dir_path / "result_logger.txt")
         self.error_logger_filename = str(self.dir_path / "error_logger.txt")
-        self.template_xlsx_file = str(self.base_path / template_xlsx_file)
+
+        if template_xlsx_path is not None:
+            template_xlsx_path = Path(template_xlsx_path)
+        else:
+            template_xlsx_path = Path(__file__).parent / "templates"
+        self.template_xlsx_file = str(template_xlsx_path / template_xlsx_file)
         self.xlsx_filename = str(self.dir_path / xlsx_file)
 
         self.trades = {}
@@ -109,6 +117,10 @@ class Strategy:
 
         self.dir_path.mkdir()
 
+    def store_trade_settings(self):
+        self.trade_settings.write_to_json_file(
+            str(self.dir_path / "trade_settings.json"))
+
     def setup_dates(self, start_date, end_date, candle_period):
         if candle_period is None:
             self.candle_period = Period('daily')
@@ -144,8 +156,8 @@ class Strategy:
         return "No earnings date found", None
 
     def write_xlsx_file(self):
-        xlsx_file = load_workbook(filename=self.template_xlsx_file)
-        xlsx_sheet = xlsx_file["stocks"]
+        self.xlsx_file = load_workbook(filename=self.template_xlsx_file)
+        xlsx_sheet = self.xlsx_file["stocks"]
         row = 3
 
         for trades in self.trades.values():
@@ -163,15 +175,8 @@ class Strategy:
                 xlsx_sheet.cell(row=row, column=9).value = trade.EXIT_date
                 xlsx_sheet.cell(row=row, column=10).value = trade.EXIT
 
-                if trade.trade_executed and trade.TC_date is None:
-                    xlsx_sheet.cell(
-                        row=row, column=11).value = "To Be Determined"
-                elif trade.trade_executed and trade.EXIT_date is None:
-                    xlsx_sheet.cell(row=row, column=11).value = "Open"
-                elif trade.trade_executed and trade.EXIT_date is not None:
-                    xlsx_sheet.cell(row=row, column=11).value = "Closed"
-                else:
-                    xlsx_sheet.cell(row=row, column=11).value = "Not Executed"
+                xlsx_sheet.cell(
+                    row=row, column=11).value = trade.trade_status.value
 
                 if self.use_earnings_dates:
                     xlsx_sheet.cell(row=row, column=12).value = self.find_next_earnings_date(
@@ -179,7 +184,19 @@ class Strategy:
 
                 row += 1
 
-        xlsx_file.save(self.xlsx_filename)
+        self.write_trade_settings_to_xlsx()
+
+        self.xlsx_file.save(self.xlsx_filename)
+
+    def write_trade_settings_to_xlsx(self):
+        xlsx_sheet = self.xlsx_file["overview"]
+        row = 1
+
+        for key, value in self.trade_settings.to_json().items():
+            xlsx_sheet.cell(row=row, column=1).value = key
+            xlsx_sheet.cell(row=row, column=2).value = value
+
+            row += 1
 
     def screen(self, tickers: List[str] | str) -> None:
 
