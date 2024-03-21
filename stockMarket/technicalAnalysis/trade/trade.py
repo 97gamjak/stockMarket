@@ -109,20 +109,6 @@ class Trade:
         if self.settings.max_PL is not None and self.PL > self.settings.max_PL:
             self.trade_status = TradeStatus.PL_TOO_LARGE
 
-    def find_exit(self, pricing: pd.DataFrame):
-        for i in range(self.TC_index+1, len(pricing)):
-            candle = pricing.iloc[i]
-            if candle.low <= self.SL and candle.high >= self.TP:
-                return i, "ambiguous"
-
-            if candle.low <= self.SL:
-                return i, "stop_loss"
-
-            if candle.high >= self.TP:
-                return i, "target"
-
-        return None, None
-
     @check_trade_status
     def setup_TP(self,
                  pricing: pd.DataFrame,
@@ -242,97 +228,62 @@ class Trade:
 
     def calc_EXIT(self, pricing: pd.DataFrame, ENTRY_date):
 
-        EXIT_index, EXIT_reason = self.find_exit(pricing)
+        for candle_index in range(self.TC_index+1, len(pricing)):
 
-        EXIT_candle = None
-
-        if EXIT_reason == "target":
-
-            # setting exit to take profit to not overestimate the profit
-            self.EXIT = self.TP
-            EXIT_candle, _ = find_daily_candle(
+            TP_EXIT_candle, _ = find_daily_candle(
                 ticker=self.ticker,
                 pricing=pricing,
-                candle_index=EXIT_index,
+                candle_index=candle_index,
                 target_price=self.TP,
                 min_date=ENTRY_date,
             )
 
-        elif EXIT_reason == "stop_loss":
-
-            EXIT_candle, self.EXIT = find_daily_candle(
+            SL_EXIT_candle, SL_EXIT = find_daily_candle(
                 ticker=self.ticker,
                 pricing=pricing,
-                candle_index=EXIT_index,
+                candle_index=candle_index,
                 target_price=self.SL,
                 mode=np.less_equal,
                 min_date=ENTRY_date,
             )
 
-        elif EXIT_reason == "ambiguous":
-
-            TP_candle, _ = find_daily_candle(
-                ticker=self.ticker,
-                pricing=pricing,
-                candle_index=EXIT_index,
-                target_price=self.TP,
-                min_date=ENTRY_date
-            )
-            SL_candle, SL = find_daily_candle(
-                ticker=self.ticker,
-                pricing=pricing,
-                candle_index=EXIT_index,
-                target_price=self.SL,
-                mode=np.less_equal,
-                min_date=ENTRY_date
-            )
-
-            candle_to_chose = "none"
-
-            if TP_candle is None and SL_candle is None:
-                # TODO: think of a way to check next interval in this case
-                raise ValueError("No exit date found")
-            elif TP_candle is None:
-                candle_to_chose = "SL"
-            elif SL_candle is None:
-                candle_to_chose = "TP"
-            elif TP_candle.name.date() < SL_candle.name.date():
-                candle_to_chose = "TP"
-            elif TP_candle.name.date() > SL_candle.name.date():
-                candle_to_chose = "SL"
+            if TP_EXIT_candle is None and SL_EXIT_candle is None:
+                candle_to_choose = "none"
+            elif TP_EXIT_candle is None:
+                candle_to_choose = "SL"
+            elif SL_EXIT_candle is None:
+                candle_to_choose = "TP"
+            elif TP_EXIT_candle.name.date() < SL_EXIT_candle.name.date():
+                candle_to_choose = "TP"
+            elif TP_EXIT_candle.name.date() > SL_EXIT_candle.name.date():
+                candle_to_choose = "SL"
             else:
-                ticker = yf.Ticker(self.ticker)
-                candle = ticker.history(
-                    auto_adjust=False,
-                    start=str(TP_candle.name.date()),
-                    end=None,
-                    rounding=True
-                )
-                candle = adjust_price_data_from_df(candle).iloc[0]
-
-                if candle.open <= self.SL:
-                    candle_to_chose = "SL"
-                elif candle.open >= self.TP:
-                    candle_to_chose = "TP"
+                if TP_EXIT_candle.open <= self.SL:
+                    candle_to_choose = "SL"
+                elif TP_EXIT_candle.open >= self.TP:
+                    candle_to_choose = "TP"
                 else:
-                    EXIT_candle = TP_candle
-                    self.trade_status = TradeStatus.AMBIGUOUS_EXIT_DATE
+                    candle_to_choose = "ambiguous"
 
-                if candle_to_chose == "none":
-                    EXIT_candle = TP_candle  # could also be SL_candle
-                    self.EXIT = None
-                if candle_to_chose == "TP":
-                    EXIT_candle = TP_candle
-                    self.EXIT = self.TP
-                if candle_to_chose == "SL":
-                    EXIT_candle = SL_candle
-                    self.EXIT = SL
+            if candle_to_choose == "TP":
+                EXIT_candle = TP_EXIT_candle
+                self.EXIT = self.TP
+                self.trade_status = TradeStatus.CLOSED
+            elif candle_to_choose == "SL":
+                EXIT_candle = SL_EXIT_candle
+                self.EXIT = SL_EXIT
+                self.trade_status = TradeStatus.CLOSED
+            elif candle_to_choose == "ambiguous":
+                EXIT_candle = TP_EXIT_candle
+                self.trade_status = TradeStatus.AMBIGUOUS_EXIT_DATE
 
-        if EXIT_candle is not None:
-            self.EXIT_date = EXIT_candle.name.date()
-            self.trade_status = TradeStatus.CLOSED
-        else:
-            self.EXIT_date = None
+            if candle_to_choose != "none":
+                self.EXIT_date = EXIT_candle.name.date()
+                break
+            else:
+                EXIT_candle = None
+
+        if EXIT_candle is None:
             self.trade_status = TradeStatus.OPEN
 
     @property
@@ -354,3 +305,7 @@ class Trade:
     @property
     def min_TC_B(self):
         return calc_lowest_body_price(self.TC)
+
+    @property
+    def INVESTMENT(self):
+        return self.R_ENTRY / (self.ENTRY - self.SL)

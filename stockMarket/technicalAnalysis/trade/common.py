@@ -26,7 +26,7 @@ def find_daily_candle(ticker,
         end_date = None
     else:
         # end date can be set to the next candle date for all intervals
-        # e.g if intervall is weekly than end date is the next week but
+        # e.g if interval is weekly than end date is the next week but
         # yf will not include the first day of the next week
         end_date = pricing.index[candle_index + 1].date()
         end_date = str(end_date)
