@@ -4,7 +4,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>period &mdash; StockMarket  documentation</title>
+  <title>enums &mdash; StockMarket  documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=09f73366" />
       <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=eafc0fe6" />
@@ -22,8 +22,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="yfinance" href="stockMarket.yfinance.html" />
-    <link rel="prev" title="enums" href="stockMarket.utils.enums.html" /> 
+    <link rel="next" title="period" href="stockMarket.utils.period.html" />
+    <link rel="prev" title="emails" href="stockMarket.utils.emails.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -57,8 +57,8 @@
 <li class="toctree-l2 current"><a class="reference internal" href="stockMarket.utils.html">utils</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="stockMarket.utils.caching.html">caching</a></li>
 <li class="toctree-l3"><a class="reference internal" href="stockMarket.utils.emails.html">emails</a></li>
-<li class="toctree-l3"><a class="reference internal" href="stockMarket.utils.enums.html">enums</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">period</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">enums</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stockMarket.utils.period.html">period</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="stockMarket.yfinance.html">yfinance</a></li>
@@ -82,9 +82,9 @@
       <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
           <li class="breadcrumb-item"><a href="stockMarket.html">Submodules</a></li>
           <li class="breadcrumb-item"><a href="stockMarket.utils.html">utils</a></li>
-      <li class="breadcrumb-item active">period</li>
+      <li class="breadcrumb-item active">enums</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="../_sources/code/stockMarket.utils.period.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/code/stockMarket.utils.enums.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -92,15 +92,15 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="module-stockMarket.utils.period">
-<span id="period"></span><h1>period<a class="headerlink" href="#module-stockMarket.utils.period" title="Link to this heading"></a></h1>
+  <section id="module-stockMarket.utils.enums">
+<span id="enums"></span><h1>enums<a class="headerlink" href="#module-stockMarket.utils.enums" title="Link to this heading"></a></h1>
 <section id="summary">
 <h2>Summary<a class="headerlink" href="#summary" title="Link to this heading"></a></h2>
 <p>Classes:</p>
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#stockMarket.utils.period.Period" title="stockMarket.utils.period.Period"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Period</span></code></a></p></td>
-<td><p></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#stockMarket.utils.enums.StringEnum" title="stockMarket.utils.enums.StringEnum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">StringEnum</span></code></a></p></td>
+<td><p>An enumeration.</p></td>
 </tr>
 </tbody>
 </table>
@@ -108,16 +108,25 @@
 <section id="reference">
 <h2>Reference<a class="headerlink" href="#reference" title="Link to this heading"></a></h2>
 <dl class="py class">
-<dt class="sig sig-object py" id="stockMarket.utils.period.Period">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Period</span></span><span class="sig-paren">(</span>
+<dt class="sig sig-object py" id="stockMarket.utils.enums.StringEnum">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">StringEnum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/stockMarket/utils/enums.html#StringEnum"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#stockMarket.utils.enums.StringEnum" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<p>An enumeration.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="stockMarket.utils.enums.StringEnum.member_repr">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">member_repr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/stockMarket/utils/enums.html#StringEnum.member_repr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#stockMarket.utils.enums.StringEnum.member_repr" title="Link to this definition"></a></dt>
+<dd></dd></dl>
 
-<dl>
-<dd><em class="sig-param"><span class="n"><span class="pre">period</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#stockMarket.utils.period.Period" title="stockMarket.utils.period.Period"><span class="pre">Period</span></a></span></em>,</dd>
-<dd><em class="sig-param"><span class="n"><span class="pre">amount</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>,</dd>
-</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="stockMarket.utils.enums.StringEnum.value_repr">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">value_repr</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/stockMarket/utils/enums.html#StringEnum.value_repr"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#stockMarket.utils.enums.StringEnum.value_repr" title="Link to this definition"></a></dt>
+<dd></dd></dl>
 
-<span class="sig-paren">)</span><a class="reference internal" href="../_modules/stockMarket/utils/period.html#Period"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#stockMarket.utils.period.Period" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="stockMarket.utils.enums.StringEnum.values">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">values</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/stockMarket/utils/enums.html#StringEnum.values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#stockMarket.utils.enums.StringEnum.values" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
 </dd></dl>
 
 </section>
@@ -127,8 +136,8 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="stockMarket.utils.enums.html" class="btn btn-neutral float-left" title="enums" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="stockMarket.yfinance.html" class="btn btn-neutral float-right" title="yfinance" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="stockMarket.utils.emails.html" class="btn btn-neutral float-left" title="emails" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="stockMarket.utils.period.html" class="btn btn-neutral float-right" title="period" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
