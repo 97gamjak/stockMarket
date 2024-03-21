@@ -60,7 +60,7 @@ class Trade:
         self.trade_status = TradeStatus.UNKNOWN
         self.settings = settings if settings is not None else TradeSettings()
 
-        self.outcome = TradeOutcome.NONE
+        self.outcome_status = TradeOutcome.NONE
 
     @ignore_trade_exceptions
     def execute_trade(self, pricing: pd.DataFrame):
@@ -92,16 +92,14 @@ class Trade:
     def determine_trade_outcome(self):
         if self.trade_status == TradeStatus.CLOSED:
             if self.EXIT > self.R_ENTRY:
-                self.outcome = TradeOutcome.WIN
+                self.outcome_status = TradeOutcome.WIN
             elif self.EXIT < self.R_ENTRY:
-                self.outcome = TradeOutcome.LOSS
+                self.outcome_status = TradeOutcome.LOSS
         else:
-            self.outcome = TradeOutcome.NONE
+            self.outcome_status = TradeOutcome.NONE
 
     @check_trade_status
     def check_PL_RATIOS(self):
-
-        self.PL = (self.TP - self.ENTRY) / (self.ENTRY - self.SL)
 
         if self.settings.min_PL is not None and self.PL < self.settings.min_PL:
             self.trade_status = TradeStatus.PL_TOO_SMALL
@@ -307,5 +305,96 @@ class Trade:
         return calc_lowest_body_price(self.TC)
 
     @property
+    def ENTRY_SL(self):
+        return self.ENTRY - self.SL
+
+    @property
+    def R_ENTRY_SL(self):
+        return self.R_ENTRY - self.SL
+
+    @property
+    def TP_ENTRY(self):
+        return self.TP - self.ENTRY
+
+    @property
+    def TP_R_ENTRY(self):
+        return self.TP - self.R_ENTRY
+
+    @property
+    def PRED_INVESTMENT(self):
+        return self.ENTRY / self.ENTER_SL
+
+    @property
     def INVESTMENT(self):
-        return self.R_ENTRY / (self.ENTRY - self.SL)
+        return self.R_ENTRY / self.ENTRY_SL
+
+    @property
+    def DELTA_INVESTMENT(self):
+        return self.INVESTMENT - self.PRED_INVESTMENT
+
+    @property
+    def PRED_OUTCOME(self):
+        return (self.EXIT - self.ENTRY) / self.ENTRY_SL
+
+    @property
+    def OUTCOME(self):
+        return (self.EXIT - self.R_ENTRY) / self.ENTRY_SL
+
+    @property
+    def PL(self):
+        return self.TP_ENTRY / self.ENTRY_SL
+
+    @property
+    def R_PL(self):
+        return self.TP_R_ENTRY / self.R_ENTRY_SL
+
+    @property
+    def SHARES_TO_BUY(self):
+        return 1 / self.ENTRY_SL
+
+    @property
+    def TOTAL_DAYS(self):
+        return (self.EXIT_date - self.ENTRY_date).days + 1
+
+    @property
+    def REQ_CAPITAL(self):
+        return self.INVESTMENT * self.TOTAL_DAYS
+
+    def to_json(self):
+        return {
+            "ticker": self.ticker,
+            "TC_date": self.TC_date,
+            "ENTRY": self.ENTRY,
+            "R_ENTRY": self.R_ENTRY,
+            "ENTRY_date": self.ENTRY_date,
+            "SL": self.SL,
+            "TP": self.TP,
+            "TP_date": self.TP_date,
+            "EXIT": self.EXIT,
+            "EXIT_date": self.EXIT_date,
+            "trade_status": self.trade_status.value,
+            "outcome": self.outcome_status.value,
+            "settings": self.settings.to_json()
+        }
+
+    @classmethod
+    def init_from_json(cls, json):
+        trade = cls(
+            ticker=json["ticker"],
+            trigger_candle=None,
+            settings=TradeSettings.from_json(json["settings"])
+        )
+
+        trade.TC_date = json["TC_date"]
+        trade.ENTRY = json["ENTRY"]
+        trade.R_ENTRY = json["R_ENTRY"]
+        trade.ENTRY_date = json["ENTRY_date"]
+        trade.SL = json["SL"]
+        trade.TP = json["TP"]
+        trade.TP_date = json["TP_date"]
+        trade.EXIT = json["EXIT"]
+        trade.EXIT_date = json["EXIT_date"]
+        trade.trade_status = TradeStatus(json["trade_status"])
+        trade.outcome_status = TradeOutcome(json["outcome"])
+
+        return trade

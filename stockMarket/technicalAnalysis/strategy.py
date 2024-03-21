@@ -247,9 +247,9 @@ class Strategy:
         PL_loss_values = []
         for trades in self.trades.values():
             for trade in trades:
-                if trade.outcome == TradeOutcome.WIN:
+                if trade.outcome_status == TradeOutcome.WIN:
                     PL_win_values.append(trade.PL)
-                elif trade.outcome == TradeOutcome.LOSS:
+                elif trade.outcome_status == TradeOutcome.LOSS:
                     PL_loss_values.append(trade.PL)
 
         # Define the bins
@@ -281,45 +281,72 @@ class Strategy:
         plt.savefig(str(self.dir_path / "PL_histogram.png"))
 
     @finalize
-    def plot_trades_vs_time(self):
+    def plot_trades_vs_time(self, max_loss=1):
         days = []
         amount_trades = []
         total_invested = []
+        total_outcome = []
         day = self.start_date
         max_exit_date = self.start_date
         while day < pd.Timestamp.now().date():
             amount_trades.append(0)
             total_invested.append(0)
+            total_outcome.append(0)
             days.append(day)
             for trades in self.trades.values():
                 for trade in trades:
                     if trade.trade_status not in [TradeStatus.OPEN, TradeStatus.CLOSED]:
                         continue
 
+                    if trade.trade_status == TradeStatus.CLOSED:
+                        if trade.EXIT_date == day:
+                            total_outcome[-1] += trade.OUTCOME*max_loss
+
                     if trade.ENTRY_date <= day:
                         if trade.trade_status == TradeStatus.OPEN or trade.EXIT_date >= day:
                             amount_trades[-1] += 1
-                            total_invested[-1] += trade.INVESTMENT
+                            total_invested[-1] += trade.INVESTMENT*max_loss
 
-                    max_exit_date = max(
-                        max_exit_date, trade.EXIT_date) if trade.EXIT_date is not None else max_exit_date
+                    if trade.EXIT_date is not None:
+                        max_exit_date = max(max_exit_date, trade.EXIT_date)
 
             day += pd.Timedelta(days=1)
 
         days = [day for day in days if day <= max_exit_date]
         amount_trades = amount_trades[:len(days)]
         total_invested = total_invested[:len(days)]
+        total_outcome = total_outcome[:len(days)]
 
-        _, ax = plt.subplots()
+        _, ax = plt.subplots(1, 3, figsize=(30, 10))
 
-        ax.plot(days, amount_trades)
-        ax.set_xlabel("Date")
-        ax.set_ylabel("Amount of trades")
+        ax[0].plot(days, amount_trades)
+        ax[0].set_xlabel("Date", fontsize=18)
+        ax[0].set_ylabel("Amount of trades", fontsize=18)
 
-        ax2 = ax.twinx()
-        ax2.plot(days, total_invested, color="r")
-        ax2.set_ylabel("Total Invested in $")
+        ax[1].plot(days, total_invested, color="r")
+        ax[1].set_ylabel("Total Invested in $", fontsize=18)
+        ax[1].set_xlabel("Date", fontsize=18)
 
+        ax[2].plot(
+            days,
+            np.cumsum(total_outcome),
+            color="g",
+            label="Forward Total Outcome",
+            fontsize=18
+        )
+        ax[2].plot(
+            days,
+            np.cumsum(total_outcome[::-1]),
+            color="b",
+            label="Backward Total Outcome",
+            fontsize=18
+        )
+        ax[2].set_ylabel("Total Outcome in $", fontsize=18)
+        ax[2].set_xlabel("Date", fontsize=18)
+        ax[2].legend(loc="upper left")
+
+        # make figure more compact
+        plt.tight_layout()
         plt.savefig(str(self.dir_path / "trades_vs_time.png"))
 
 

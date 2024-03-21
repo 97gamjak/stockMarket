@@ -113,30 +113,19 @@ class StrategyXLSXWriter:
                 if not check_is_within_date_range(trade.TC_date, start_date, end_date):
                     continue
 
-                TICKER = trade.ticker
                 TICKER_index = header_index(headers, "Ticker")
 
-                TC_date = trade.TC_date
                 TC_date_index = header_index(headers, "Entry Candle")
-
-                ENTRY_date = trade.ENTRY_date
                 ENTRY_date_index = header_index(headers, "Entry Date")
-                ENTRY = trade.ENTRY
+
                 ENTRY_index = header_index(headers, "Entry")
-                R_ENTRY = trade.R_ENTRY
                 R_ENTRY_index = header_index(headers, "Real Entry")
 
-                SL = trade.SL
                 SL_index = header_index(headers, "Stop Loss")
-
-                TP_date = trade.TP_date
                 TP_date_index = header_index(headers, "Target Date")
-                TP = trade.TP
                 TP_index = header_index(headers, "Target")
 
-                EXIT_date = trade.EXIT_date
                 EXIT_date_index = header_index(headers, "Exit Date")
-                EXIT = trade.EXIT
                 EXIT_index = header_index(headers, "Exit")
 
                 STATUS = trade.trade_status.value
@@ -145,17 +134,17 @@ class StrategyXLSXWriter:
                 EARNINGS_index = header_index(headers, "Days to Earnings")
 
                 #fmt: off
-                xlsx_sheet.cell(row=row, column=TICKER_index).value = TICKER
-                xlsx_sheet.cell(row=row, column=TC_date_index).value = TC_date
-                xlsx_sheet.cell(row=row, column=ENTRY_date_index).value = ENTRY_date
-                xlsx_sheet.cell(row=row, column=ENTRY_index).value = ENTRY
-                xlsx_sheet.cell(row=row, column=R_ENTRY_index).value = R_ENTRY
+                xlsx_sheet.cell(row=row, column=TICKER_index).value = trade.TICKER
+                xlsx_sheet.cell(row=row, column=TC_date_index).value = trade.TC_date
+                xlsx_sheet.cell(row=row, column=ENTRY_date_index).value = trade.ENTRY_date
+                xlsx_sheet.cell(row=row, column=ENTRY_index).value = trade.ENTRY
+                xlsx_sheet.cell(row=row, column=R_ENTRY_index).value = trade.R_ENTRY
 
-                xlsx_sheet.cell(row=row, column=SL_index).value = SL
-                xlsx_sheet.cell(row=row, column=TP_date_index).value = TP_date
-                xlsx_sheet.cell(row=row, column=TP_index).value = TP
-                xlsx_sheet.cell(row=row, column=EXIT_date_index).value = EXIT_date
-                xlsx_sheet.cell(row=row, column=EXIT_index).value = EXIT
+                xlsx_sheet.cell(row=row, column=SL_index).value = trade.SL
+                xlsx_sheet.cell(row=row, column=TP_date_index).value = trade.TP_date
+                xlsx_sheet.cell(row=row, column=TP_index).value = trade.TP
+                xlsx_sheet.cell(row=row, column=EXIT_date_index).value = trade.EXIT_date
+                xlsx_sheet.cell(row=row, column=EXIT_index).value = trade.EXIT
 
                 xlsx_sheet.cell(row=row, column=STATUS_index).value = STATUS
 
@@ -208,63 +197,48 @@ class StrategyXLSXWriter:
                     continue
 
                 #fmt: off
-                SL = trade.ENTRY - trade.SL
-                SL_index = header_index(headers, "Stop Loss")
-                SL_REAL = trade.R_ENTRY - trade.SL
-                SL_REAL_index = header_index(headers, "Stop Loss Real")
+                ENTRY_SL_index = header_index(headers, "Stop Loss")
+                R_ENTRY_SL_index = header_index(headers, "Stop Loss Real")
 
-                TP = trade.TP - trade.ENTRY
-                TP_index = header_index(headers, "Target")
-                TP_REAL = trade.TP - trade.R_ENTRY
-                TP_REAL_index = header_index(headers, "Target Real")
+                TP_ENTRY_index = header_index(headers, "Target")
+                TP_R_ENTRY_index = header_index(headers, "Target Real")
 
-                PL = TP / SL
                 PL_index = header_index(headers, "P/L")
-                PL_REAL = TP_REAL / SL_REAL
-                PL_REAL_index = header_index(headers, "P/L Real")
+                R_PL_index = header_index(headers, "P/L Real")
 
                 WL = "W" if trade.outcome == TradeOutcome.WIN else "L"
                 WL_index = header_index(headers, "W/L")
 
-                SHARES_TO_BUY = 1 / SL
                 SHARES_TO_BUY_index = header_index(headers, "Shares 2 Buy")
-
-                PRED_INVEST = trade.ENTRY / SL
                 PRED_INVEST_index = header_index(headers, "Predicted Investment")
-                INVEST = trade.INVESTMENT
                 INVEST_index = header_index(headers, "Investment")
-                DELTA_INVEST = INVEST - PRED_INVEST
                 DELTA_INVEST_index = header_index(headers, "Delta Investment")
 
-                PRED_OUTCOME = (trade.EXIT - trade.ENTRY) / SL
-                PRE_OUTCOME_index = header_index(headers, "Predicted Outcome")
-                OUTCOME = (trade.EXIT - trade.R_ENTRY) / SL
+                PRED_OUTCOME_index = header_index(headers, "Predicted Outcome")
                 OUTCOME_index = header_index(headers, "Outcome")
 
-                TOTAL_DAYS = (trade.EXIT_date - trade.ENTRY_date).days + 1
                 TOTAL_DAYS_index = header_index(headers, "Total Days")
-                REQ_CAPITAL = INVEST * TOTAL_DAYS
                 REQ_CAPITAL_index = header_index(headers, "Required Capital")
 
 
-                xlsx_sheet.cell(row=row, column=SL_index).value = SL
-                xlsx_sheet.cell(row=row, column=SL_REAL_index).value = SL_REAL
-                xlsx_sheet.cell(row=row, column=TP_index).value = TP
-                xlsx_sheet.cell(row=row, column=TP_REAL_index).value = TP_REAL
-                xlsx_sheet.cell(row=row, column=PL_index).value = PL
-                xlsx_sheet.cell(row=row, column=PL_REAL_index).value = PL_REAL
+                xlsx_sheet.cell(row=row, column=ENTRY_SL_index).value = trade.ENTRY_SL
+                xlsx_sheet.cell(row=row, column=R_ENTRY_SL_index).value = trade.R_ENTRY_SL
+                xlsx_sheet.cell(row=row, column=TP_ENTRY_index).value = trade.TP_ENTRY
+                xlsx_sheet.cell(row=row, column=TP_R_ENTRY_index).value = trade.TP_R_ENTRY
+                xlsx_sheet.cell(row=row, column=PL_index).value = trade.PL
+                xlsx_sheet.cell(row=row, column=R_PL_index).value = trade.R_PL
 
                 xlsx_sheet.cell(row=row, column=WL_index).value = WL
 
-                xlsx_sheet.cell(row=row, column=SHARES_TO_BUY_index).value = SHARES_TO_BUY
-                xlsx_sheet.cell(row=row, column=PRED_INVEST_index).value = PRED_INVEST
-                xlsx_sheet.cell(row=row, column=INVEST_index).value = INVEST
-                xlsx_sheet.cell(row=row, column=DELTA_INVEST_index).value = DELTA_INVEST
+                xlsx_sheet.cell(row=row, column=SHARES_TO_BUY_index).value = trade.SHARES_TO_BUY
+                xlsx_sheet.cell(row=row, column=PRED_INVEST_index).value = trade.PRED_INVESTMENT
+                xlsx_sheet.cell(row=row, column=INVEST_index).value = trade.INVESTMENT
+                xlsx_sheet.cell(row=row, column=DELTA_INVEST_index).value = trade.DELTA_INVESTMENT
 
-                xlsx_sheet.cell(row=row, column=PRE_OUTCOME_index).value = PRED_OUTCOME
-                xlsx_sheet.cell(row=row, column=OUTCOME_index).value = OUTCOME
-                xlsx_sheet.cell(row=row, column=TOTAL_DAYS_index).value = TOTAL_DAYS
-                xlsx_sheet.cell(row=row, column=REQ_CAPITAL_index).value = REQ_CAPITAL
+                xlsx_sheet.cell(row=row, column=PRED_OUTCOME_index).value = trade.PRED_OUTCOME
+                xlsx_sheet.cell(row=row, column=OUTCOME_index).value = trade.OUTCOME
+                xlsx_sheet.cell(row=row, column=TOTAL_DAYS_index).value = trade.TOTAL_DAYS
+                xlsx_sheet.cell(row=row, column=REQ_CAPITAL_index).value = trade.REQ_CAPITAL
 
                 #fmt: on
                 row += 1
