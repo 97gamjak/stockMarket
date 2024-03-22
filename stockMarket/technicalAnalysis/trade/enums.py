@@ -1,17 +1,33 @@
-from enum import Enum
+from stockMarket.utils.enums import StringEnum
 
 
-class ChartEnum(Enum):
+class ChartEnum(StringEnum):
     LAST_HIGH = "last high"
 
+    @classmethod
+    def _missing_(cls, value: str) -> "TradeOutcome":
+        try:
+            super()._missing_(value)
+        except NotImplementedError:
+            raise NotImplementedError(
+                f"{value} is not a valid chart enum possible chart enums are {cls.member_repr()} or {cls.value_repr()}")
 
-class TradeOutcome(Enum):
+
+class TradeOutcome(StringEnum):
     NONE = "none"
     WIN = "win"
     LOSS = "loss"
 
+    @classmethod
+    def _missing_(cls, value: str) -> "TradeOutcome":
+        try:
+            super()._missing_(value)
+        except NotImplementedError:
+            raise NotImplementedError(
+                f"{value} is not a valid trade outcome possible trade outcomes are {cls.member_repr()} or {cls.value_repr()}")
 
-class TradeStatus(Enum):
+
+class TradeStatus(StringEnum):
     UNKNOWN = "UNKNOWN"
     OPEN = "OPEN"
     CLOSED = "CLOSED"
@@ -31,6 +47,14 @@ class TradeStatus(Enum):
                 file.write(f"{status.value}:\n")
                 file.write(DESCRIPTION_DICT[status.value])
                 file.write("\n\n")
+
+    @classmethod
+    def _missing_(cls, value: str) -> "TradeStatus":
+        try:
+            super()._missing_(value)
+        except NotImplementedError:
+            raise NotImplementedError(
+                f"{value} is not a valid trade status for possible behaviors are {cls.member_repr()} or {cls.value_repr()}")
 
 
 DESCRIPTION_DICT = {

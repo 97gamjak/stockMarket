@@ -7,6 +7,7 @@ import os
 import matplotlib.pyplot as plt
 import inspect
 import warnings
+import json
 
 from decorator import decorator
 from beartype.typing import List, Optional, Dict
@@ -109,6 +110,8 @@ class Strategy:
         self.template_xlsx_file = file_settings.template_xlsx_file
         self.xlsx_filename = file_settings.xlsx_filename
         self.json_file = file_settings.json_file
+        self.trades_json_file = file_settings.trades_json_file
+
         self.trade_settings_file = str(self.dir_path / "trade_settings.json")
         self.error_logger_filename = str(self.dir_path / "error_logger.txt")
 
@@ -348,6 +351,17 @@ class Strategy:
         # make figure more compact
         plt.tight_layout()
         plt.savefig(str(self.dir_path / "trades_vs_time.png"))
+
+    def trades_to_json(self):
+        trades = {}
+        for ticker, ticker_trades in self.trades.items():
+            trades[ticker] = [trade.to_json() for trade in ticker_trades]
+
+        return trades
+
+    def write_trades_to_json_file(self):
+        with open(self.trades_json_file, "w") as file:
+            json.dump(self.trades_to_json(), file)
 
 
 def _check_dates(start_date: str, end_date: str) -> tuple[dt.date, dt.date]:
