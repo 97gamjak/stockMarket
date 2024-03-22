@@ -8,14 +8,8 @@ from stockMarket.technicalAnalysis.indicators import calculate_ema, calculate_sm
 
 class MovingAverageStrategy(StrategyObject, metaclass=ABCMeta):
     @classmethod
-    def init_from_id(cls, id: str):
-        periods = [int(period) for period in id.split("_")[1:]]
-        rules = [rule for rule in id.split("_")[4:]]
-
-        if id.startswith("ema"):
-            return EMAStrategy(periods=periods, rules=rules)
-        else:
-            return SMAStrategy(periods=periods, rules=rules)
+    def from_json(cls, json_dict):
+        return cls(json_dict["periods"], json_dict["rules"])
 
     @abstractmethod
     def __init__(self,
@@ -25,13 +19,6 @@ class MovingAverageStrategy(StrategyObject, metaclass=ABCMeta):
 
         StrategyObject.__init__(self, rules)
         self.periods = sorted(periods)
-        self.setup_id()
-
-    @abstractmethod
-    def setup_id(self):
-        self.id = "_".join([str(period) for period in self.periods])
-        self.id += "_"
-        self.id += "_".join([rule for rule in sorted(self.selected_rules.keys())])
 
     def setup_selected_rules(self, rules: None | List[str] = None):
         self.available_rules = {"fan_out":
@@ -43,6 +30,10 @@ class MovingAverageStrategy(StrategyObject, metaclass=ABCMeta):
                                 }
 
         super().setup_selected_rules(rules)
+
+    @abstractmethod
+    def calculate_indicators(self):
+        pass
 
     def _bullish_fan_out_rule(self):
         return self._fan_out_rule(lambda x, y: x > y)
@@ -68,21 +59,29 @@ class MovingAverageStrategy(StrategyObject, metaclass=ABCMeta):
             return True
         return False
 
+    def to_json(self):
+        json_dict = super().to_json()
+        json_dict["periods"] = self.periods
+        return json_dict
+
+    @property
+    @abstractmethod
+    def strategy_name(self):
+        pass
+
+    @property
+    @abstractmethod
+    def indicator_keys(self):
+        pass
+
 
 class EMAStrategy(MovingAverageStrategy):
-    strategy_name = "EMA"
-
     def __init__(self,
                  periods: List[int],
                  rules: None | List[str] = None,
                  ) -> None:
 
         MovingAverageStrategy.__init__(self, periods, rules)
-        self.indicator_keys = [f"ema_{period}" for period in self.periods]
-
-    def setup_id(self):
-        super().setup_id()
-        self.id = "ema_" + self.id
 
     def calculate_indicators(self):
         self.indicator_values = {}
@@ -90,10 +89,16 @@ class EMAStrategy(MovingAverageStrategy):
             key = self.indicator_keys[i]
             self.indicator_values[key] = calculate_ema(self.data, period)
 
+    @property
+    def strategy_name(self):
+        return "EMA"
+
+    @property
+    def indicator_keys(self):
+        return [f"ema_{period}" for period in self.periods]
+
 
 class SMAStrategy(MovingAverageStrategy):
-    strategy_name = "SMA"
-
     def __init__(self,
                  periods: List[int],
                  rules: None | List[str] = None,
@@ -102,12 +107,16 @@ class SMAStrategy(MovingAverageStrategy):
         MovingAverageStrategy.__init__(self, periods, rules)
         self.indicator_keys = [f"sma_{period}" for period in self.periods]
 
-    def setup_id(self):
-        super().setup_id()
-        self.id = "sma_" + self.id
-
     def calculate_indicators(self):
         self.indicator_values = {}
         for i, period in enumerate(self.periods):
             key = self.indicator_keys[i]
             self.indicator_values[key] = calculate_sma(self.data, period)
+
+    @property
+    def strategy_name(self):
+        return "SMA"
+
+    @property
+    def indicator_keys(self):
+        return [f"sma_{period}" for period in self.periods]

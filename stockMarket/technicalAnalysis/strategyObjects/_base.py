@@ -6,7 +6,7 @@ from abc import ABCMeta, abstractmethod
 class StrategyObject(metaclass=ABCMeta):
     @classmethod
     @abstractmethod
-    def init_from_id(cls, id: str):
+    def init_from_json(cls, json_data):
         pass
 
     @abstractmethod
@@ -18,10 +18,6 @@ class StrategyObject(metaclass=ABCMeta):
 
     @abstractmethod
     def calculate_indicators(self):
-        pass
-
-    @abstractmethod
-    def setup_id(self):
         pass
 
     @abstractmethod
@@ -65,6 +61,20 @@ class StrategyObject(metaclass=ABCMeta):
             is_bearish &= self.selected_rules[rule][RuleEnum.BEARISH.value]()
 
         return is_bearish
+
+    @abstractmethod
+    def to_json(self):
+        return {"rules": self.selected_rules, "strategy_name": self.strategy_name, "indicator_keys": self.indicator_keys}
+
+    @property
+    @abstractmethod
+    def strategy_name(self):
+        pass
+
+    @property
+    @abstractmethod
+    def indicator_keys(self):
+        pass
 
     @property
     def data(self):

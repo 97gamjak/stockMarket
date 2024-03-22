@@ -54,13 +54,16 @@ class Strategy:
                  **kwargs
                  ) -> None:
 
-        self.strategy_objects = strategy_objects
+        #fmt: off
+        self.strategy_objects = strategy_objects # reading from json file implemented
         self.rule_enums = rule_enums
-        self.trades: Dict[str, List[Trade]] = {}
+        self.trades: Dict[str, List[Trade]] = {} # reading from json file implemented
         self.error_logger = {}
         self.use_earnings_dates = use_earnings_dates
         self.finalize_commands = finalize_commands
         self.earnings_calendar = {}
+        self.file_settings = None  # reading from json file implemented
+        #fmt: on
 
         self.setup_files(
             self.strategy_objects,
@@ -100,17 +103,19 @@ class Strategy:
             if key in args_of_init:
                 kwargs_for_file_settings[key] = value
 
-        file_settings = StrategyFileSettings(
+        self.file_settings = StrategyFileSettings(
             **kwargs_for_file_settings
         )
 
-        file_settings.setup(strategy_objects, rule_enums)
+        self.file_settings.setup(strategy_objects, rule_enums)
 
-        self.dir_path = file_settings.dir_path
-        self.template_xlsx_file = file_settings.template_xlsx_file
-        self.xlsx_filename = file_settings.xlsx_filename
-        self.json_file = file_settings.json_file
-        self.trades_json_file = file_settings.trades_json_file
+    def _init_from_file_settings(self):
+
+        self.dir_path = self.file_settings.dir_path
+        self.template_xlsx_file = self.file_settings.template_xlsx_file
+        self.xlsx_filename = self.file_settings.xlsx_filename
+        self.json_file = self.file_settings.json_file
+        self.trades_json_file = self.file_settings.trades_json_file
 
         self.trade_settings_file = str(self.dir_path / "trade_settings.json")
         self.error_logger_filename = str(self.dir_path / "error_logger.txt")
@@ -362,6 +367,25 @@ class Strategy:
     def write_trades_to_json_file(self):
         with open(self.trades_json_file, "w") as file:
             json.dump(self.trades_to_json(), file)
+
+    def read_trades_from_json_file(self):
+        with open(self.trades_json_file, "r") as file:
+            trades = json.load(file)
+            self.trades = {ticker: [Trade.init_from_json(trade) for trade in ticker_trades]
+                           for ticker, ticker_trades in trades.items()}
+
+    def strategy_objects_to_json(self):
+        return [strategy_object.to_json() for strategy_object in self.strategy_objects]
+
+    def write_file_settings_to_json_file(self):
+        with open(self.json_file, "w") as file:
+            json.dump(self.file_settings.to_json(), file)
+
+    def read_file_settings_from_json_file(self):
+        with open(self.json_file, "r") as file:
+            json_data = json.load(file)
+            self.file_settings = StrategyFileSettings.init_from_json(json_data)
+            self._init_from_file_settings()
 
 
 def _check_dates(start_date: str, end_date: str) -> tuple[dt.date, dt.date]:

@@ -6,14 +6,9 @@ from stockMarket.technicalAnalysis.indicators import candle_body_outside_range
 
 
 class FIBStrategy(StrategyObject):
-    strategy_name = "FIB"
-
     @classmethod
-    def init_from_id(cls, id: str):
-        percentages = [float(percent) for percent in id.split("_")[1:]]
-        rules = [rule for rule in id.split("_")[4:]]
-
-        return FIBStrategy(percent_range=percentages, rules=rules)
+    def from_json(cls, json_dict):
+        return cls(json_dict["percent_range"], json_dict["rules"])
 
     def __init__(self,
                  percent_range: List[float],
@@ -21,13 +16,6 @@ class FIBStrategy(StrategyObject):
                  ):
         super().__init__(rules)
         self.percent_range = sorted(percent_range)
-        self.indicator_keys = ["fib_bools", "fib_data"]
-
-    def setup_id(self):
-        self.id = "fib_"
-        self.id += "_".join([str(percent) for percent in self.percent_range])
-        self.id += "_"
-        self.id += "_".join([rule for rule in sorted(self.selected_rules.keys())])
 
     def calculate_indicators(self):
         fib_bools = []
@@ -58,3 +46,16 @@ class FIBStrategy(StrategyObject):
         if not self.indicator_values["fib_bools"][self.index][0]:
             return True
         return False
+
+    def to_json(self):
+        json_dict = super().to_json()
+        json_dict["percent_range"] = self.percent_range
+        return json_dict
+
+    @property
+    def strategy_name(self):
+        return "FIB"
+
+    @property
+    def indicator_keys(self):
+        return ["fib_bools", "fib_data"]
