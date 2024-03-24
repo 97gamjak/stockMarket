@@ -7,12 +7,12 @@ import os
 import matplotlib.pyplot as plt
 import inspect
 import warnings
-import json
 
 from decorator import decorator
 from beartype.typing import List, Optional, Dict
 from tqdm import tqdm
 from finance_calendars import finance_calendars as fc
+from pathlib import Path
 
 from .strategyObjects import StrategyObject, RuleEnum
 from .trade import (
@@ -21,6 +21,7 @@ from .trade import (
     TradeOutcome,
     TradeStatus,
 )
+from ._json import StrategyJSON
 from .strategyFileSettings import StrategyFileSettings
 from .strategyXLSXWriter import StrategyXLSXWriter
 from stockMarket.utils import Period
@@ -40,6 +41,10 @@ def finalize(func, *args, **kwargs):
 
 
 class Strategy:
+    @classmethod
+    def init_from_json(cls, dir_path: Path):
+        StrategyJSON.read(dir_path)
+
     def __init__(self,
                  strategy_objects: List[StrategyObject],
                  start_date: str,
@@ -50,20 +55,18 @@ class Strategy:
                  trade_settings: Optional[TradeSettings] = None,
                  candle_period: str | Period | None = None,
                  use_earnings_dates: bool = False,
-                 finalize_commands=None,
+                 finalize_commands: Optional[List[str]] = None,
                  **kwargs
                  ) -> None:
 
-        #fmt: off
-        self.strategy_objects = strategy_objects # reading from json file implemented
+        self.strategy_objects = strategy_objects
         self.rule_enums = rule_enums
-        self.trades: Dict[str, List[Trade]] = {} # reading from json file implemented
+        self.trades: Dict[str, List[Trade]] = {}
         self.error_logger = {}
         self.use_earnings_dates = use_earnings_dates
         self.finalize_commands = finalize_commands
-        self.earnings_calendar = {}
-        self.file_settings = None  # reading from json file implemented
-        #fmt: on
+        self.earnings_calendar: Dict[str, List[dt.date]] = {}
+        self.file_settings = None
 
         self.setup_files(
             self.strategy_objects,
@@ -85,6 +88,7 @@ class Strategy:
             self.template_xlsx_file,
             self.xlsx_filename,
             self.trade_settings,
+            self.candle_period,
             self.start_date,
             self.end_date,
             self.batch_size,
@@ -108,16 +112,14 @@ class Strategy:
         )
 
         self.file_settings.setup(strategy_objects, rule_enums)
+        self._init_from_file_settings()
 
     def _init_from_file_settings(self):
 
         self.dir_path = self.file_settings.dir_path
         self.template_xlsx_file = self.file_settings.template_xlsx_file
         self.xlsx_filename = self.file_settings.xlsx_filename
-        self.json_file = self.file_settings.json_file
-        self.trades_json_file = self.file_settings.trades_json_file
 
-        self.trade_settings_file = str(self.dir_path / "trade_settings.json")
         self.error_logger_filename = str(self.dir_path / "error_logger.txt")
 
     def setup_dates(self,
@@ -146,8 +148,6 @@ class Strategy:
 
     def setup_trade_settings(self, trade_settings: Optional[TradeSettings] = None):
         self.trade_settings = trade_settings if trade_settings is not None else TradeSettings()
-
-        self.trade_settings.write_to_json_file(self.trade_settings_file)
 
     def get_earnings_dates(self):
         self.earnings_calendar = {ticker: [] for ticker in self.tickers}
@@ -250,7 +250,9 @@ class Strategy:
                     self.trades[ticker].append(trade)
 
     @finalize
-    def plot_PL_histogram(self):
+    def plot_PL_histogram(self,
+                          bin_size: float = 0.25,
+                          ) -> None:
         PL_win_values = []
         PL_loss_values = []
         for trades in self.trades.values():
@@ -261,11 +263,37 @@ class Strategy:
                     PL_loss_values.append(trade.PL)
 
         # Define the bins
-        bins = np.arange(0, 6, 0.25)
+        bins = np.arange(0, 6, bin_size)
 
         # Calculate the counts of 'win' and 'loss' trades in each bin
         win_counts, _ = np.histogram(PL_win_values, bins=bins)
         loss_counts, _ = np.histogram(PL_loss_values, bins=bins)
+
+        win_values_2d = []
+        loss_values_2d = []
+        for bin in bins:
+            win_values = []
+            for win in PL_win_values:
+                if bin <= win < bin + bin_size:
+                    win_values.append(win)
+
+            win_values_2d.append(win_values)
+
+            loss_values = []
+            for loss in PL_loss_values:
+                if bin <= loss < bin + bin_size:
+                    loss_values.append(loss)
+
+            loss_values_2d.append(loss_values)
+
+        PL_ratio_theoretical = []
+        PL_ratio_effective = []
+        for win_values, loss_values in zip(win_values_2d, loss_values_2d):
+            total_values = win_values + loss_values
+
+            if len(total_values) != 0:
+                PL_ratio_effective.append(len(win_values) / len(total_values))
+                PL_ratio_theoretical.append(np.mean(total_values))
 
         # Calculate the PL ratio for each bin
         PL_ratio = win_counts / (win_counts + loss_counts)
@@ -276,16 +304,26 @@ class Strategy:
         # Plot the histogram on ax1
         ax1.hist([PL_win_values, PL_loss_values], bins=bins, alpha=0.5,
                  label=['win', 'loss'], stacked=True, color=["g", "r"])
+        ax1.set_ylabel('Count win/loss trades')
+        ax1.set_xlabel('theoretical PL ratio')
         ax1.legend(loc='upper left')
 
         # Create a second y-axis
         ax2 = ax1.twinx()
 
-        # Plot the PL ratio on ax2
-        ax2.plot(bins[:-1], PL_ratio, color='k', label='PL ratio')
-        ax2.legend(loc='upper right')
-        ax2.set_ylim(0, 1)
+        PL_ratio_normed = np.array(
+            PL_ratio_effective) - 1/(np.array(PL_ratio_theoretical) + 1)
 
+        # Plot the PL ratio on ax2
+        ax2.plot(PL_ratio_theoretical, PL_ratio_normed,
+                 color='k', label='excess win percentage')
+        # make this axis in percent
+        ax2.set_yticklabels(['{:,.0%}'.format(x) for x in ax2.get_yticks()])
+        ax2.hlines(0, 0, 6, color='k', linestyle='--')
+        ax2.set_ylabel('excess win percentage')
+        ax2.legend(loc='upper right')
+
+        plt.tight_layout()
         plt.savefig(str(self.dir_path / "PL_histogram.png"))
 
     @finalize
@@ -339,53 +377,21 @@ class Strategy:
             days,
             np.cumsum(total_outcome),
             color="g",
-            label="Forward Total Outcome",
-            fontsize=18
+            label="Forward Total Outcome"
         )
         ax[2].plot(
             days,
             np.cumsum(total_outcome[::-1]),
             color="b",
-            label="Backward Total Outcome",
-            fontsize=18
+            label="Backward Total Outcome"
         )
         ax[2].set_ylabel("Total Outcome in $", fontsize=18)
         ax[2].set_xlabel("Date", fontsize=18)
-        ax[2].legend(loc="upper left")
+        ax[2].legend(loc="upper left", fontsize=18)
 
         # make figure more compact
         plt.tight_layout()
         plt.savefig(str(self.dir_path / "trades_vs_time.png"))
-
-    def trades_to_json(self):
-        trades = {}
-        for ticker, ticker_trades in self.trades.items():
-            trades[ticker] = [trade.to_json() for trade in ticker_trades]
-
-        return trades
-
-    def write_trades_to_json_file(self):
-        with open(self.trades_json_file, "w") as file:
-            json.dump(self.trades_to_json(), file)
-
-    def read_trades_from_json_file(self):
-        with open(self.trades_json_file, "r") as file:
-            trades = json.load(file)
-            self.trades = {ticker: [Trade.init_from_json(trade) for trade in ticker_trades]
-                           for ticker, ticker_trades in trades.items()}
-
-    def strategy_objects_to_json(self):
-        return [strategy_object.to_json() for strategy_object in self.strategy_objects]
-
-    def write_file_settings_to_json_file(self):
-        with open(self.json_file, "w") as file:
-            json.dump(self.file_settings.to_json(), file)
-
-    def read_file_settings_from_json_file(self):
-        with open(self.json_file, "r") as file:
-            json_data = json.load(file)
-            self.file_settings = StrategyFileSettings.init_from_json(json_data)
-            self._init_from_file_settings()
 
 
 def _check_dates(start_date: str, end_date: str) -> tuple[dt.date, dt.date]:

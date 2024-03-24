@@ -7,7 +7,7 @@ from stockMarket.technicalAnalysis.indicators import candle_body_outside_range
 
 class FIBStrategy(StrategyObject):
     @classmethod
-    def from_json(cls, json_dict):
+    def init_from_json(cls, json_dict):
         return cls(json_dict["percent_range"], json_dict["rules"])
 
     def __init__(self,

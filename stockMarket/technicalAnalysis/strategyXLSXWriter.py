@@ -4,6 +4,7 @@ from openpyxl import load_workbook
 from beartype.typing import Dict, List, Optional
 
 from .trade import Trade, TradeOutcome, TradeSettings
+from stockMarket.utils.period import Period
 
 
 class StrategyXLSXWriter:
@@ -11,6 +12,7 @@ class StrategyXLSXWriter:
                  template_xlsx_filename: str,
                  xlsx_filename: str,
                  trade_settings: TradeSettings,
+                 period: Period,
                  start_date: pd.Timestamp,
                  end_date: pd.Timestamp,
                  batch_size: pd.Timedelta,
@@ -19,6 +21,7 @@ class StrategyXLSXWriter:
         self.template_xlsx_filename = template_xlsx_filename
         self.xlsx_filename = xlsx_filename
         self.trade_settings = trade_settings
+        self.period = period
         self.start_date = start_date
         self.end_date = end_date
         self.batch_size = batch_size
@@ -134,7 +137,7 @@ class StrategyXLSXWriter:
                 EARNINGS_index = header_index(headers, "Days to Earnings")
 
                 #fmt: off
-                xlsx_sheet.cell(row=row, column=TICKER_index).value = trade.TICKER
+                xlsx_sheet.cell(row=row, column=TICKER_index).value = trade.ticker
                 xlsx_sheet.cell(row=row, column=TC_date_index).value = trade.TC_date
                 xlsx_sheet.cell(row=row, column=ENTRY_date_index).value = trade.ENTRY_date
                 xlsx_sheet.cell(row=row, column=ENTRY_index).value = trade.ENTRY
@@ -192,13 +195,14 @@ class StrategyXLSXWriter:
 
                 xlsx_sheet.cell(row=row, column=TICKER_index).value = TICKER
 
-                if trade.outcome != TradeOutcome.WIN and trade.outcome != TradeOutcome.LOSS:
+                if trade.outcome_status != TradeOutcome.WIN and trade.outcome_status != TradeOutcome.LOSS:
                     row += 1
                     continue
 
                 #fmt: off
                 ENTRY_SL_index = header_index(headers, "Stop Loss")
                 R_ENTRY_SL_index = header_index(headers, "Stop Loss Real")
+                VOLATILITY_index = header_index(headers, "Volatility")
 
                 TP_ENTRY_index = header_index(headers, "Target")
                 TP_R_ENTRY_index = header_index(headers, "Target Real")
@@ -206,7 +210,7 @@ class StrategyXLSXWriter:
                 PL_index = header_index(headers, "P/L")
                 R_PL_index = header_index(headers, "P/L Real")
 
-                WL = "W" if trade.outcome == TradeOutcome.WIN else "L"
+                WL = "W" if trade.outcome_status == TradeOutcome.WIN else "L"
                 WL_index = header_index(headers, "W/L")
 
                 SHARES_TO_BUY_index = header_index(headers, "Shares 2 Buy")
@@ -240,6 +244,8 @@ class StrategyXLSXWriter:
                 xlsx_sheet.cell(row=row, column=TOTAL_DAYS_index).value = trade.TOTAL_DAYS
                 xlsx_sheet.cell(row=row, column=REQ_CAPITAL_index).value = trade.REQ_CAPITAL
 
+                xlsx_sheet.cell(row=row, column=VOLATILITY_index).value = trade.VOLATILITY
+
                 #fmt: on
                 row += 1
 
@@ -258,6 +264,9 @@ class StrategyXLSXWriter:
         xlsx_sheet.cell(row=1, column=2).value = start_date
         xlsx_sheet.cell(row=2, column=1).value = "End Date"
         xlsx_sheet.cell(row=2, column=2).value = end_date
+
+        xlsx_sheet.cell(row=1, column=3).value = "candle_period"
+        xlsx_sheet.cell(row=1, column=4).value = self.period.period_string
 
         row = 4
 

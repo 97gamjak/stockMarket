@@ -15,8 +15,6 @@ class StrategyFileSettings:
                  template_xlsx_path: Optional[str] = None,
                  template_xlsx_file: str = "template.xlsx",
                  xlsx_file: str = "screening.xlsx",
-                 json_file: str = "strategy.json",
-                 trades_json_file: str = "trades.json",
                  ) -> None:
 
         self.storing_behavior = StrategyStoringBehavior(storing_behavior)
@@ -24,8 +22,6 @@ class StrategyFileSettings:
         self.template_xlsx_path = template_xlsx_path
         self.template_xlsx_file = template_xlsx_file
         self.xlsx_file = xlsx_file
-        self.json_file = json_file
-        self.trades_json_file = trades_json_file
 
     def setup(self,
               strategy_objects: List[StrategyObject],
@@ -42,9 +38,6 @@ class StrategyFileSettings:
             self.template_xlsx_path / self.template_xlsx_file
         )
         self.xlsx_filename = str(self.dir_path / self.xlsx_file)
-
-        self.json_file = str(self.dir_path / self.json_file)
-        self.trades_json_file = str(self.dir_path / self.trades_json_file)
 
     def initialize_storing_behavior(self,
                                     strategy_objects: List[StrategyObject],
@@ -106,8 +99,6 @@ class StrategyFileSettings:
             "template_xlsx_path": str(self.template_xlsx_path),
             "template_xlsx_file": self.template_xlsx_file,
             "xlsx_file": self.xlsx_file,
-            "json_file": self.json_file,
-            "trades_json_file": self.trades_json_file,
         }
 
     @classmethod
@@ -119,7 +110,5 @@ class StrategyFileSettings:
         file_settings.template_xlsx_path = json["template_xlsx_path"]
         file_settings.template_xlsx_file = json["template_xlsx_file"]
         file_settings.xlsx_file = json["xlsx_file"]
-        file_settings.json_file = json["json_file"]
-        file_settings.trades_json_file = json["trades_json_file"]
 
         return file_settings

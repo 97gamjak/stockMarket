@@ -322,7 +322,7 @@ class Trade:
 
     @property
     def PRED_INVESTMENT(self):
-        return self.ENTRY / self.ENTER_SL
+        return self.ENTRY / self.ENTRY_SL
 
     @property
     def INVESTMENT(self):
@@ -359,6 +359,10 @@ class Trade:
     @property
     def REQ_CAPITAL(self):
         return self.INVESTMENT * self.TOTAL_DAYS
+
+    @property
+    def VOLATILITY(self):
+        return self.ENTRY_SL / self.ENTRY
 
     def to_json(self):
         return {

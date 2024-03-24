@@ -76,6 +76,10 @@ class MovingAverageStrategy(StrategyObject, metaclass=ABCMeta):
 
 
 class EMAStrategy(MovingAverageStrategy):
+    @classmethod
+    def init_from_json(cls, json_data):
+        return MovingAverageStrategy.init_from_json(cls, json_data)
+
     def __init__(self,
                  periods: List[int],
                  rules: None | List[str] = None,
@@ -99,13 +103,16 @@ class EMAStrategy(MovingAverageStrategy):
 
 
 class SMAStrategy(MovingAverageStrategy):
+    @classmethod
+    def init_from_json(cls, json_data):
+        return MovingAverageStrategy.init_from_json(cls, json_data)
+
     def __init__(self,
                  periods: List[int],
                  rules: None | List[str] = None,
                  ) -> None:
 
         MovingAverageStrategy.__init__(self, periods, rules)
-        self.indicator_keys = [f"sma_{period}" for period in self.periods]
 
     def calculate_indicators(self):
         self.indicator_values = {}
