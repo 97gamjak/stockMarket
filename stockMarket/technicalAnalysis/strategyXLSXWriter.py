@@ -104,10 +104,11 @@ class StrategyXLSXWriter:
                                   start_date: pd.Timestamp = None,
                                   end_date: pd.Timestamp = None
                                   ) -> None:
+        sheet_name = "stocks"
 
-        xlsx_sheet = self.xlsx_file["stocks"]
+        xlsx_sheet = self.xlsx_file[sheet_name]
         headers = list(pd.read_excel(
-            self.template_xlsx_filename, sheet_name="stocks").iloc[0])
+            self.template_xlsx_filename, sheet_name=sheet_name).iloc[0])
 
         row = 3
 
@@ -178,10 +179,28 @@ class StrategyXLSXWriter:
                                 start_date: pd.Timestamp,
                                 end_date: pd.Timestamp
                                 ):
+        self.write_analytics_finished_trades_to_xlsx(
+            trades,
+            start_date,
+            end_date
+        )
+        self.write_analytics_all_trades_to_xlsx(
+            trades,
+            start_date,
+            end_date
+        )
 
-        xlsx_sheet = self.xlsx_file["analytics"]
+    def write_analytics_finished_trades_to_xlsx(self,
+                                                trades: Dict[str, List[Trade]],
+                                                start_date: pd.Timestamp,
+                                                end_date: pd.Timestamp
+                                                ):
+
+        sheet_name = "analytics"
+
+        xlsx_sheet = self.xlsx_file[sheet_name]
         headers = list(pd.read_excel(
-            self.template_xlsx_filename, sheet_name="analytics").iloc[0])
+            self.template_xlsx_filename, sheet_name=sheet_name).iloc[0])
 
         row = 3
 
@@ -190,64 +209,110 @@ class StrategyXLSXWriter:
                 if not check_is_within_date_range(trade.TC_date, start_date, end_date):
                     continue
 
-                TICKER = trade.ticker
-                TICKER_index = header_index(headers, "Ticker")
-
-                xlsx_sheet.cell(row=row, column=TICKER_index).value = TICKER
-
                 if trade.outcome_status != TradeOutcome.WIN and trade.outcome_status != TradeOutcome.LOSS:
-                    row += 1
                     continue
 
-                #fmt: off
-                ENTRY_SL_index = header_index(headers, "Stop Loss")
-                R_ENTRY_SL_index = header_index(headers, "Stop Loss Real")
-                VOLATILITY_index = header_index(headers, "Volatility")
-
-                TP_ENTRY_index = header_index(headers, "Target")
-                TP_R_ENTRY_index = header_index(headers, "Target Real")
-
-                PL_index = header_index(headers, "P/L")
-                R_PL_index = header_index(headers, "P/L Real")
+                self._write_trade_info_analytics(
+                    trade,
+                    xlsx_sheet,
+                    row,
+                    headers
+                )
 
                 WL = "W" if trade.outcome_status == TradeOutcome.WIN else "L"
                 WL_index = header_index(headers, "W/L")
 
-                SHARES_TO_BUY_index = header_index(headers, "Shares 2 Buy")
-                PRED_INVEST_index = header_index(headers, "Predicted Investment")
-                INVEST_index = header_index(headers, "Investment")
-                DELTA_INVEST_index = header_index(headers, "Delta Investment")
-
-                PRED_OUTCOME_index = header_index(headers, "Predicted Outcome")
-                OUTCOME_index = header_index(headers, "Outcome")
-
-                TOTAL_DAYS_index = header_index(headers, "Total Days")
-                REQ_CAPITAL_index = header_index(headers, "Required Capital")
-
-
-                xlsx_sheet.cell(row=row, column=ENTRY_SL_index).value = trade.ENTRY_SL
-                xlsx_sheet.cell(row=row, column=R_ENTRY_SL_index).value = trade.R_ENTRY_SL
-                xlsx_sheet.cell(row=row, column=TP_ENTRY_index).value = trade.TP_ENTRY
-                xlsx_sheet.cell(row=row, column=TP_R_ENTRY_index).value = trade.TP_R_ENTRY
-                xlsx_sheet.cell(row=row, column=PL_index).value = trade.PL
-                xlsx_sheet.cell(row=row, column=R_PL_index).value = trade.R_PL
-
                 xlsx_sheet.cell(row=row, column=WL_index).value = WL
 
-                xlsx_sheet.cell(row=row, column=SHARES_TO_BUY_index).value = trade.SHARES_TO_BUY
-                xlsx_sheet.cell(row=row, column=PRED_INVEST_index).value = trade.PRED_INVESTMENT
-                xlsx_sheet.cell(row=row, column=INVEST_index).value = trade.INVESTMENT
-                xlsx_sheet.cell(row=row, column=DELTA_INVEST_index).value = trade.DELTA_INVESTMENT
-
-                xlsx_sheet.cell(row=row, column=PRED_OUTCOME_index).value = trade.PRED_OUTCOME
-                xlsx_sheet.cell(row=row, column=OUTCOME_index).value = trade.OUTCOME
-                xlsx_sheet.cell(row=row, column=TOTAL_DAYS_index).value = trade.TOTAL_DAYS
-                xlsx_sheet.cell(row=row, column=REQ_CAPITAL_index).value = trade.REQ_CAPITAL
-
-                xlsx_sheet.cell(row=row, column=VOLATILITY_index).value = trade.VOLATILITY
-
-                #fmt: on
                 row += 1
+
+    def write_analytics_all_trades_to_xlsx(self,
+                                           trades: Dict[str, List[Trade]],
+                                           start_date: pd.Timestamp,
+                                           end_date: pd.Timestamp
+                                           ):
+
+        sheet_name = "analytics_all_trades"
+
+        xlsx_sheet = self.xlsx_file[sheet_name]
+        headers = list(pd.read_excel(
+            self.template_xlsx_filename, sheet_name=sheet_name).iloc[0])
+
+        row = 3
+
+        for trades in trades.values():
+            for trade in trades:
+                if not check_is_within_date_range(trade.TC_date, start_date, end_date):
+                    continue
+
+                self._write_trade_info_analytics(
+                    trade,
+                    xlsx_sheet,
+                    row,
+                    headers
+                )
+
+                #fmt: off
+                OUTCOME_STATUS = trade.outcome_status
+                OUTCOME_STATUS_index = header_index(headers, "W/L")
+
+                xlsx_sheet.cell(row=row, column=OUTCOME_STATUS_index).value = OUTCOME_STATUS.value
+                #fmt: on
+
+                row += 1
+
+    def _write_trade_info_analytics(self, trade, xlsx_sheet, row, headers):
+
+        TICKER = trade.ticker
+        TICKER_index = header_index(headers, "Ticker")
+
+        xlsx_sheet.cell(row=row, column=TICKER_index).value = TICKER
+
+        #fmt: off
+        ENTRY_SL_index = header_index(headers, "Stop Loss")
+        R_ENTRY_SL_index = header_index(headers, "Stop Loss Real")
+        VOLATILITY_index = header_index(headers, "Volatility")
+
+        TP_ENTRY_index = header_index(headers, "Target")
+        TP_R_ENTRY_index = header_index(headers, "Target Real")
+        TP_TC_HIGH_RATIO_index = header_index(headers, "Target / TC.High")
+
+        PL_index = header_index(headers, "P/L")
+        R_PL_index = header_index(headers, "P/L Real")
+
+        SHARES_TO_BUY_index = header_index(headers, "Shares 2 Buy")
+        PRED_INVEST_index = header_index(headers, "Predicted Investment")
+        INVEST_index = header_index(headers, "Investment")
+        DELTA_INVEST_index = header_index(headers, "Delta Investment")
+
+        PRED_OUTCOME_index = header_index(headers, "Predicted Outcome")
+        OUTCOME_index = header_index(headers, "Outcome")
+
+        TOTAL_DAYS_index = header_index(headers, "Total Days")
+        REQ_CAPITAL_index = header_index(headers, "Required Capital")
+
+
+        xlsx_sheet.cell(row=row, column=ENTRY_SL_index).value = trade.ENTRY_SL
+        xlsx_sheet.cell(row=row, column=R_ENTRY_SL_index).value = trade.R_ENTRY_SL
+        xlsx_sheet.cell(row=row, column=TP_ENTRY_index).value = trade.TP_ENTRY
+        xlsx_sheet.cell(row=row, column=TP_R_ENTRY_index).value = trade.TP_R_ENTRY
+        xlsx_sheet.cell(row=row, column=TP_TC_HIGH_RATIO_index).value = trade.TP_TC_HIGH_RATIO
+
+        xlsx_sheet.cell(row=row, column=PL_index).value = trade.PL
+        xlsx_sheet.cell(row=row, column=R_PL_index).value = trade.R_PL
+
+        xlsx_sheet.cell(row=row, column=SHARES_TO_BUY_index).value = trade.SHARES_TO_BUY
+        xlsx_sheet.cell(row=row, column=PRED_INVEST_index).value = trade.PRED_INVESTMENT
+        xlsx_sheet.cell(row=row, column=INVEST_index).value = trade.INVESTMENT
+        xlsx_sheet.cell(row=row, column=DELTA_INVEST_index).value = trade.DELTA_INVESTMENT
+
+        xlsx_sheet.cell(row=row, column=PRED_OUTCOME_index).value = trade.PRED_OUTCOME
+        xlsx_sheet.cell(row=row, column=OUTCOME_index).value = trade.OUTCOME
+        xlsx_sheet.cell(row=row, column=TOTAL_DAYS_index).value = trade.TOTAL_DAYS
+        xlsx_sheet.cell(row=row, column=REQ_CAPITAL_index).value = trade.REQ_CAPITAL
+
+        xlsx_sheet.cell(row=row, column=VOLATILITY_index).value = trade.VOLATILITY
+        #fmt: on
 
     def write_trade_settings_to_xlsx(self,
                                      start_date: pd.Timestamp = None,

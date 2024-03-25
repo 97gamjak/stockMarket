@@ -41,10 +41,6 @@ def finalize(func, *args, **kwargs):
 
 
 class Strategy:
-    @classmethod
-    def init_from_json(cls, dir_path: Path):
-        StrategyJSON.read(dir_path)
-
     def __init__(self,
                  strategy_objects: List[StrategyObject],
                  start_date: str,
@@ -56,8 +52,48 @@ class Strategy:
                  candle_period: str | Period | None = None,
                  use_earnings_dates: bool = False,
                  finalize_commands: Optional[List[str]] = None,
+                 init_from_json: bool = False,
                  **kwargs
                  ) -> None:
+
+        if not init_from_json:
+            self.__clean_init__(
+                strategy_objects,
+                start_date,
+                end_date,
+                rule_enums,
+                num_batches,
+                batch_size,
+                trade_settings,
+                candle_period,
+                use_earnings_dates,
+                finalize_commands,
+                **kwargs
+            )
+        else:
+            if "dir_path" in kwargs:
+                self.dir_path = Path(kwargs["dir_path"])
+            elif "dir_name" in kwargs and "base_path" in kwargs:
+                self.dir_path = Path(kwargs["base_path"]) / kwargs["dir_name"]
+            else:
+                raise ValueError(
+                    "Either dir_path or dir_name and base_path must be provided in kwargs for init_from_json")
+
+            self.__init_from_json__(self.dir_path)
+
+    def __clean_init__(self,
+                       strategy_objects: List[StrategyObject],
+                       start_date: str,
+                       end_date: str,
+                       rule_enums: List[RuleEnum] = [RuleEnum.BULLISH],
+                       num_batches: int = 1,
+                       batch_size: Optional[pd.Timedelta] = None,
+                       trade_settings: Optional[TradeSettings] = None,
+                       candle_period: str | Period | None = None,
+                       use_earnings_dates: bool = False,
+                       finalize_commands: Optional[List[str]] = None,
+                       **kwargs
+                       ) -> None:
 
         self.strategy_objects = strategy_objects
         self.rule_enums = rule_enums
@@ -93,6 +129,36 @@ class Strategy:
             self.end_date,
             self.batch_size,
         )
+
+        StrategyJSON.write(
+            strategy_objects=self.strategy_objects,
+            rule_enums=self.rule_enums,
+            file_settings=self.file_settings,
+            use_earnings_dates=self.use_earnings_dates,
+            start_date=self.start_date,
+            end_date=self.end_date,
+            candle_period=self.candle_period,
+            batch_size=self.batch_size,
+            trade_settings=self.trade_settings,
+            dir_path=self.dir_path,
+        )
+
+    def init_from_json(self, dir_path: Path):
+        StrategyJSON.read(dir_path)
+
+        self.file_settings = StrategyJSON.file_settings
+        self._init_from_file_settings()
+
+        self.strategy_objects = StrategyJSON.strategy_objects
+        self.rule_enums = StrategyJSON.rule_enums
+        self.trades = StrategyJSON.trades
+        self.use_earnings_dates = StrategyJSON.use_earnings_dates
+        self.earnings_calendar = StrategyJSON.earnings_calendar
+        self.start_date = StrategyJSON.start_date
+        self.end_date = StrategyJSON.end_date
+        self.candle_period = StrategyJSON.candle_period
+        self.batch_size = StrategyJSON.batch_size
+        self.trade_settings = StrategyJSON.trade_settings
 
     def setup_files(self,
                     strategy_objects,
@@ -163,6 +229,11 @@ class Strategy:
 
             date += pd.Timedelta(days=1)
 
+        StrategyJSON.write_earnings_calendar(
+            dir_path=self.dir_path,
+            earnings_calendar=self.earnings_calendar
+        )
+
     @finalize
     def screen(self, tickers: List[str] | str) -> None:
 
@@ -176,6 +247,11 @@ class Strategy:
             self._screen_single_ticker(ticker, pricing_data)
 
         self.xlsx_writer.write_xlsx_file(self.trades, self.earnings_calendar)
+
+        StrategyJSON.write_trades(
+            trades=self.trades,
+            dir_path=self.dir_path
+        )
 
     def populate_pricing_data(self, ticker: str) -> None:
         error_file = open(self.error_logger_filename, "w")

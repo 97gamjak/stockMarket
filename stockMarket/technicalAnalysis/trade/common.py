@@ -85,22 +85,18 @@ def find_last_high(
         candle = pricing.iloc[candle_index]
         _highest_body_price = calc_highest_body_price(candle)
 
-        if (high_index == ref_candle_index and candle.high / high > min_ratio_high_to_ref_candle):
-            if _highest_body_price / highest_body_price < min_ratio_high_to_ref_candle:
-                continue
-
+        if candle.high > high:
             high = candle.high
             high_index = candle_index
             highest_body_price = _highest_body_price
 
-        if (high_index != ref_candle_index and candle.high > high):
-            high = candle.high
-            high_index = candle_index
-            highest_body_price = _highest_body_price
+        if high / ref_candle.high < min_ratio_high_to_ref_candle:
+            continue
+
         elif high_index != candle_index and (_highest_body_price - ref_candle.low) / (highest_body_price - ref_candle.low) < max_drawdown_ratio_after_new_high:
             break
 
-    if candle_index == high_index:
+    if ref_candle_index == high_index:
         return None, None
     else:
         return high, high_index

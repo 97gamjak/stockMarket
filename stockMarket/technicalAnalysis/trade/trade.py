@@ -67,10 +67,10 @@ class Trade:
         self.TC_index = pricing.index.get_loc(self.TC.name)
 
         self.setup_TP(
-            pricing,
-            self.settings.max_CandleDist_TP_ENTRY,
-            self.settings.min_ratio_high_to_ref_candle,
-            self.settings.max_drawdown_ratio_after_new_high,
+            pricing=pricing,
+            max_candles=self.settings.max_CandleDist_TP_ENTRY,
+            min_ratio_high_to_ref_candle=self.settings.min_ratio_high_to_ref_candle,
+            max_drawdown_ratio_after_new_high=self.settings.max_drawdown_ratio_after_new_high,
         )
 
         self.calculate_LOW_between_ENTRY_and_TP(
@@ -129,6 +129,9 @@ class Trade:
 
         if TP is None:
             self.trade_status = TradeStatus.TP_NOT_FOUND
+            return
+        elif TP / self.TC.high < min_ratio_high_to_ref_candle:
+            self.trade_status = TradeStatus.TP_TC_HIGH_RATIO_TOO_SMALL
             return
 
         TP_date = self.calc_TP_date(
@@ -306,63 +309,80 @@ class Trade:
 
     @property
     def ENTRY_SL(self):
-        return self.ENTRY - self.SL
+        return self.property_subtraction(self.ENTRY, self.SL)
 
     @property
     def R_ENTRY_SL(self):
-        return self.R_ENTRY - self.SL
+        return self.property_subtraction(self.R_ENTRY, self.SL)
 
     @property
     def TP_ENTRY(self):
-        return self.TP - self.ENTRY
+        return self.property_subtraction(self.TP, self.ENTRY)
 
     @property
     def TP_R_ENTRY(self):
-        return self.TP - self.R_ENTRY
+        return self.property_subtraction(self.TP, self.R_ENTRY)
 
     @property
     def PRED_INVESTMENT(self):
-        return self.ENTRY / self.ENTRY_SL
+        return self.property_division(self.ENTRY, self.ENTRY_SL)
 
     @property
     def INVESTMENT(self):
-        return self.R_ENTRY / self.ENTRY_SL
+        return self.property_division(self.R_ENTRY, self.ENTRY_SL)
 
     @property
     def DELTA_INVESTMENT(self):
-        return self.INVESTMENT - self.PRED_INVESTMENT
+        return self.property_subtraction(self.INVESTMENT, self.PRED_INVESTMENT)
+
+    @property
+    def EXIT_ENTRY(self):
+        return self.property_subtraction(self.EXIT, self.ENTRY)
+
+    @property
+    def EXIT_R_ENTRY(self):
+        return self.property_subtraction(self.EXIT, self.R_ENTRY)
 
     @property
     def PRED_OUTCOME(self):
-        return (self.EXIT - self.ENTRY) / self.ENTRY_SL
+        return self.property_division(self.EXIT_ENTRY, self.ENTRY_SL)
 
     @property
     def OUTCOME(self):
-        return (self.EXIT - self.R_ENTRY) / self.ENTRY_SL
+        return self.property_division(self.EXIT_R_ENTRY, self.ENTRY_SL)
 
     @property
     def PL(self):
-        return self.TP_ENTRY / self.ENTRY_SL
+        return self.property_division(self.TP_ENTRY, self.ENTRY_SL)
 
     @property
     def R_PL(self):
-        return self.TP_R_ENTRY / self.R_ENTRY_SL
+        return self.property_division(self.TP_R_ENTRY, self.R_ENTRY_SL)
 
     @property
     def SHARES_TO_BUY(self):
-        return 1 / self.ENTRY_SL
+        return self.property_division(1, self.ENTRY_SL)
 
     @property
     def TOTAL_DAYS(self):
-        return (self.EXIT_date - self.ENTRY_date).days + 1
+        date_diff = self.property_subtraction(self.EXIT_date, self.ENTRY_date)
+        if date_diff is None:
+            return None
+        else:
+            return date_diff.days + 1
 
     @property
     def REQ_CAPITAL(self):
-        return self.INVESTMENT * self.TOTAL_DAYS
+        return self.property_multiplication(self.INVESTMENT, self.TOTAL_DAYS)
 
     @property
     def VOLATILITY(self):
-        return self.ENTRY_SL / self.ENTRY
+        return self.property_division(self.ENTRY_SL, self.ENTRY)
+
+    @property
+    def TP_TC_HIGH_RATIO(self):
+        ratio = self.property_division(self.TP, self.TC.high)
+        return self.property_subtraction(ratio, 1)
 
     def to_json(self):
         return {
@@ -402,3 +422,21 @@ class Trade:
         trade.outcome_status = TradeOutcome(json["outcome"])
 
         return trade
+
+    def property_subtraction(self, a, b):
+        if a is None or b is None:
+            return None
+        else:
+            return a - b
+
+    def property_multiplication(self, a, b):
+        if a is None or b is None:
+            return None
+        else:
+            return a * b
+
+    def property_division(self, a, b):
+        if a is None or b is None:
+            return None
+        else:
+            return a / b

@@ -35,6 +35,7 @@ class TradeStatus(StringEnum):
     NO_ENTRY_WITHIN_NEXT_INTERVAL = "NO_ENTRY_WITHIN_NEXT_INTERVAL"
     AMBIGUOUS_EXIT_DATE = "AMBIGUOUS_EXIT_DATE"
     TP_NOT_FOUND = "TAKE_PROFIT_NOT_FOUND"
+    TP_TC_HIGH_RATIO_TOO_SMALL = "TAKE_PROFIT_TRIGGER_CANDLE_HIGH_RATIO_TOO_SMALL"
     LOW_SL_RATIO_TOO_LARGE = "LOW_STOP_LOSS_RATIO_TOO_LARGE"
     TP_B_TC_B_TO_LOW_RATIO_TOO_SMALL = "TAKE_PROFIT_BODY_TRIGGER_CANDLE_BODY_TO_LOW_RATIO_TOO_SMALL"
     PL_TOO_SMALL = "PROFIT_LOSS_TOO_SMALL"
@@ -89,6 +90,18 @@ at the same date (intraday) on a daily chart.
     TradeStatus.TP_NOT_FOUND.value: r"""
 The take profit has not been found. This means that no take profit could be calculated.
 In other words, if the take profit should be determined via the last high, no last high could be found.
+""",
+    TradeStatus.TP_TC_HIGH_RATIO_TOO_SMALL.value: r"""
+This status means that the ratio between the take profit and the high of the trigger candle is too small.
+In other words, the take profit is too close to the high of the trigger candle.
+
+Example:
+Trigger candle high: 100
+min_ratio: 3%
+
+Then the take profit must be:
+    TP > 100 * (1 + 3%)
+    TP > 103
 """,
     TradeStatus.LOW_SL_RATIO_TOO_LARGE.value: r"""
 This status means that the stop loss to the lowest price ratio is too large.

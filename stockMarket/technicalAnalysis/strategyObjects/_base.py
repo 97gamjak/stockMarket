@@ -64,7 +64,11 @@ class StrategyObject(metaclass=ABCMeta):
 
     @abstractmethod
     def to_json(self):
-        return {"rules": self.selected_rules, "strategy_name": self.strategy_name, "indicator_keys": self.indicator_keys}
+
+        return {"rules": self.selected_rules_to_json(), "strategy_name": self.strategy_name, "indicator_keys": self.indicator_keys}
+
+    def selected_rules_to_json(self):
+        return [rule_key for rule_key in self.selected_rules.keys()]
 
     @property
     @abstractmethod
