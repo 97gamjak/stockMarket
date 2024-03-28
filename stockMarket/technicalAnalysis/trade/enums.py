@@ -40,6 +40,7 @@ class TradeStatus(StringEnum):
     TP_B_TC_B_TO_LOW_RATIO_TOO_SMALL = "TAKE_PROFIT_BODY_TRIGGER_CANDLE_BODY_TO_LOW_RATIO_TOO_SMALL"
     PL_TOO_SMALL = "PROFIT_LOSS_TOO_SMALL"
     PL_TOO_LARGE = "PROFIT_LOSS_TOO_LARGE"
+    VOLATILITY_TOO_SMALL = "VOLATILITY_TOO_SMALL"
 
     @classmethod
     def write_description_to_file(cls, file_path: str):
@@ -122,5 +123,9 @@ of the stop loss to the entry price.
 The profit loss is too large.
 This means that the take profit distance to the entry price is too large in relation to the distance
 of the stop loss to the entry price.
+""",
+    TradeStatus.VOLATILITY_TOO_SMALL.value: r"""
+The volatility is too small.
+This means that the volatility of the stock is too small to make a trade.
 """
 }

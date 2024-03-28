@@ -16,6 +16,7 @@ class TradeSettings:
                  min_TP_B_TC_B_to_LOW_RATIO: Optional[float] = 2,
                  min_ratio_high_to_ref_candle: float = 1.0,
                  max_drawdown_ratio_after_new_high: float = 1.0,
+                 min_volatility: float = 0.0,
                  ):
 
         self.loss_limit = loss_limit + 1 if loss_limit is not None else None
@@ -30,6 +31,7 @@ class TradeSettings:
         self.min_TP_B_TC_B_to_LOW_RATIO = min_TP_B_TC_B_to_LOW_RATIO
         self.min_ratio_high_to_ref_candle = min_ratio_high_to_ref_candle
         self.max_drawdown_ratio_after_new_high = max_drawdown_ratio_after_new_high
+        self.min_volatility = min_volatility
 
     def to_json(self):
         return {
@@ -42,6 +44,7 @@ class TradeSettings:
             "min_TP_B_TC_B_to_LOW_RATIO": self.min_TP_B_TC_B_to_LOW_RATIO,
             "min_ratio_high_to_ref_candle": self.min_ratio_high_to_ref_candle,
             "max_drawdown_ratio_after_new_high": self.max_drawdown_ratio_after_new_high,
+            "min_volatility": self.min_volatility
         }
 
     def write_to_json_file(self, file_path: str):
@@ -63,6 +66,7 @@ class TradeSettings:
         self.min_TP_B_TC_B_to_LOW_RATIO = json["min_TP_B_TC_B_to_LOW_RATIO"]
         self.min_ratio_high_to_ref_candle = json["min_ratio_high_to_ref_candle"]
         self.max_drawdown_ratio_after_new_high = json["max_drawdown_ratio_after_new_high"]
+        self.min_volatility = json["min_volatility"]
 
     @classmethod
     def write_description_to_file(cls, file_path: str):
@@ -201,5 +205,17 @@ Than the next high at index i-1 must be greater than:
 so if candle i-1 has a value of 96 and candle i-2 has a value of 120 than the maximum_drawdown_ratio_after_new_high is fulfilled and candle i-2 is the new high at 120.and
 
 While if candle i-1 has a value of 94 and candle i-2 has a value of 120 than the maximum_drawdown_ratio_after_new_high is not fulfilled and candle i-2 is not the new high and the search for new highs stops and the high at index i is the new high at 100.
+""",
+        "min_volatility": r"""
+The minimum volatility of the candle. This is the minimum distance of the Entry price distance to the stop loss price relative to the entry price.
+
+For example:
+entry price = 100 (EP)
+min_volatility = 0.1
+
+Than the stop loss price can not be above 90:
+    (EP - x)/EP > min_volatility
+    (100 - x)/100 > 0.1
+    x = 100 - 100*0.1 < 90
 """
     }

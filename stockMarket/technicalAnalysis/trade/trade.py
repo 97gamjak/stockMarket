@@ -20,12 +20,10 @@ General Abbreviations:
 
 import datetime as dt
 import pandas as pd
-import yfinance as yf
 import numpy as np
 
 from beartype.typing import Optional
 
-from stockMarket.yfinance._common import adjust_price_data_from_df
 from .enums import ChartEnum, TradeStatus, TradeOutcome
 from .tradeSettings import TradeSettings
 from .decorators import ignore_trade_exceptions, check_trade_status
@@ -84,6 +82,8 @@ class Trade:
         self.check_PL_RATIOS()
 
         self.calc_R_ENTRY(pricing)
+
+        self.check_min_volatility()
 
         self.calc_EXIT(pricing, self.ENTRY_date)
 
@@ -226,6 +226,11 @@ class Trade:
 
         if self.R_ENTRY is None:
             self.trade_status = TradeStatus.TO_BE_DETERMINED
+
+    @check_trade_status
+    def check_min_volatility(self):
+        if self.VOLATILITY < self.settings.min_volatility:
+            self.trade_status = TradeStatus.VOLATILITY_TOO_SMALL
 
     def calc_EXIT(self, pricing: pd.DataFrame, ENTRY_date):
 
