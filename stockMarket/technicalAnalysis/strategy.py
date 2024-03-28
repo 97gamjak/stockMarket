@@ -22,22 +22,11 @@ from .trade import (
     TradeStatus,
 )
 from ._json import StrategyJSON
+from ._common import finalize
 from .strategyFileSettings import StrategyFileSettings
 from .strategyXLSXWriter import StrategyXLSXWriter
 from stockMarket.utils import Period
 from stockMarket.yfinance._common import adjust_price_data_from_df
-
-
-@decorator
-def finalize(func, *args, **kwargs):
-    self = args[0]
-    func(*args, **kwargs)
-
-    finalize_commands = np.atleast_1d(
-        self.finalize_commands) if self.finalize_commands is not None else []
-
-    for command in finalize_commands:
-        os.system(command)
 
 
 class Strategy:
@@ -324,150 +313,6 @@ class Strategy:
 
                     trade.condition = rule_enum.value
                     self.trades[ticker].append(trade)
-
-    @finalize
-    def plot_PL_histogram(self,
-                          bin_size: float = 0.25,
-                          ) -> None:
-        PL_win_values = []
-        PL_loss_values = []
-        for trades in self.trades.values():
-            for trade in trades:
-                if trade.outcome_status == TradeOutcome.WIN:
-                    PL_win_values.append(trade.PL)
-                elif trade.outcome_status == TradeOutcome.LOSS:
-                    PL_loss_values.append(trade.PL)
-
-        # Define the bins
-        bins = np.arange(0, 6, bin_size)
-
-        # Calculate the counts of 'win' and 'loss' trades in each bin
-        win_counts, _ = np.histogram(PL_win_values, bins=bins)
-        loss_counts, _ = np.histogram(PL_loss_values, bins=bins)
-
-        win_values_2d = []
-        loss_values_2d = []
-        for bin in bins:
-            win_values = []
-            for win in PL_win_values:
-                if bin <= win < bin + bin_size:
-                    win_values.append(win)
-
-            win_values_2d.append(win_values)
-
-            loss_values = []
-            for loss in PL_loss_values:
-                if bin <= loss < bin + bin_size:
-                    loss_values.append(loss)
-
-            loss_values_2d.append(loss_values)
-
-        PL_ratio_theoretical = []
-        PL_ratio_effective = []
-        for win_values, loss_values in zip(win_values_2d, loss_values_2d):
-            total_values = win_values + loss_values
-
-            if len(total_values) != 0:
-                PL_ratio_effective.append(len(win_values) / len(total_values))
-                PL_ratio_theoretical.append(np.mean(total_values))
-
-        # Calculate the PL ratio for each bin
-        PL_ratio = win_counts / (win_counts + loss_counts)
-
-        # Create a figure and a subplot
-        _, ax1 = plt.subplots()
-
-        # Plot the histogram on ax1
-        ax1.hist([PL_win_values, PL_loss_values], bins=bins, alpha=0.5,
-                 label=['win', 'loss'], stacked=True, color=["g", "r"])
-        ax1.set_ylabel('Count win/loss trades')
-        ax1.set_xlabel('theoretical PL ratio')
-        ax1.legend(loc='upper left')
-
-        # Create a second y-axis
-        ax2 = ax1.twinx()
-
-        PL_ratio_normed = np.array(
-            PL_ratio_effective) - 1/(np.array(PL_ratio_theoretical) + 1)
-
-        # Plot the PL ratio on ax2
-        ax2.plot(PL_ratio_theoretical, PL_ratio_normed,
-                 color='k', label='excess win percentage')
-        # make this axis in percent
-        ax2.set_yticklabels(['{:,.0%}'.format(x) for x in ax2.get_yticks()])
-        ax2.hlines(0, 0, 6, color='k', linestyle='--')
-        ax2.set_ylabel('excess win percentage')
-        ax2.legend(loc='upper right')
-
-        plt.tight_layout()
-        plt.savefig(str(self.dir_path / "PL_histogram.png"))
-
-    @finalize
-    def plot_trades_vs_time(self, max_loss=1):
-        days = []
-        amount_trades = []
-        total_invested = []
-        total_outcome = []
-        day = self.start_date
-        max_exit_date = self.start_date
-        while day < pd.Timestamp.now().date():
-            amount_trades.append(0)
-            total_invested.append(0)
-            total_outcome.append(0)
-            days.append(day)
-            for trades in self.trades.values():
-                for trade in trades:
-                    if trade.trade_status not in [TradeStatus.OPEN, TradeStatus.CLOSED]:
-                        continue
-
-                    if trade.trade_status == TradeStatus.CLOSED:
-                        if trade.EXIT_date == day:
-                            total_outcome[-1] += trade.OUTCOME*max_loss
-
-                    if trade.ENTRY_date <= day:
-                        if trade.trade_status == TradeStatus.OPEN or trade.EXIT_date >= day:
-                            amount_trades[-1] += 1
-                            total_invested[-1] += trade.INVESTMENT*max_loss
-
-                    if trade.EXIT_date is not None:
-                        max_exit_date = max(max_exit_date, trade.EXIT_date)
-
-            day += pd.Timedelta(days=1)
-
-        days = [day for day in days if day <= max_exit_date]
-        amount_trades = amount_trades[:len(days)]
-        total_invested = total_invested[:len(days)]
-        total_outcome = total_outcome[:len(days)]
-
-        _, ax = plt.subplots(1, 3, figsize=(30, 10))
-
-        ax[0].plot(days, amount_trades)
-        ax[0].set_xlabel("Date", fontsize=18)
-        ax[0].set_ylabel("Amount of trades", fontsize=18)
-
-        ax[1].plot(days, total_invested, color="r")
-        ax[1].set_ylabel("Total Invested in $", fontsize=18)
-        ax[1].set_xlabel("Date", fontsize=18)
-
-        ax[2].plot(
-            days,
-            np.cumsum(total_outcome),
-            color="g",
-            label="Forward Total Outcome"
-        )
-        ax[2].plot(
-            days,
-            np.cumsum(total_outcome[::-1]),
-            color="b",
-            label="Backward Total Outcome"
-        )
-        ax[2].set_ylabel("Total Outcome in $", fontsize=18)
-        ax[2].set_xlabel("Date", fontsize=18)
-        ax[2].legend(loc="upper left", fontsize=18)
-
-        # make figure more compact
-        plt.tight_layout()
-        plt.savefig(str(self.dir_path / "trades_vs_time.png"))
 
 
 def _check_dates(start_date: str, end_date: str) -> tuple[dt.date, dt.date]:

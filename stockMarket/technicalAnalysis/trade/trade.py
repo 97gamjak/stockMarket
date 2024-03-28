@@ -392,15 +392,15 @@ class Trade:
     def to_json(self):
         return {
             "ticker": self.ticker,
-            "TC_date": self.TC_date,
+            "TC_date": self.TC_date.isoformat(),
             "ENTRY": self.ENTRY,
             "R_ENTRY": self.R_ENTRY,
-            "ENTRY_date": self.ENTRY_date,
+            "ENTRY_date": self.ENTRY_date.isoformat(),
             "SL": self.SL,
             "TP": self.TP,
-            "TP_date": self.TP_date,
+            "TP_date": self.TP_date.isoformat(),
             "EXIT": self.EXIT,
-            "EXIT_date": self.EXIT_date,
+            "EXIT_date": self.EXIT_date.isoformat(),
             "trade_status": self.trade_status.value,
             "outcome": self.outcome_status.value,
             "settings": self.settings.to_json()
@@ -414,15 +414,15 @@ class Trade:
             settings=TradeSettings.from_json(json["settings"])
         )
 
-        trade.TC_date = json["TC_date"]
+        trade.TC_date = dt.date.fromisoformat(json["TC_date"])
         trade.ENTRY = json["ENTRY"]
         trade.R_ENTRY = json["R_ENTRY"]
-        trade.ENTRY_date = json["ENTRY_date"]
+        trade.ENTRY_date = dt.date.fromisoformat(json["ENTRY_date"])
         trade.SL = json["SL"]
         trade.TP = json["TP"]
-        trade.TP_date = json["TP_date"]
+        trade.TP_date = dt.date.fromisoformat(json["TP_date"])
         trade.EXIT = json["EXIT"]
-        trade.EXIT_date = json["EXIT_date"]
+        trade.EXIT_date = dt.date.fromisoformat(json["EXIT_date"])
         trade.trade_status = TradeStatus(json["trade_status"])
         trade.outcome_status = TradeOutcome(json["outcome"])
 

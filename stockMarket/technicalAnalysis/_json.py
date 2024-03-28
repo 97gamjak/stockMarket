@@ -157,7 +157,7 @@ class StrategyJSON:
         for ticker, ticker_trades in trades.items():
             json_trades[ticker] = [trade.to_json() for trade in ticker_trades]
 
-        return trades
+        return json_trades
 
     @classmethod
     def write_earnings_calendar(cls,
