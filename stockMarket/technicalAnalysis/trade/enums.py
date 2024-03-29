@@ -13,6 +13,19 @@ class ChartEnum(StringEnum):
                 f"{value} is not a valid chart enum possible chart enums are {cls.member_repr()} or {cls.value_repr()}")
 
 
+class AttachedOrderType(StringEnum):
+    STOP_LIMIT = "STOP_LIMIT"
+    TRAILING_STOP_IF_TP_TOUCHED = "TRAILING_STOP_IF_TP_TOUCHED"
+
+    @classmethod
+    def _missing_(cls, value: str) -> "TradeOutcome":
+        try:
+            super()._missing_(value)
+        except NotImplementedError:
+            raise NotImplementedError(
+                f"{value} is not a valid Attached Order Type possible Attached Order Types are {cls.member_repr()} or {cls.value_repr()}")
+
+
 class TradeOutcome(StringEnum):
     NONE = "none"
     WIN = "win"
@@ -34,13 +47,14 @@ class TradeStatus(StringEnum):
     TO_BE_DETERMINED = "TO_BE_DETERMINED"
     NO_ENTRY_WITHIN_NEXT_INTERVAL = "NO_ENTRY_WITHIN_NEXT_INTERVAL"
     AMBIGUOUS_EXIT_DATE = "AMBIGUOUS_EXIT_DATE"
-    TP_NOT_FOUND = "TAKE_PROFIT_NOT_FOUND"
-    TP_TC_HIGH_RATIO_TOO_SMALL = "TAKE_PROFIT_TRIGGER_CANDLE_HIGH_RATIO_TOO_SMALL"
-    LOW_SL_RATIO_TOO_LARGE = "LOW_STOP_LOSS_RATIO_TOO_LARGE"
-    TP_B_TC_B_TO_LOW_RATIO_TOO_SMALL = "TAKE_PROFIT_BODY_TRIGGER_CANDLE_BODY_TO_LOW_RATIO_TOO_SMALL"
+    TP_NOT_FOUND = "TP_NOT_FOUND"
+    TP_TC_HIGH_RATIO_TOO_SMALL = "TP_TC_HIGH_RATIO_TOO_SMALL"
+    LOW_SL_RATIO_TOO_LARGE = "LOW_SL_RATIO_TOO_LARGE"
+    TP_B_TC_B_TO_LOW_RATIO_TOO_SMALL = "TP_BODY_TC_BODY_TO_LOW_RATIO_TOO_SMALL"
     PL_TOO_SMALL = "PROFIT_LOSS_TOO_SMALL"
     PL_TOO_LARGE = "PROFIT_LOSS_TOO_LARGE"
     VOLATILITY_TOO_SMALL = "VOLATILITY_TOO_SMALL"
+    NUMBER_OF_CANDLES_BETWEEN_TP_AND_TC_TOO_SMALL = "NUMBER_OF_CANDLES_BETWEEN_TP_AND_TC_TOO_SMALL"
 
     @classmethod
     def write_description_to_file(cls, file_path: str):
@@ -127,5 +141,9 @@ of the stop loss to the entry price.
     TradeStatus.VOLATILITY_TOO_SMALL.value: r"""
 The volatility is too small.
 This means that the volatility of the stock is too small to make a trade.
-"""
+""",
+    TradeStatus.NUMBER_OF_CANDLES_BETWEEN_TP_AND_TC_TOO_SMALL.value: r"""
+The number of candles between the take profit and the trigger candle is too small.
+This means that the take profit is too close to the trigger candle.
+""",
 }

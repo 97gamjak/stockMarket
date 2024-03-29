@@ -3,21 +3,27 @@ import json
 from beartype.typing import Optional
 
 from .enums import ChartEnum
+from .enums import AttachedOrderType
 
 
 class TradeSettings:
     def __init__(self,
+                 attached_order_type: str | AttachedOrderType = AttachedOrderType.STOP_LIMIT,
                  loss_limit: Optional[float] = None,
+                 trailing_stop: Optional[float] = None,
                  min_PL: Optional[float] = None,
                  max_PL: Optional[float] = None,
                  TP_strategy=ChartEnum.LAST_HIGH,
                  max_CandleDist_TP_ENTRY: int = 10,
+                 min_candles_between_TP_and_ENTRY: int = 0,
                  max_LOW_SL_to_ENTRY_RATIO: Optional[float] = None,
                  min_TP_B_TC_B_to_LOW_RATIO: Optional[float] = 2,
                  min_ratio_high_to_ref_candle: float = 1.0,
                  max_drawdown_ratio_after_new_high: float = 1.0,
                  min_volatility: float = 0.0,
                  ):
+
+        self.attached_order_type = attached_order_type
 
         self.loss_limit = loss_limit + 1 if loss_limit is not None else None
 
@@ -26,6 +32,7 @@ class TradeSettings:
 
         self.TP_strategy = TP_strategy
         self.max_CandleDist_TP_ENTRY = max_CandleDist_TP_ENTRY
+        self.min_candles_between_TP_and_ENTRY = min_candles_between_TP_and_ENTRY
 
         self.max_LOW_SL_to_ENTRY_RATIO = max_LOW_SL_to_ENTRY_RATIO
         self.min_TP_B_TC_B_to_LOW_RATIO = min_TP_B_TC_B_to_LOW_RATIO
@@ -33,13 +40,25 @@ class TradeSettings:
         self.max_drawdown_ratio_after_new_high = max_drawdown_ratio_after_new_high
         self.min_volatility = min_volatility
 
+        if self.attached_order_type == AttachedOrderType.TRAILING_STOP_IF_TP_TOUCHED:
+            if trailing_stop is None:
+                raise ValueError(
+                    "trailing_stop must be set if attached_order_type is TRAILING_STOP_IF_TP_TOUCHED")
+            else:
+                self.trailing_stop = trailing_stop
+        else:
+            self.trailing_stop = None
+
     def to_json(self):
         return {
+            "attached_order_type": self.attached_order_type.value,
+            "trailing_stop": self.trailing_stop,
             "loss_limit": self.loss_limit,
             "min_PL": self.min_PL,
             "max_PL": self.max_PL,
             "TP_strategy": self.TP_strategy.value,
             "max_CandleDist_TP_ENTRY": self.max_CandleDist_TP_ENTRY,
+            "min_candles_between_TP_and_ENTRY": self.min_candles_between_TP_and_ENTRY,
             "max_LOW_SL_to_ENTRY_RATIO": self.max_LOW_SL_to_ENTRY_RATIO,
             "min_TP_B_TC_B_to_LOW_RATIO": self.min_TP_B_TC_B_to_LOW_RATIO,
             "min_ratio_high_to_ref_candle": self.min_ratio_high_to_ref_candle,
@@ -57,11 +76,16 @@ class TradeSettings:
         self.from_json(json_dict)
 
     def from_json(self, json):
+        self.attached_order_type = AttachedOrderType(
+            json["attached_order_type"]
+        )
         self.loss_limit = json["loss_limit"]
+        self.trailing_stop = json["trailing_stop"]
         self.min_PL = json["min_PL"]
         self.max_PL = json["max_PL"]
         self.TP_strategy = ChartEnum(json["TP_strategy"])
         self.max_CandleDist_TP_ENTRY = json["max_CandleDist_TP_ENTRY"]
+        self.min_candles_between_TP_and_ENTRY = json["min_candles_between_TP_and_ENTRY"]
         self.max_LOW_SL_to_ENTRY_RATIO = json["max_LOW_SL_to_ENTRY_RATIO"]
         self.min_TP_B_TC_B_to_LOW_RATIO = json["min_TP_B_TC_B_to_LOW_RATIO"]
         self.min_ratio_high_to_ref_candle = json["min_ratio_high_to_ref_candle"]
@@ -77,6 +101,13 @@ class TradeSettings:
                 file.write("\n\n\n")
 
     description_dict = {
+        "attached_order_type": r"""
+The type of the attached order.
+Here different types of attached orders can be selected.
+For example:
+    STOP_LIMIT: A stop limit order is a conditional trade that combines the features of a stop order with those of a limit order.
+                A stop-limit order will be executed at a specified price (or better) after a given stop price has been reached.
+""",
         "loss_limit": r"""
 The maximum loss limit for a trade.
 This is the maximum loss that is allowed for a trade.
@@ -95,6 +126,11 @@ than the maximum real entry price can not exceed:
     x = (100 - 90)*0.1+100 < 101
 
 Formally, this can be interpreted as a stop limit order with a stop price at 100 and a limit price at 101.
+""",
+        "trailing_stop": r"""
+The trailing stop for a trade.
+
+############################# ADD EXAMPLE HERE #############################
 """,
 
         "min_PL": r"""
@@ -144,6 +180,18 @@ take profit price = 110
 max_CandleDist_TP_ENTRY = 10
 
 Than the take profit price can not be further away than 10 candles from the entry price in the past in the respective chart (e.g. daily chart, weekly chart, etc.)
+""",
+        "min_candles_between_TP_and_ENTRY": r"""
+The minimum number of candles between the take profit price and the entry price.
+This is the minimum number of candles between the take profit price and the entry price.
+
+For example:
+entry price = 100 for a candle on the 12.01.2021
+take profit price = 110
+
+min_candles_between_TP_and_ENTRY = 2
+
+Than the take profit price must be at least 2 candles away from the entry price in the past in the respective chart (e.g. daily chart, weekly chart, etc.)
 """,
 
         "max_LOW_SL_to_ENTRY_RATIO": r"""

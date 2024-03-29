@@ -85,7 +85,7 @@ def find_last_high(
         candle = pricing.iloc[candle_index]
         _highest_body_price = calc_highest_body_price(candle)
 
-        if candle.high > high:
+        if candle.high > high and _highest_body_price > calc_highest_body_price(ref_candle):
             high = candle.high
             high_index = candle_index
             highest_body_price = _highest_body_price
