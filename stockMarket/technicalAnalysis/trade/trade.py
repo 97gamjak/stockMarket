@@ -392,15 +392,15 @@ class Trade:
     def to_json(self):
         return {
             "ticker": self.ticker,
-            "TC_date": self.TC_date.isoformat(),
+            "TC_date": isoformat_or_none(self.TC_date),
             "ENTRY": self.ENTRY,
             "R_ENTRY": self.R_ENTRY,
-            "ENTRY_date": self.ENTRY_date.isoformat(),
+            "ENTRY_date": isoformat_or_none(self.ENTRY_date),
             "SL": self.SL,
             "TP": self.TP,
-            "TP_date": self.TP_date.isoformat(),
+            "TP_date": isoformat_or_none(self.TP_date),
             "EXIT": self.EXIT,
-            "EXIT_date": self.EXIT_date.isoformat(),
+            "EXIT_date": isoformat_or_none(self.EXIT_date),
             "trade_status": self.trade_status.value,
             "outcome": self.outcome_status.value,
             "settings": self.settings.to_json()
@@ -414,15 +414,15 @@ class Trade:
             settings=TradeSettings.from_json(json["settings"])
         )
 
-        trade.TC_date = dt.date.fromisoformat(json["TC_date"])
+        trade.TC_date = fromisoformat_or_none(json["TC_date"])
         trade.ENTRY = json["ENTRY"]
         trade.R_ENTRY = json["R_ENTRY"]
-        trade.ENTRY_date = dt.date.fromisoformat(json["ENTRY_date"])
+        trade.ENTRY_date = fromisoformat_or_none(json["ENTRY_date"])
         trade.SL = json["SL"]
         trade.TP = json["TP"]
-        trade.TP_date = dt.date.fromisoformat(json["TP_date"])
+        trade.TP_date = fromisoformat_or_none(json["TP_date"])
         trade.EXIT = json["EXIT"]
-        trade.EXIT_date = dt.date.fromisoformat(json["EXIT_date"])
+        trade.EXIT_date = fromisoformat_or_none(json["EXIT_date"])
         trade.trade_status = TradeStatus(json["trade_status"])
         trade.outcome_status = TradeOutcome(json["outcome"])
 
@@ -445,3 +445,11 @@ class Trade:
             return None
         else:
             return a / b
+
+
+def isoformat_or_none(date: pd.Timestamp):
+    return date.isoformat() if date is not None else None
+
+
+def fromisoformat_or_none(date: str):
+    return dt.date.fromisoformat(date) if date is not None else None
