@@ -28,11 +28,17 @@ class StrategyPlotter:
         bins = np.arange(min_bin, max_bin, bin_size)
         bins = np.append(bins, np.inf)
 
-        win_mask = self.trades['outcome_status'] == TradeOutcome.WIN
-        win_PL = self.trades[win_mask]['PL']
+        win_PL = [
+            trade.PL
+            for trade in self.trades
+            if trade.outcome_status == TradeOutcome.WIN
+        ]
 
-        loss_mask = self.trades['outcome_status'] == TradeOutcome.LOSS
-        loss_PL = self.trades[loss_mask]['PL']
+        loss_PL = [
+            trade.PL
+            for trade in self.trades
+            if trade.outcome_status == TradeOutcome.LOSS
+        ]
 
         # Calculate the counts of win and loss PL values in each bin
         win_PL_per_bin, _ = np.histogram(win_PL)
@@ -42,17 +48,20 @@ class StrategyPlotter:
         total_trades_per_bin = win_PL_per_bin + loss_PL_per_bin
 
         # Calculate the effective and theoretical PL ratio for each bin
-        PL_ratio_effective = np.zeros_like(win_PL_per_bin)
-        np.divide(
+        PL_ratio_effective = np.zeros_like(win_PL_per_bin, dtype=float)
+        np.true_divide(
             win_PL_per_bin,
             total_trades_per_bin,
             out=PL_ratio_effective,
-            where=total_trades_per_bin != 0
+            where=total_trades_per_bin != 0,
         )
         PL_ratio_theoretical = np.mean(
             np.concatenate((win_PL_per_bin, loss_PL_per_bin)),
-            axis=0
+            axis=1
         )
+
+        print(PL_ratio_theoretical)
+        print(PL_ratio_effective)
 
         # Create a figure and a subplot
         _, ax1 = plt.subplots()

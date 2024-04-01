@@ -86,7 +86,7 @@ class Trade:
 
         self.check_min_volatility()
 
-        self.calc_EXIT(pricing, self.ENTRY_date)
+        self.calc_EXIT()
 
         self.determine_trade_outcome()
 
@@ -235,122 +235,131 @@ class Trade:
         if self.VOLATILITY < self.settings.min_volatility:
             self.trade_status = TradeStatus.VOLATILITY_TOO_SMALL
 
-    def calc_EXIT(self, pricing: pd.DataFrame, ENTRY_date):
+    def calc_EXIT(self):
         if self.settings.attached_order_type == AttachedOrderType.STOP_LIMIT:
-            self.EXIT_STOP_LIMIT(pricing, ENTRY_date)
+            self.EXIT_STOP_LIMIT()
         elif self.settings.attached_order_type == AttachedOrderType.TRAILING_STOP_IF_TP_TOUCHED:
-            self.EXIT_TRAILING_STOP_IF_TP_TOUCHED(ENTRY_date)
+            self.EXIT_TRAILING_STOP_IF_TP_TOUCHED()
         else:
             raise NotImplementedError(
                 f"Invalid attached order type {self.settings.attached_order_type}")
 
-    def EXIT_STOP_LIMIT(self, pricing: pd.DataFrame, ENTRY_date):
+    def EXIT_STOP_LIMIT(self):
 
-        for candle_index in range(self.TC_index+1, len(pricing)):
+        pricing = get_daily_candle_range(
+            self.ticker,
+            self.ENTRY_date,
+        )
 
-            TP_EXIT_candle, _ = find_daily_candle(
-                ticker=self.ticker,
-                pricing=pricing,
-                candle_index=candle_index,
-                target_price=self.TP,
-                min_date=ENTRY_date,
-            )
+        SL_EXIT, TP_EXIT, EXIT_candle, trade_status = self._EXIT_STOP_LIMIT(
+            pricing
+        )
 
-            SL_EXIT_candle, SL_EXIT = find_daily_candle(
-                ticker=self.ticker,
-                pricing=pricing,
-                candle_index=candle_index,
-                target_price=self.SL,
-                mode=np.less_equal,
-                min_date=ENTRY_date,
-            )
-
-            if TP_EXIT_candle is None and SL_EXIT_candle is None:
-                candle_to_choose = "none"
-            elif TP_EXIT_candle is None:
-                candle_to_choose = "SL"
-            elif SL_EXIT_candle is None:
-                candle_to_choose = "TP"
-            elif TP_EXIT_candle.name.date() < SL_EXIT_candle.name.date():
-                candle_to_choose = "TP"
-            elif TP_EXIT_candle.name.date() > SL_EXIT_candle.name.date():
-                candle_to_choose = "SL"
-            else:
-                if TP_EXIT_candle.open <= self.SL:
-                    candle_to_choose = "SL"
-                elif TP_EXIT_candle.open >= self.TP:
-                    candle_to_choose = "TP"
-                else:
-                    candle_to_choose = "ambiguous"
-
-            if candle_to_choose == "TP":
-                EXIT_candle = TP_EXIT_candle
-                self.EXIT = self.TP
-                self.trade_status = TradeStatus.CLOSED
-            elif candle_to_choose == "SL":
-                EXIT_candle = SL_EXIT_candle
+        if trade_status == TradeStatus.CLOSED:
+            if TP_EXIT is None:
                 self.EXIT = SL_EXIT
-                self.trade_status = TradeStatus.CLOSED
-            elif candle_to_choose == "ambiguous":
-                EXIT_candle = TP_EXIT_candle
-                self.trade_status = TradeStatus.AMBIGUOUS_EXIT_DATE
-
-            if candle_to_choose != "none":
-                self.EXIT_date = EXIT_candle.name.date()
-                break
             else:
-                EXIT_candle = None
+                self.EXIT = self.TP
+            self.trade_status = trade_status
+            self.EXIT_date = EXIT_candle.name.date()
+        elif trade_status == TradeStatus.AMBIGUOUS_EXIT_DATE:
+            self.trade_status = trade_status
+            self.EXIT_date = EXIT_candle.name.date()
 
-        if EXIT_candle is None:
+        elif EXIT_candle is None:
             self.trade_status = TradeStatus.OPEN
 
-    def EXIT_TRAILING_STOP_IF_TP_TOUCHED(self, ENTRY_date):
+    def _EXIT_STOP_LIMIT(self, pricing: pd.DataFrame):
+        SL_EXIT = None
+        TP_EXIT = None
+        candle = None
+        trade_status = TradeStatus.OPEN
+
+        for date in pricing.index[pricing.index.date >= self.ENTRY_date]:
+            candle = pricing.loc[date]
+
+            if candle.low <= self.SL:
+                SL_EXIT = self.SL
+
+            if candle.high >= self.TP:
+                TP_EXIT = self.TP
+
+            if SL_EXIT is not None and TP_EXIT is not None:
+                if candle.open >= self.TP:
+                    TP_EXIT = self.TP
+                    SL_EXIT = None
+                    trade_status = TradeStatus.CLOSED
+                elif candle.open <= self.SL:
+                    TP_EXIT = None
+                    SL_EXIT = candle.open
+                    trade_status = TradeStatus.CLOSED
+                else:
+                    trade_status = TradeStatus.AMBIGUOUS_EXIT_DATE
+
+                break
+            elif SL_EXIT is not None:
+                if candle.open <= SL_EXIT:
+                    SL_EXIT = candle.open
+                trade_status = TradeStatus.CLOSED
+                break
+            elif TP_EXIT is not None:
+                trade_status = TradeStatus.CLOSED
+                break
+
+            candle = None
+
+        return SL_EXIT, TP_EXIT, candle, trade_status
+
+    def EXIT_TRAILING_STOP_IF_TP_TOUCHED(self):
 
         pricing_daily = get_daily_candle_range(
             self.ticker,
-            self.TC.name,
+            self.ENTRY_date,
         )
 
-        high = self.TP
-        stop_loss = self.SL
-        take_profit_reached = False
+        SL_EXIT, TP_EXIT, EXIT_candle, trade_status = self._EXIT_STOP_LIMIT(
+            pricing_daily
+        )
 
-        TP_candle = None
-        for date in pricing_daily.index:
+        if trade_status == TradeStatus.CLOSED and TP_EXIT is None:
+            self.EXIT = SL_EXIT
+            self.trade_status = trade_status
+            self.EXIT_date = EXIT_candle.name.date()
+            return
+        elif trade_status == TradeStatus.AMBIGUOUS_EXIT_DATE:
+            self.trade_status = trade_status
+            self.EXIT_date = EXIT_candle.name.date()
+            return
+
+        elif EXIT_candle is None:
+            self.trade_status = TradeStatus.OPEN
+            return
+
+        high = self.TP
+        trailing_stop_loss = high * (1 - self.settings.trailing_stop)
+        new_stop_loss = False
+
+        TP_candle = EXIT_candle
+        for date in pricing_daily.index[pricing_daily.index >= TP_candle.name]:
             candle = pricing_daily.loc[date]
             EXIT_candle = None
 
-            if not take_profit_reached and self.TP <= candle.high:
-                take_profit_reached = True
-                TP_candle = candle
-
-            if candle.low <= stop_loss:
+            if candle.low < trailing_stop_loss:
                 EXIT_candle = candle
-
-            if EXIT_candle is not None:
-                if take_profit_reached:
-                    if TP_candle.name.date() == EXIT_candle.name.date():
-                        if EXIT_candle.open <= self.SL:
-                            self.EXIT = self.SL
-                            self.trade_status = TradeStatus.CLOSED
-                        elif EXIT_candle.open >= self.TP:
-                            self.EXIT = self.TP
-                            self.trade_status = TradeStatus.CLOSED
-                        else:
-                            EXIT_candle = None
-                            self.trade_status = TradeStatus.AMBIGUOUS_EXIT_DATE
-                    else:
-                        self.EXIT = stop_loss
-                        self.trade_status = TradeStatus.CLOSED
-                else:
-                    self.EXIT = stop_loss
-                    self.trade_status = TradeStatus.CLOSED
-
+                self.EXIT = trailing_stop_loss
+                self.trade_status = TradeStatus.CLOSED
                 break
 
-            if take_profit_reached and candle.high > high:
+            if candle.high > high:
                 high = candle.high
-                stop_loss = high * (1 - self.settings.trailing_stop)
+                new_stop_loss = True
+                trailing_stop_loss = high * (1 - self.settings.trailing_stop)
+
+            if new_stop_loss and candle.low < trailing_stop_loss:
+                EXIT_candle = candle
+                self.EXIT = trailing_stop_loss
+                self.trade_status = TradeStatus.CLOSED
+                break
 
         if EXIT_candle is None:
             self.trade_status = TradeStatus.OPEN
