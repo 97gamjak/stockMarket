@@ -21,7 +21,6 @@ General Abbreviations:
 import datetime as dt
 import pandas as pd
 import numpy as np
-import yfinance as yf
 
 from beartype.typing import Optional
 
@@ -34,7 +33,7 @@ from .common import (
     find_daily_candle,
     find_last_high,
 )
-from stockMarket.yfinance._common import adjust_price_data_from_df
+from stockMarket.yfinance._common import get_daily_candle_range
 
 
 class Trade:
@@ -307,15 +306,10 @@ class Trade:
 
     def EXIT_TRAILING_STOP_IF_TP_TOUCHED(self, ENTRY_date):
 
-        ticker = yf.Ticker(self.ticker)
-        pricing_daily = ticker.history(
-            auto_adjust=False,
-            start=str(ENTRY_date),
-            end=None,
-            rounding=True
+        pricing_daily = get_daily_candle_range(
+            self.ticker,
+            self.TC.name,
         )
-
-        pricing_daily = adjust_price_data_from_df(pricing_daily)
 
         high = self.TP
         stop_loss = self.SL

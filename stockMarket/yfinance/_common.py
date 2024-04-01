@@ -1,8 +1,9 @@
 import pandas as pd
 import os
 import warnings
+import yfinance as yf
 
-from beartype.typing import List
+from beartype.typing import Optional
 
 from stockMarket.utils import Period
 from stockMarket.core import Contracts
@@ -48,3 +49,38 @@ def adjust_price_data_from_df(df):
     columns_lower_case = [column.lower() for column in columns]
     df = df.rename(columns=dict(zip(columns, columns_lower_case)))
     return df
+
+
+def get_daily_candle_range(ticker: str, start_date: pd.Timestamp, end_date: Optional[pd.Timestamp] = None, auto_adjust: bool = False):
+
+    ticker = yf.Ticker(ticker)
+
+    pricing_data = ticker.history(
+        start=str(start_date),
+        end=str(end_date) if end_date is not None else None,
+        auto_adjust=False,
+        rounding=True,
+    )
+
+    return adjust_price_data_from_df(pricing_data)
+
+
+def get_weekly_candle_range(ticker: str, start_date: pd.Timestamp, end_date: Optional[pd.Timestamp] = None, auto_adjust: bool = False):
+
+    pricing_data = get_daily_candle_range(
+        ticker, start_date, end_date, auto_adjust)
+
+    if len(pricing_data) == 0:
+        return pricing_data
+
+    weekly_data = pricing_data.resample("W").agg({
+        "open": "first",
+        "high": "max",
+        "low": "min",
+        "close": "last",
+        "volume": "sum",
+    })
+
+    weekly_data.index = weekly_data.index - pd.Timedelta(days=6)
+
+    return weekly_data

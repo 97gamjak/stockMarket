@@ -26,7 +26,7 @@ from ._common import finalize
 from .strategyFileSettings import StrategyFileSettings
 from .strategyXLSXWriter import StrategyXLSXWriter
 from stockMarket.utils import Period
-from stockMarket.yfinance._common import adjust_price_data_from_df
+from stockMarket.yfinance._common import get_weekly_candle_range, get_daily_candle_range
 
 
 class Strategy:
@@ -245,20 +245,29 @@ class Strategy:
     def populate_pricing_data(self, ticker: str) -> None:
         error_file = open(self.error_logger_filename, "w")
 
-        ticker = yf.Ticker(ticker)
         start_date = pd.Timestamp(self.start_date).date()
         start_date -= pd.Timedelta(days=100 *
                                    self.candle_period.period_time.days)
 
-        pricing_data = ticker.history(
-            auto_adjust=False,
-            start=str(start_date),
-            end=None,
-            rounding=True,
-            interval=self.candle_period.yf_interval
-        )
+        if self.candle_period.yf_interval == "1d":
+            pricing_data = get_daily_candle_range(
+                ticker,
+                start_date
+            )
+        elif self.candle_period.yf_interval == "1wk":
+            pricing_data = get_weekly_candle_range(
+                ticker,
+                start_date
+            )
+        else:
+            raise NotImplementedError("Candle period not supported yet")
 
-        pricing_data = adjust_price_data_from_df(pricing_data)
+        for index in pricing_data.index:
+            if index.date() == pd.Timestamp("2014-07-29").date():
+                print(store_index)
+                print(index)
+                print(pricing_data.loc[index])
+            store_index = index
 
         try:
             for strategy_object in self.strategy_objects:

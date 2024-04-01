@@ -1,8 +1,7 @@
 import pandas as pd
 import numpy as np
-import yfinance as yf
 
-from stockMarket.yfinance._common import adjust_price_data_from_df
+from stockMarket.yfinance._common import get_daily_candle_range
 
 
 def calc_highest_body_price(candle):
@@ -36,14 +35,7 @@ def find_daily_candle(ticker,
     if end_date is not None and min_date == end_date:
         return None, None
 
-    ticker = yf.Ticker(ticker)
-    pricing_daily = ticker.history(
-        auto_adjust=False,
-        start=str(min_date),
-        end=end_date,
-        rounding=True
-    )
-    pricing_daily = adjust_price_data_from_df(pricing_daily)
+    pricing_daily = get_daily_candle_range(ticker, min_date, end_date)
 
     candle = None
 
