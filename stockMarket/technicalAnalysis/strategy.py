@@ -14,13 +14,12 @@ from .strategyObjects import StrategyObject, RuleEnum
 from .trade import (
     Trade,
     TradeSettings,
-    TradeOutcome,
-    TradeStatus,
 )
 from ._json import StrategyJSON
 from ._common import finalize
 from .strategyFileSettings import StrategyFileSettings
 from .strategyXLSXWriter import StrategyXLSXWriter
+from .strategyAnalysis import StrategyAnalysis
 from stockMarket.utils import Period
 from stockMarket.yfinance._common import get_weekly_candle_range, get_daily_candle_range
 
@@ -147,7 +146,8 @@ class Strategy:
 
         self.strategy_objects = strategy_objects
         self.rule_enums = rule_enums
-        self.trades: Dict[str, List[Trade]] = {}
+        self.trades = pd.DataFrame()
+        self.trade_objects = []
         self.error_logger = {}
         self.use_earnings_dates = use_earnings_dates
         self.finalize_commands = finalize_commands
@@ -211,7 +211,15 @@ class Strategy:
 
         self.strategy_objects = StrategyJSON.strategy_objects
         self.rule_enums = StrategyJSON.rule_enums
-        self.trades = StrategyJSON.trades
+
+        self.trade_objects = StrategyJSON.trades
+        self.trades = pd.DataFrame(
+            [
+                trade.trade_dictionary
+                for trade in self.trade_objects
+            ]
+        )
+
         self.use_earnings_dates = StrategyJSON.use_earnings_dates
         self.earnings_calendar = StrategyJSON.earnings_calendar
         self.start_date = StrategyJSON.start_date
@@ -334,10 +342,20 @@ class Strategy:
             pricing, pricing_daily = self.populate_pricing_data(ticker)
             self._screen_single_ticker(ticker, pricing, pricing_daily)
 
-        self.xlsx_writer.write_xlsx_file(self.trades, self.earnings_calendar)
+        self.trades = pd.DataFrame(
+            [
+                trade.trade_dictionary
+                for trade in self.trade_objects
+            ]
+        )
+
+        self.xlsx_writer.write_xlsx_file(
+            StrategyAnalysis(self.trades),
+            self.earnings_calendar
+        )
 
         StrategyJSON.write_trades(
-            trades=self.trades,
+            trades=self.trade_objects,
             dir_path=self.dir_path
         )
 
@@ -391,8 +409,6 @@ class Strategy:
         if pricing is None:
             return
 
-        self.trades[ticker] = []
-
         end_index = _calculate_end_date_index(
             pricing,
             self.end_date
@@ -419,13 +435,15 @@ class Strategy:
                         ticker, pricing.iloc[index], self.trade_settings)
 
                     try:
-                        trade.execute_trade(pricing, pricing_daily)
+                        trade.execute_trade(
+                            pricing,
+                            pricing_daily
+                        )
                     except Exception as e:
                         print(f"Error executing trade for ticker {ticker}")
                         raise e
 
-                    trade.condition = rule_enum.value
-                    self.trades[ticker].append(trade)
+                    self.trade_objects.append(trade)
 
 
 def _check_dates(start_date: str, end_date: str) -> tuple[dt.date, dt.date]:

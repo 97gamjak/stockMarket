@@ -3,7 +3,8 @@ import pandas as pd
 from openpyxl import load_workbook
 from beartype.typing import Dict, List, Optional
 
-from .trade import Trade, TradeOutcome, TradeSettings
+from .trade import TradeOutcome, TradeSettings
+from .strategyAnalysis import StrategyAnalysis
 from stockMarket.utils.period import Period
 
 
@@ -27,7 +28,7 @@ class StrategyXLSXWriter:
         self.batch_size = batch_size
 
     def write_xlsx_file(self,
-                        trades: Dict[str, List[Trade]],
+                        trade_analysis: StrategyAnalysis,
                         earnings_calendar: Dict[str, pd.Timestamp] = {}
                         ) -> None:
 
@@ -40,10 +41,10 @@ class StrategyXLSXWriter:
                 break
 
             self.write_single_xlsx_file(
-                trades,
-                earnings_calendar,
-                start_date,
-                end_date
+                trade_analysis=trade_analysis,
+                earnings_calendar=earnings_calendar,
+                start_date=start_date,
+                end_date=end_date
             )
 
             start_date = end_date
@@ -52,18 +53,20 @@ class StrategyXLSXWriter:
                 break
 
         self.write_single_xlsx_file(
-            trades,
-            earnings_calendar,
-            filename=self.xlsx_filename.split(".")[0] + "_total.xlsx"
+            trade_analysis=trade_analysis,
+            earnings_calendar=earnings_calendar,
+            filename=self.xlsx_filename.split(".")[0] + "_total.xlsx",
         )
 
     def write_single_xlsx_file(self,
-                               trades: Dict[str, List[Trade]],
+                               trade_analysis: StrategyAnalysis,
                                earnings_calendar: Dict[str, pd.Timestamp] = {},
                                start_date: pd.Timestamp = None,
                                end_date: pd.Timestamp = None,
                                filename: Optional[str] = None,
                                ) -> None:
+
+        trades = trade_analysis.trades
 
         self.xlsx_file = load_workbook(self.template_xlsx_filename)
 
@@ -73,14 +76,21 @@ class StrategyXLSXWriter:
             start_date,
             end_date
         )
+
         self.write_analytics_to_xlsx(
             trades,
             start_date,
             end_date
         )
+
         self.write_trade_settings_to_xlsx(
             start_date,
             end_date
+        )
+
+        # TODO: make this compatible with batch strategy
+        self.write_analysis_to_xlsx(
+            trade_analysis
         )
 
         if filename is None:
@@ -98,7 +108,7 @@ class StrategyXLSXWriter:
         self.xlsx_file.save(xlsx_filename)
 
     def write_all_possible_trades(self,
-                                  trades: Dict[str, List[Trade]],
+                                  trades: pd.DataFrame,
                                   earnings_calendar: Dict[str,
                                                           List[pd.Timestamp]] = {},
                                   start_date: pd.Timestamp = None,
@@ -112,57 +122,56 @@ class StrategyXLSXWriter:
 
         row = 3
 
-        for trades in trades.values():
-            for trade in trades:
-                if not check_is_within_date_range(trade.TC_date, start_date, end_date):
-                    continue
+        for trade in trades.itertuples():
+            if not check_is_within_date_range(trade.TC_date, start_date, end_date):
+                continue
 
-                TICKER_index = header_index(headers, "Ticker")
+            TICKER_index = header_index(headers, "Ticker")
 
-                TC_date_index = header_index(headers, "Entry Candle")
-                ENTRY_date_index = header_index(headers, "Entry Date")
+            TC_date_index = header_index(headers, "Entry Candle")
+            ENTRY_date_index = header_index(headers, "Entry Date")
 
-                ENTRY_index = header_index(headers, "Entry")
-                R_ENTRY_index = header_index(headers, "Real Entry")
+            ENTRY_index = header_index(headers, "Entry")
+            R_ENTRY_index = header_index(headers, "Real Entry")
 
-                SL_index = header_index(headers, "Stop Loss")
-                TP_date_index = header_index(headers, "Target Date")
-                TP_index = header_index(headers, "Target")
+            SL_index = header_index(headers, "Stop Loss")
+            TP_date_index = header_index(headers, "Target Date")
+            TP_index = header_index(headers, "Target")
 
-                EXIT_date_index = header_index(headers, "Exit Date")
-                EXIT_index = header_index(headers, "Exit")
+            EXIT_date_index = header_index(headers, "Exit Date")
+            EXIT_index = header_index(headers, "Exit")
 
-                STATUS = trade.trade_status.value
-                STATUS_index = header_index(headers, "Status")
+            STATUS = trade.trade_status.value
+            STATUS_index = header_index(headers, "Status")
 
-                EARNINGS_index = header_index(headers, "Days to Earnings")
+            EARNINGS_index = header_index(headers, "Days to Earnings")
 
-                #fmt: off
-                xlsx_sheet.cell(row=row, column=TICKER_index).value = trade.ticker
-                xlsx_sheet.cell(row=row, column=TC_date_index).value = trade.TC_date
-                xlsx_sheet.cell(row=row, column=ENTRY_date_index).value = trade.ENTRY_date
-                xlsx_sheet.cell(row=row, column=ENTRY_index).value = trade.ENTRY
-                xlsx_sheet.cell(row=row, column=R_ENTRY_index).value = trade.R_ENTRY
+            #fmt: off
+            xlsx_sheet.cell(row=row, column=TICKER_index).value = trade.ticker
+            xlsx_sheet.cell(row=row, column=TC_date_index).value = trade.TC_date
+            xlsx_sheet.cell(row=row, column=ENTRY_date_index).value = trade.ENTRY_date
+            xlsx_sheet.cell(row=row, column=ENTRY_index).value = trade.ENTRY
+            xlsx_sheet.cell(row=row, column=R_ENTRY_index).value = trade.R_ENTRY
 
-                xlsx_sheet.cell(row=row, column=SL_index).value = trade.SL
-                xlsx_sheet.cell(row=row, column=TP_date_index).value = trade.TP_date
-                xlsx_sheet.cell(row=row, column=TP_index).value = trade.TP
-                xlsx_sheet.cell(row=row, column=EXIT_date_index).value = trade.EXIT_date
-                xlsx_sheet.cell(row=row, column=EXIT_index).value = trade.EXIT
+            xlsx_sheet.cell(row=row, column=SL_index).value = trade.SL
+            xlsx_sheet.cell(row=row, column=TP_date_index).value = trade.TP_date
+            xlsx_sheet.cell(row=row, column=TP_index).value = trade.TP
+            xlsx_sheet.cell(row=row, column=EXIT_date_index).value = trade.EXIT_date
+            xlsx_sheet.cell(row=row, column=EXIT_index).value = trade.EXIT
 
-                xlsx_sheet.cell(row=row, column=STATUS_index).value = STATUS
+            xlsx_sheet.cell(row=row, column=STATUS_index).value = STATUS
 
-                if earnings_calendar != {}:
-                    _, days_until_earnings = self.find_next_earnings_date(
-                        trade.candle_date,
-                        earnings_calendar[trade.ticker]
-                    )[1]
+            if earnings_calendar != {}:
+                _, days_until_earnings = self.find_next_earnings_date(
+                    trade.candle_date,
+                    earnings_calendar[trade.ticker]
+                )[1]
 
-                    xlsx_sheet.cell(row=row, column=EARNINGS_index).value = days_until_earnings
+                xlsx_sheet.cell(row=row, column=EARNINGS_index).value = days_until_earnings
 
-                #fmt: on
+            #fmt: on
 
-                row += 1
+            row += 1
 
     def find_next_earnings_date(self,
                                 date: pd.Timestamp,
@@ -175,7 +184,7 @@ class StrategyXLSXWriter:
         return "No earnings date found", None
 
     def write_analytics_to_xlsx(self,
-                                trades: Dict[str, List[Trade]],
+                                trades: pd.DataFrame,
                                 start_date: pd.Timestamp,
                                 end_date: pd.Timestamp
                                 ):
@@ -191,7 +200,7 @@ class StrategyXLSXWriter:
         )
 
     def write_analytics_finished_trades_to_xlsx(self,
-                                                trades: Dict[str, List[Trade]],
+                                                trades: pd.DataFrame,
                                                 start_date: pd.Timestamp,
                                                 end_date: pd.Timestamp
                                                 ):
@@ -204,30 +213,29 @@ class StrategyXLSXWriter:
 
         row = 3
 
-        for trades in trades.values():
-            for trade in trades:
-                if not check_is_within_date_range(trade.TC_date, start_date, end_date):
-                    continue
+        for trade in trades.itertuples():
+            if not check_is_within_date_range(trade.TC_date, start_date, end_date):
+                continue
 
-                if trade.outcome_status != TradeOutcome.WIN and trade.outcome_status != TradeOutcome.LOSS:
-                    continue
+            if trade.outcome_status != TradeOutcome.WIN and trade.outcome_status != TradeOutcome.LOSS:
+                continue
 
-                self._write_trade_info_analytics(
-                    trade,
-                    xlsx_sheet,
-                    row,
-                    headers
-                )
+            self._write_trade_info_analytics(
+                trade,
+                xlsx_sheet,
+                row,
+                headers
+            )
 
-                WL = "W" if trade.outcome_status == TradeOutcome.WIN else "L"
-                WL_index = header_index(headers, "W/L")
+            WL = "W" if trade.outcome_status == TradeOutcome.WIN else "L"
+            WL_index = header_index(headers, "W/L")
 
-                xlsx_sheet.cell(row=row, column=WL_index).value = WL
+            xlsx_sheet.cell(row=row, column=WL_index).value = WL
 
-                row += 1
+            row += 1
 
     def write_analytics_all_trades_to_xlsx(self,
-                                           trades: Dict[str, List[Trade]],
+                                           trades: pd.DataFrame,
                                            start_date: pd.Timestamp,
                                            end_date: pd.Timestamp
                                            ):
@@ -240,28 +248,32 @@ class StrategyXLSXWriter:
 
         row = 3
 
-        for trades in trades.values():
-            for trade in trades:
-                if not check_is_within_date_range(trade.TC_date, start_date, end_date):
-                    continue
+        for trade in trades.itertuples():
+            if not check_is_within_date_range(trade.TC_date, start_date, end_date):
+                continue
 
-                self._write_trade_info_analytics(
-                    trade,
-                    xlsx_sheet,
-                    row,
-                    headers
-                )
+            self._write_trade_info_analytics(
+                trade,
+                xlsx_sheet,
+                row,
+                headers
+            )
 
-                #fmt: off
-                OUTCOME_STATUS = trade.outcome_status
-                OUTCOME_STATUS_index = header_index(headers, "W/L")
+            #fmt: off
+            OUTCOME_STATUS = trade.outcome_status
+            OUTCOME_STATUS_index = header_index(headers, "W/L")
 
-                xlsx_sheet.cell(row=row, column=OUTCOME_STATUS_index).value = OUTCOME_STATUS.value
-                #fmt: on
+            xlsx_sheet.cell(row=row, column=OUTCOME_STATUS_index).value = OUTCOME_STATUS.value
+            #fmt: on
 
-                row += 1
+            row += 1
 
-    def _write_trade_info_analytics(self, trade, xlsx_sheet, row, headers):
+    def _write_trade_info_analytics(self,
+                                    trade,
+                                    xlsx_sheet,
+                                    row: int,
+                                    headers: List[str],
+                                    ):
 
         TICKER = trade.ticker
         TICKER_index = header_index(headers, "Ticker")
@@ -313,6 +325,25 @@ class StrategyXLSXWriter:
 
         xlsx_sheet.cell(row=row, column=VOLATILITY_index).value = trade.VOLATILITY
         #fmt: on
+
+    def write_analysis_to_xlsx(self,
+                               trade_analysis: StrategyAnalysis,
+                               ) -> None:
+
+        xlsx_sheet = self.xlsx_file["overview"]
+
+        xlsx_sheet.cell(row=14, column=9).value = trade_analysis.number_of_wins
+        xlsx_sheet.cell(
+            row=15, column=9).value = trade_analysis.number_of_losses
+        xlsx_sheet.cell(row=16, column=9).value = trade_analysis.win_rate
+        xlsx_sheet.cell(row=17, column=9).value = trade_analysis.average_PL
+        xlsx_sheet.cell(row=18, column=9).value = trade_analysis.average_R_PL
+
+        print(trade_analysis.number_of_wins)
+        print(trade_analysis.number_of_losses)
+        print(trade_analysis.win_rate)
+        print(trade_analysis.average_PL)
+        print(trade_analysis.average_R_PL)
 
     def write_trade_settings_to_xlsx(self,
                                      start_date: pd.Timestamp = None,

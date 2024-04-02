@@ -117,7 +117,7 @@ class StrategyJSON:
 
     @classmethod
     def write_trades(cls,
-                     trades: Dict[str, List[Trade]],
+                     trades: pd.DataFrame,
                      dir_path: pathlib.Path,
                      ) -> None:
         """
@@ -125,7 +125,7 @@ class StrategyJSON:
 
         Parameters
         ----------
-        trades : Dict[str, List[Trade]]
+        trades : List[Trade]
             A dictionary with the ticker as key and a list of trades as value.
         dir_path : pathlib.Path
             The directory path where the json files are stored.
@@ -138,14 +138,14 @@ class StrategyJSON:
 
     @classmethod
     def _trades_to_json(cls,
-                        trades: Dict[str, List[Trade]]
+                        trades: List[Trade],
                         ) -> Dict[str, List[Dict[str, Any]]]:
         """
         Function to convert trades to a json serializable format.
 
         Parameters
         ----------
-        trades : Dict[str, List[Trade]]
+        trades : List[Trade]
             A dictionary with the ticker as key and a list of trades as value.
 
         Returns
@@ -153,11 +153,7 @@ class StrategyJSON:
         Dict[str, List[Dict[str, Any]]]
             A dictionary with the ticker as key and a list of json serializable trades as value.
         """
-        json_trades = {}
-        for ticker, ticker_trades in trades.items():
-            json_trades[ticker] = [trade.to_json() for trade in ticker_trades]
-
-        return json_trades
+        return [trade.to_json() for trade in trades]
 
     @classmethod
     def write_earnings_calendar(cls,
@@ -337,7 +333,7 @@ class StrategyJSON:
 
         Returns
         -------
-        Dict[str, List[Trade]]
+        List[Trade]
             A dictionary with the ticker as key and a list of trade objects as value.
         """
         with open(cls.trades_json_file, "r") as file:
@@ -353,16 +349,15 @@ class StrategyJSON:
 
         Parameters
         ----------
-        json_data : Dict[str, List[Dict[str, Any]]]
+        json_data : List[Dict[str, Any]]
             A dictionary with the ticker as key and a list of json serializable trades as value.
 
         Returns
         -------
-        Dict[str, List[Trade]]
+        List[Trade]
             A dictionary with the ticker as key and a list of trade objects as value.
         """
-        return {ticker: [Trade.init_from_json(trade) for trade in ticker_trades]
-                for ticker, ticker_trades in json_data.items()}
+        return [Trade.init_from_json(trade) for trade in json_data]
 
     @classmethod
     def _read_earnings_calendar(cls) -> Dict[str, List[dt.date]]:

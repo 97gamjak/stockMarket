@@ -12,7 +12,7 @@ class StrategyPlotter:
         self.strategy = strategy
         self.finalize_commands = strategy.finalize_commands
 
-        self.trades = np.concatenate(list(strategy.trades.values()))
+        self.trades = self.strategy.trades
 
     def plot_all(self):
         self.plot_PL_histogram()
@@ -25,37 +25,27 @@ class StrategyPlotter:
                           max_bin: float = 6.0,
                           ) -> None:
 
+        trades_df = self.trades.copy()
+
         bins = np.arange(min_bin, max_bin, bin_size)
         bins = np.append(bins, np.inf)
 
-        win_PL = [
-            trade.PL
-            for trade in self.trades
-            if trade.outcome_status == TradeOutcome.WIN
-        ]
+        # add bins to self.trade dataframe for PL - PL is already in the dataframe
+        trades_df['bin'] = np.digitize(trades_df.PL, bins) - 1
 
-        loss_PL = [
-            trade.PL
-            for trade in self.trades
-            if trade.outcome_status == TradeOutcome.LOSS
-        ]
+        win_PL = trades_df[trades_df.outcome_status == TradeOutcome.WIN].PL
+        loss_PL = trades_df[trades_df.outcome_status ==
+                            TradeOutcome.LOSS].PL
 
-        win_PL = np.array(win_PL)
-        loss_PL = np.array(loss_PL)
-
-        # create 2d numpy array of win and loss PL values for each bin
-        win_PL_indices = np.digitize(win_PL, bins) - 1
-        loss_PL_indices = np.digitize(loss_PL, bins) - 1
-
-        win_PL_per_bin = [win_PL[win_PL_indices == i]
+        win_PL_per_bin = [win_PL[trades_df.bin == i]
                           for i in range(0, len(bins))]
-        loss_PL_per_bin = [loss_PL[loss_PL_indices == i]
+        loss_PL_per_bin = [loss_PL[trades_df.bin == i]
                            for i in range(0, len(bins))]
 
-        amount_wins_per_bin = np.array([len(win_PL_per_bin[i])
-                                        for i in range(0, len(bins))])
-        amount_losses_per_bin = np.array([len(loss_PL_per_bin[i])
-                                          for i in range(0, len(bins))])
+        amount_wins_per_bin = np.array(
+            [len(win_PL_per_bin[i]) for i in range(0, len(bins))])
+        amount_losses_per_bin = np.array(
+            [len(loss_PL_per_bin[i]) for i in range(0, len(bins))])
 
         # Calculate the total number of trades in each bin
         total_trades_per_bin = amount_wins_per_bin + amount_losses_per_bin
@@ -109,31 +99,7 @@ class StrategyPlotter:
     @finalize
     def plot_trades_vs_time(self, max_loss: float = 1.0):
 
-        trade_data = [
-            (
-                trade.INVESTMENT,
-                trade.OUTCOME,
-                trade.trade_status,
-                trade.EXIT_date,
-                trade.ENTRY_date
-            )
-            for trade in self.trades
-        ]
-
-        # Create a DataFrame from the trades
-        trades_df = pd.DataFrame(
-            trade_data,
-            columns=['INVESTMENT',
-                     'OUTCOME',
-                     'trade_status',
-                     'EXIT_date',
-                     'ENTRY_date'
-                     ]
-        )
-        trades_df['INVESTMENT'] = trades_df['INVESTMENT'] * max_loss
-        trades_df['OUTCOME'] = trades_df['OUTCOME'] * max_loss
-        trades_df['INVESTMENT'] = trades_df['INVESTMENT'] * max_loss
-        trades_df['OUTCOME'] = trades_df['OUTCOME'] * max_loss
+        trades_df = self.trades.copy()
         trades_df = trades_df.dropna(subset=['ENTRY_date'])
 
         executed_trades = trades_df[
@@ -168,7 +134,7 @@ class StrategyPlotter:
 
         # calculate amount trades where trade_status is open or EXIT_date is larger than the date index of result_df and trade_status is closed
         def update_result(row):
-            date = row.name
+            date = row.name.date()
             df = executed_trades.copy()
             df = df.drop(df[df['ENTRY_date'] > date].index)
 

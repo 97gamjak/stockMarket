@@ -18,3 +18,6 @@ def ignore_trade_exceptions(func, *args, **kwargs):
         func(*args, **kwargs)
     except TradeNotExecuted:
         pass
+    finally:
+        self = args[0]
+        self.build_trade_dictionary()
