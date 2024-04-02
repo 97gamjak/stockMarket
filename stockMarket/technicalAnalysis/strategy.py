@@ -1,15 +1,11 @@
 import datetime as dt
 import numpy as np
 import pandas as pd
-import yfinance as yf
 import re
-import os
-import matplotlib.pyplot as plt
 import inspect
 import warnings
 
-from decorator import decorator
-from beartype.typing import List, Optional, Dict
+from beartype.typing import List, Optional, Dict, Tuple
 from tqdm import tqdm
 from finance_calendars import finance_calendars as fc
 from pathlib import Path
@@ -232,8 +228,8 @@ class Strategy:
             self.get_earnings_dates()
 
         for ticker in tqdm(self.tickers):
-            pricing_data = self.populate_pricing_data(ticker)
-            self._screen_single_ticker(ticker, pricing_data)
+            pricing, pricing_daily = self.populate_pricing_data(ticker)
+            self._screen_single_ticker(ticker, pricing, pricing_daily)
 
         self.xlsx_writer.write_xlsx_file(self.trades, self.earnings_calendar)
 
@@ -242,36 +238,35 @@ class Strategy:
             dir_path=self.dir_path
         )
 
-    def populate_pricing_data(self, ticker: str) -> None:
+    def populate_pricing_data(self,
+                              ticker: str
+                              ) -> Tuple[Optional[pd.DataFrame], Optional[pd.DataFrame]]:
+
         error_file = open(self.error_logger_filename, "w")
 
         start_date = pd.Timestamp(self.start_date).date()
         start_date -= pd.Timedelta(days=100 *
                                    self.candle_period.period_time.days)
 
+        pricing_daily = get_daily_candle_range(
+            ticker=ticker,
+            start_date=start_date
+        )
+
         if self.candle_period.yf_interval == "1d":
-            pricing_data = get_daily_candle_range(
-                ticker,
-                start_date
-            )
+            pricing = pricing_daily.copy()
         elif self.candle_period.yf_interval == "1wk":
-            pricing_data = get_weekly_candle_range(
-                ticker,
-                start_date
+            pricing = get_weekly_candle_range(
+                ticker=ticker,
+                start_date=start_date,
+                pricing_data=pricing_daily,
             )
         else:
             raise NotImplementedError("Candle period not supported yet")
 
-        for index in pricing_data.index:
-            if index.date() == pd.Timestamp("2014-07-29").date():
-                print(store_index)
-                print(index)
-                print(pricing_data.loc[index])
-            store_index = index
-
         try:
             for strategy_object in self.strategy_objects:
-                strategy_object.data = pricing_data
+                strategy_object.data = pricing
                 strategy_object.calculate_indicators()
         except Exception as e:
             self.error_logger[ticker] = e
@@ -280,27 +275,33 @@ class Strategy:
             error_file.write("\n")
             error_file.flush()
 
-            return None
+            return None, None
 
-        return pricing_data
+        return pricing, pricing_daily
 
-    def _screen_single_ticker(self, ticker: str, pricing_data) -> None:
+    def _screen_single_ticker(self,
+                              ticker: str,
+                              pricing: pd.DataFrame,
+                              pricing_daily: pd.DataFrame,
+                              ) -> None:
 
-        if pricing_data is None:
+        if pricing is None:
             return
 
         self.trades[ticker] = []
 
         end_index = _calculate_end_date_index(
-            pricing_data, self.end_date)
+            pricing,
+            self.end_date
+        )
 
-        for index in -np.arange(end_index, len(pricing_data) + 1):
-            date = get_date_from_pricing_data(pricing_data, index)
+        for index in -np.arange(end_index, len(pricing) + 1):
+            date = get_date_from_pricing_data(pricing, index)
 
             if pd.Timestamp(self.start_date).date() > date:
                 break
 
-            date = pricing_data.iloc[index].name
+            date = pricing.iloc[index].name
 
             rule_outcome = [strategy_object.evaluate_rules(
                 index) for strategy_object in self.strategy_objects]
@@ -312,10 +313,10 @@ class Strategy:
 
                 if rule_outcome:
                     trade = Trade(
-                        ticker, pricing_data.iloc[index], self.trade_settings)
+                        ticker, pricing.iloc[index], self.trade_settings)
 
                     try:
-                        trade.execute_trade(pricing_data)
+                        trade.execute_trade(pricing, pricing_daily)
                     except Exception as e:
                         print(f"Error executing trade for ticker {ticker}")
                         raise e

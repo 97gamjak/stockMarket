@@ -2,6 +2,7 @@ import pandas as pd
 import os
 import warnings
 import yfinance as yf
+import datetime as dt
 
 from beartype.typing import Optional
 
@@ -51,24 +52,40 @@ def adjust_price_data_from_df(df):
     return df
 
 
-def get_daily_candle_range(ticker: str, start_date: pd.Timestamp, end_date: Optional[pd.Timestamp] = None, auto_adjust: bool = False):
+def get_daily_candle_range(
+    ticker: str,
+    start_date: dt.date,
+    end_date: Optional[dt.date] = None,
+    auto_adjust: bool = False
+):
 
     ticker = yf.Ticker(ticker)
 
     pricing_data = ticker.history(
         start=str(start_date),
         end=str(end_date) if end_date is not None else None,
-        auto_adjust=False,
+        auto_adjust=auto_adjust,
         rounding=True,
     )
 
     return adjust_price_data_from_df(pricing_data)
 
 
-def get_weekly_candle_range(ticker: str, start_date: pd.Timestamp, end_date: Optional[pd.Timestamp] = None, auto_adjust: bool = False):
+def get_weekly_candle_range(
+        ticker: str,
+        start_date: dt.date,
+        end_date: Optional[dt.date] = None,
+        auto_adjust: bool = False,
+        pricing_data: Optional[pd.DataFrame] = None,
+):
 
-    pricing_data = get_daily_candle_range(
-        ticker, start_date, end_date, auto_adjust)
+    if pricing_data is None:
+        pricing_data = get_daily_candle_range(
+            ticker,
+            start_date,
+            end_date,
+            auto_adjust
+        )
 
     if len(pricing_data) == 0:
         return pricing_data

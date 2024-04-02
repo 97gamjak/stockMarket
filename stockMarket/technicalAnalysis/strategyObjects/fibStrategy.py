@@ -1,3 +1,5 @@
+import pandas as pd
+
 from beartype.typing import List
 
 from ._base import StrategyObject
@@ -18,14 +20,14 @@ class FIBStrategy(StrategyObject):
         self.percent_range = sorted(percent_range)
 
     def calculate_indicators(self):
-        fib_bools = []
-        fib_data = []
-        for index in range(len(self.data)):
-            candle = self.data.iloc[index]
+        def apply_candle_body_outside_range(row):
             fib_bools_i, fib_data_i = candle_body_outside_range(
-                candle, self.percent_range)
-            fib_bools.append(fib_bools_i)
-            fib_data.append(fib_data_i)
+                row, self.percent_range)
+            return pd.Series([fib_bools_i, fib_data_i])
+
+        result = self.data.apply(apply_candle_body_outside_range, axis=1)
+        fib_bools = result[0].tolist()
+        fib_data = result[1].tolist()
 
         self.indicator_values = {"fib_bools": fib_bools, "fib_data": fib_data}
 

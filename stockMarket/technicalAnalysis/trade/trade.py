@@ -30,10 +30,8 @@ from .decorators import ignore_trade_exceptions, check_trade_status
 from .common import (
     calc_highest_body_price,
     calc_lowest_body_price,
-    find_daily_candle,
     find_last_high,
 )
-from stockMarket.yfinance._common import get_daily_candle_range
 
 
 class Trade:
@@ -62,31 +60,34 @@ class Trade:
         self.outcome_status = TradeOutcome.NONE
 
     @ignore_trade_exceptions
-    def execute_trade(self, pricing: pd.DataFrame):
+    def execute_trade(self,
+                      pricing: pd.DataFrame,
+                      pricing_daily: pd.DataFrame,
+                      ) -> None:
+
         self.TC_index = pricing.index.get_loc(self.TC.name)
 
         self.setup_TP(
             pricing=pricing,
-            max_candles=self.settings.max_CandleDist_TP_ENTRY,
-            min_ratio_high_to_ref_candle=self.settings.min_ratio_high_to_ref_candle,
-            max_drawdown_ratio_after_new_high=self.settings.max_drawdown_ratio_after_new_high,
+            pricing_daily=pricing_daily
         )
 
         self.calculate_LOW_between_ENTRY_and_TP(
             pricing=pricing,
-            ENTRY_index=self.TC_index,
-            TP_index=self.TP_index
         )
 
         self.check_TP_TC_to_LOW_RATIO()
 
         self.check_PL_RATIOS()
 
-        self.calc_R_ENTRY(pricing)
+        self.calc_R_ENTRY(
+            pricing=pricing,
+            pricing_daily=pricing_daily
+        )
 
         self.check_min_volatility()
 
-        self.calc_EXIT()
+        self.calc_EXIT(pricing_daily=pricing_daily)
 
         self.determine_trade_outcome()
 
@@ -111,18 +112,16 @@ class Trade:
     @check_trade_status
     def setup_TP(self,
                  pricing: pd.DataFrame,
-                 max_candles: int = 10,
-                 min_ratio_high_to_ref_candle: float = 1.0,
-                 max_drawdown_ratio_after_new_high: float = 1.0,
-                 ):
+                 pricing_daily: pd.DataFrame
+                 ) -> None:
 
         if self.settings.TP_strategy == ChartEnum.LAST_HIGH:
             TP, TP_index = find_last_high(
                 pricing=pricing,
                 ref_candle_index=self.TC_index,
-                max_candles=max_candles,
-                min_ratio_high_to_ref_candle=min_ratio_high_to_ref_candle,
-                max_drawdown_ratio_after_new_high=max_drawdown_ratio_after_new_high,
+                max_candles=self.settings.max_CandleDist_TP_ENTRY,
+                min_ratio_high_to_ref_candle=self.settings.min_ratio_high_to_ref_candle,
+                max_drawdown_ratio_after_new_high=self.settings.max_drawdown_ratio_after_new_high,
             )
         else:
             raise NotImplementedError(
@@ -131,7 +130,7 @@ class Trade:
         if TP is None:
             self.trade_status = TradeStatus.TP_NOT_FOUND
             return
-        elif TP / self.TC.high < min_ratio_high_to_ref_candle:
+        elif TP / self.TC.high < self.settings.min_ratio_high_to_ref_candle:
             self.trade_status = TradeStatus.TP_TC_HIGH_RATIO_TOO_SMALL
             return
         elif self.TC_index - TP_index - 1 < self.settings.min_candles_between_TP_and_ENTRY:
@@ -139,7 +138,11 @@ class Trade:
             return
 
         TP_date = self.calc_TP_date(
-            pricing, TP_index, TP)
+            pricing_daily,
+            pricing.iloc[TP_index],
+            pricing.iloc[TP_index+1],
+            TP
+        )
 
         self.TP = TP
         self.TP_date = TP_date
@@ -147,22 +150,31 @@ class Trade:
         self.max_TP_B = calc_highest_body_price(
             pricing.iloc[self.TP_index])
 
-    def calc_TP_date(self, pricing: pd.DataFrame, target_candle_index, take_profit):
+    def calc_TP_date(self,
+                     pricing_daily: pd.DataFrame,
+                     start_candle,
+                     end_candle,
+                     take_profit
+                     ):
 
-        candle, take_profit = find_daily_candle(
-            ticker=self.ticker,
-            pricing=pricing,
-            candle_index=target_candle_index,
-            target_price=take_profit
-        )
+        start_date = start_candle.name
+        end_date = end_candle.name
+
+        dates_to_check = pricing_daily.index[pricing_daily.index >= start_date]
+        dates_to_check = dates_to_check[dates_to_check < end_date]
+
+        for date in dates_to_check:
+            candle = pricing_daily.loc[date]
+            if candle.high >= take_profit:
+                return candle.name.date()
 
         return candle.name.date()
 
     @check_trade_status
-    def calculate_LOW_between_ENTRY_and_TP(self, pricing, ENTRY_index, TP_index):
+    def calculate_LOW_between_ENTRY_and_TP(self, pricing: pd.DataFrame) -> None:
 
         self.low, self.LOW_index = self.find_last_low(
-            pricing, ENTRY_index - TP_index)
+            pricing, self.TC_index - self.TP_index)
 
         if self.settings.max_LOW_SL_to_ENTRY_RATIO is not None:
             if (self.ENTRY - self.low) / (self.ENTRY - self.SL) > self.settings.max_LOW_SL_to_ENTRY_RATIO:
@@ -172,6 +184,7 @@ class Trade:
         self.min_LOW_B = calc_lowest_body_price(
             pricing.iloc[self.LOW_index])
 
+    # TODO: add here this max_candles as a settings parameter
     def find_last_low(self, pricing: pd.DataFrame, max_candles: int = 6):
 
         LOW = self.SL
@@ -192,41 +205,57 @@ class Trade:
                 self.trade_status = TradeStatus.TP_B_TC_B_TO_LOW_RATIO_TOO_SMALL
 
     @check_trade_status
-    def calc_R_ENTRY(self, pricing: pd.DataFrame):
+    def calc_R_ENTRY(self,
+                     pricing: pd.DataFrame,
+                     pricing_daily: pd.DataFrame
+                     ) -> None:
 
         self.R_ENTRY = None
         self.ENTRY_date = None
 
-        if self.TC_index != len(pricing)-1:
-            min_date = pricing.index[self.TC_index+1].date()
-            while True:
-                R_ENTRY_candle, self.R_ENTRY = find_daily_candle(
-                    ticker=self.ticker,
-                    pricing=pricing,
-                    candle_index=self.TC_index+1,
-                    target_price=self.ENTRY,
-                    min_date=min_date
-                )
+        if self.TC_index + 1 == len(pricing):
+            self.trade_status = TradeStatus.TO_BE_DETERMINED
+            return
 
-                self.ENTRY_date = R_ENTRY_candle.name.date() if R_ENTRY_candle is not None else None
+        date_to_start = pricing.index[self.TC_index+1]
+        dates_to_check = pricing_daily.index[pricing_daily.index >= date_to_start]
 
-                if R_ENTRY_candle is None:
-                    break
+        if self.TC_index + 2 < len(pricing):
+            max_date = pricing.index[self.TC_index+2]
+            dates_to_check = dates_to_check[dates_to_check < max_date]
+
+        for date in dates_to_check:
+            candle = pricing_daily.loc[date]
+
+            if candle.high >= self.ENTRY:
+                self.ENTRY_date = candle.name.date()
+                R_ENTRY_candle = candle
+
+                if candle.open >= self.ENTRY:
+                    self.R_ENTRY = candle.open
+                else:
+                    self.R_ENTRY = self.ENTRY
 
                 limit_ratio = (self.R_ENTRY - self.SL) / (self.ENTRY - self.SL)
+                low_limit_ratio = (R_ENTRY_candle.low -
+                                   self.SL)/(self.ENTRY - self.SL)
 
+                # check if the loss limit is exceeded - if then the low limit is not exceeded
+                # entry is set to the loss limit else search continues
                 if self.settings.loss_limit is not None and limit_ratio > self.settings.loss_limit:
-                    if (R_ENTRY_candle.low - self.SL)/(self.ENTRY - self.SL) < self.settings.loss_limit:
+                    if low_limit_ratio < self.settings.loss_limit:
                         self.R_ENTRY = self.settings.loss_limit * \
                             (self.ENTRY - self.SL) + self.SL
-                        break
                     else:
-                        min_date = R_ENTRY_candle.name.date() + pd.Timedelta(days=1)
-                else:
-                    break
+                        continue
 
-            if self.R_ENTRY is None:
-                self.trade_status = TradeStatus.NO_ENTRY_WITHIN_NEXT_INTERVAL
+                return
+
+        # if no entry is found two possibilities exist:
+        # 1. the entry is not found within the next interval
+        # 2. the entry is to be determined if the next interval is not available
+        if self.TC_index + 2 < len(pricing):
+            self.trade_status = TradeStatus.NO_ENTRY_WITHIN_NEXT_INTERVAL
         else:
             self.trade_status = TradeStatus.TO_BE_DETERMINED
 
@@ -235,24 +264,22 @@ class Trade:
         if self.VOLATILITY < self.settings.min_volatility:
             self.trade_status = TradeStatus.VOLATILITY_TOO_SMALL
 
-    def calc_EXIT(self):
+    def calc_EXIT(self,
+                  pricing_daily: pd.DataFrame = None
+                  ) -> None:
+
         if self.settings.attached_order_type == AttachedOrderType.STOP_LIMIT:
-            self.EXIT_STOP_LIMIT()
+            self.EXIT_STOP_LIMIT(pricing_daily)
         elif self.settings.attached_order_type == AttachedOrderType.TRAILING_STOP_IF_TP_TOUCHED:
-            self.EXIT_TRAILING_STOP_IF_TP_TOUCHED()
+            self.EXIT_TRAILING_STOP_IF_TP_TOUCHED(pricing_daily)
         else:
             raise NotImplementedError(
                 f"Invalid attached order type {self.settings.attached_order_type}")
 
-    def EXIT_STOP_LIMIT(self):
-
-        pricing = get_daily_candle_range(
-            self.ticker,
-            self.ENTRY_date,
-        )
+    def EXIT_STOP_LIMIT(self, pricing_daily: pd.DataFrame):
 
         SL_EXIT, TP_EXIT, EXIT_candle, trade_status = self._EXIT_STOP_LIMIT(
-            pricing
+            pricing_daily
         )
 
         if trade_status == TradeStatus.CLOSED:
@@ -269,14 +296,14 @@ class Trade:
         elif EXIT_candle is None:
             self.trade_status = TradeStatus.OPEN
 
-    def _EXIT_STOP_LIMIT(self, pricing: pd.DataFrame):
+    def _EXIT_STOP_LIMIT(self, pricing_daily: pd.DataFrame):
         SL_EXIT = None
         TP_EXIT = None
         candle = None
         trade_status = TradeStatus.OPEN
 
-        for date in pricing.index[pricing.index.date >= self.ENTRY_date]:
-            candle = pricing.loc[date]
+        for date in pricing_daily.index[pricing_daily.index.date >= self.ENTRY_date]:
+            candle = pricing_daily.loc[date]
 
             if candle.low <= self.SL:
                 SL_EXIT = self.SL
@@ -310,12 +337,7 @@ class Trade:
 
         return SL_EXIT, TP_EXIT, candle, trade_status
 
-    def EXIT_TRAILING_STOP_IF_TP_TOUCHED(self):
-
-        pricing_daily = get_daily_candle_range(
-            self.ticker,
-            self.ENTRY_date,
-        )
+    def EXIT_TRAILING_STOP_IF_TP_TOUCHED(self, pricing_daily: pd.DataFrame):
 
         SL_EXIT, TP_EXIT, EXIT_candle, trade_status = self._EXIT_STOP_LIMIT(
             pricing_daily

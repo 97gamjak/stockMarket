@@ -40,28 +40,40 @@ class StrategyPlotter:
             if trade.outcome_status == TradeOutcome.LOSS
         ]
 
-        # Calculate the counts of win and loss PL values in each bin
-        win_PL_per_bin, _ = np.histogram(win_PL)
-        loss_PL_per_bin, _ = np.histogram(loss_PL)
+        win_PL = np.array(win_PL)
+        loss_PL = np.array(loss_PL)
+
+        # create 2d numpy array of win and loss PL values for each bin
+        win_PL_indices = np.digitize(win_PL, bins) - 1
+        loss_PL_indices = np.digitize(loss_PL, bins) - 1
+
+        win_PL_per_bin = [win_PL[win_PL_indices == i]
+                          for i in range(0, len(bins))]
+        loss_PL_per_bin = [loss_PL[loss_PL_indices == i]
+                           for i in range(0, len(bins))]
+
+        amount_wins_per_bin = np.array([len(win_PL_per_bin[i])
+                                        for i in range(0, len(bins))])
+        amount_losses_per_bin = np.array([len(loss_PL_per_bin[i])
+                                          for i in range(0, len(bins))])
 
         # Calculate the total number of trades in each bin
-        total_trades_per_bin = win_PL_per_bin + loss_PL_per_bin
+        total_trades_per_bin = amount_wins_per_bin + amount_losses_per_bin
 
         # Calculate the effective and theoretical PL ratio for each bin
-        PL_ratio_effective = np.zeros_like(win_PL_per_bin, dtype=float)
+        PL_ratio_effective = np.zeros_like(amount_wins_per_bin, dtype=float)
         np.true_divide(
-            win_PL_per_bin,
+            amount_wins_per_bin,
             total_trades_per_bin,
             out=PL_ratio_effective,
             where=total_trades_per_bin != 0,
         )
-        PL_ratio_theoretical = np.mean(
-            np.concatenate((win_PL_per_bin, loss_PL_per_bin)),
-            axis=1
-        )
 
-        print(PL_ratio_theoretical)
-        print(PL_ratio_effective)
+        PL_ratio_theoretical = []
+        for win, loss in zip(win_PL_per_bin, loss_PL_per_bin):
+            PL_ratio_theoretical.append(np.mean(np.concatenate([win, loss])))
+
+        PL_ratio_theoretical = np.array(PL_ratio_theoretical)
 
         # Create a figure and a subplot
         _, ax1 = plt.subplots()
@@ -97,10 +109,37 @@ class StrategyPlotter:
     @finalize
     def plot_trades_vs_time(self, max_loss: float = 1.0):
 
+        trade_data = [
+            (
+                trade.INVESTMENT,
+                trade.OUTCOME,
+                trade.trade_status,
+                trade.EXIT_date,
+                trade.ENTRY_date
+            )
+            for trade in self.trades
+        ]
+
         # Create a DataFrame from the trades
-        trades_df = pd.DataFrame(self.trades)
+        trades_df = pd.DataFrame(
+            trade_data,
+            columns=['INVESTMENT',
+                     'OUTCOME',
+                     'trade_status',
+                     'EXIT_date',
+                     'ENTRY_date'
+                     ]
+        )
         trades_df['INVESTMENT'] = trades_df['INVESTMENT'] * max_loss
         trades_df['OUTCOME'] = trades_df['OUTCOME'] * max_loss
+        trades_df['INVESTMENT'] = trades_df['INVESTMENT'] * max_loss
+        trades_df['OUTCOME'] = trades_df['OUTCOME'] * max_loss
+        trades_df = trades_df.dropna(subset=['ENTRY_date'])
+
+        executed_trades = trades_df[
+            (trades_df['trade_status'] == TradeStatus.OPEN) |
+            (trades_df['trade_status'] == TradeStatus.CLOSED)
+        ]
 
         # Set the date range
         date_range = pd.date_range(
@@ -116,21 +155,38 @@ class StrategyPlotter:
         result_df['total_outcome'] = 0.0
 
         # Calculate the total outcome for closed trades
-        closed_trades = trades_df[trades_df.trade_status == TradeStatus.CLOSED]
-        result_df.loc[closed_trades.EXIT_date,
-                      'total_outcome'] += (closed_trades.OUTCOME).values
-
-        # Calculate the amount of trades and total invested for open trades and trades that have not exited yet
-        open_trades = trades_df[
-            (trades_df.trade_status == TradeStatus.OPEN) |
-            (trades_df.EXIT_date >= result_df.index)
+        closed_trades = trades_df[
+            trades_df.trade_status == TradeStatus.CLOSED
         ]
-        result_df.loc[open_trades.ENTRY_date, 'amount_trades'] += 1
-        result_df.loc[open_trades.ENTRY_date,
-                      'total_invested'] += (open_trades.INVESTMENT).values
+        result_df.loc[
+            closed_trades.EXIT_date,
+            'total_outcome'
+        ] += (closed_trades.OUTCOME).values
 
         # Forward fill the result DataFrame to propagate the last valid observation forward to the next valid
         result_df.ffill()
+
+        # calculate amount trades where trade_status is open or EXIT_date is larger than the date index of result_df and trade_status is closed
+        def update_result(row):
+            date = row.name
+            df = executed_trades.copy()
+            df = df.drop(df[df['ENTRY_date'] > date].index)
+
+            relevant_trades = df[df['EXIT_date'].isnull()]
+            df = df.drop(relevant_trades.index)
+
+            relevant_trades = pd.concat(
+                [
+                    relevant_trades,
+                    df[df['EXIT_date'] > date]
+                ]
+            )
+
+            row['amount_trades'] = len(relevant_trades)
+            row['total_invested'] = relevant_trades['INVESTMENT'].sum()
+            return row
+
+        result_df = result_df.apply(update_result, axis=1)
 
         max_edit_date = result_df[result_df['amount_trades'] != 0].index.max()
         result_df = result_df[:max_edit_date]
@@ -141,10 +197,11 @@ class StrategyPlotter:
         ax[0].set_xlabel("Date", fontsize=18)
         ax[0].set_ylabel("Amount of trades", fontsize=18)
 
-        ax[1].plot(result_df.index,
-                   np.cumsum(result_df['total_invested']),
-                   color="r"
-                   )
+        ax[1].plot(
+            result_df.index,
+            result_df['total_invested'],
+            color="r"
+        )
         ax[1].set_ylabel("Total Invested in $", fontsize=18)
         ax[1].set_xlabel("Date", fontsize=18)
 
