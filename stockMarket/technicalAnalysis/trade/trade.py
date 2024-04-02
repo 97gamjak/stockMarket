@@ -25,6 +25,8 @@ import numpy as np
 from beartype.typing import Optional
 
 from .enums import ChartEnum, TradeStatus, TradeOutcome, AttachedOrderType
+from .enums_api import determine_outcome_status, check_PL_ratio
+
 from .tradeSettings import TradeSettings
 from .decorators import ignore_trade_exceptions, check_trade_status
 from .common import (
@@ -38,7 +40,7 @@ class Trade:
     def __init__(self,
                  ticker: str,
                  trigger_candle: pd.DataFrame,
-                 settings=None,
+                 settings: Optional[TradeSettings] = None,
                  ) -> None:
 
         self.ticker = ticker
@@ -51,8 +53,6 @@ class Trade:
         self.R_ENTRY: Optional[float] = None
         self.EXIT: Optional[float] = None
         self.TP: Optional[float] = None
-
-        self.condition = None
 
         self.trade_status = TradeStatus.UNKNOWN
         self.settings = settings if settings is not None else TradeSettings()
@@ -89,25 +89,19 @@ class Trade:
 
         self.calc_EXIT(pricing_daily=pricing_daily)
 
-        self.determine_trade_outcome()
-
-    def determine_trade_outcome(self):
-        if self.trade_status == TradeStatus.CLOSED:
-            if self.EXIT > self.R_ENTRY:
-                self.outcome_status = TradeOutcome.WIN
-            elif self.EXIT < self.R_ENTRY:
-                self.outcome_status = TradeOutcome.LOSS
-        else:
-            self.outcome_status = TradeOutcome.NONE
+        self.outcome_status = determine_outcome_status(
+            self.trade_status,
+            self.R_ENTRY,
+            self.EXIT
+        )
 
     @check_trade_status
     def check_PL_RATIOS(self):
-
-        if self.settings.min_PL is not None and self.PL < self.settings.min_PL:
-            self.trade_status = TradeStatus.PL_TOO_SMALL
-
-        if self.settings.max_PL is not None and self.PL > self.settings.max_PL:
-            self.trade_status = TradeStatus.PL_TOO_LARGE
+        self.trade_status = check_PL_ratio(
+            PL=self.PL,
+            min_PL=self.settings.min_PL,
+            max_PL=self.settings.max_PL
+        )
 
     @check_trade_status
     def setup_TP(self,

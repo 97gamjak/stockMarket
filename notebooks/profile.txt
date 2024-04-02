@@ -1,0 +1,56 @@
+         100360685 function calls (98707238 primitive calls) in 114.329 seconds
+
+   Ordered by: cumulative time
+   List reduced from 4390 to 50 due to restriction <50>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+    222/1    0.001    0.000  114.335  114.335 {built-in method builtins.exec}
+   1072/1    0.002    0.000  114.108  114.108 decorator.py:229(fun)
+        1    0.000    0.000  114.108  114.108 _common.py:7(finalize)
+        1    0.025    0.025  109.966  109.966 strategy.py:325(screen)
+      504    0.032    0.000   92.678    0.184 strategy.py:344(populate_pricing_data)
+      504    0.006    0.000   70.988    0.141 _common.py:55(get_daily_candle_range)
+ 2020/504    0.039    0.000   70.763    0.140 utils.py:98(wrapper)
+      504    0.241    0.000   70.717    0.140 base.py:84(history)
+      504    0.009    0.000   61.634    0.122 data.py:332(get)
+      508    0.003    0.000   61.501    0.121 sessions.py:593(get)
+      508    0.006    0.000   61.498    0.121 sessions.py:502(request)
+  509/508    0.011    0.000   60.400    0.119 sessions.py:673(send)
+     4821    0.011    0.000   58.939    0.012 socket.py:692(readinto)
+     4821    0.015    0.000   58.922    0.012 ssl.py:1299(recv_into)
+     4821    0.007    0.000   58.906    0.012 ssl.py:1157(read)
+     4821   58.899    0.012   58.899    0.012 {method 'read' of '_ssl._SSLSocket' objects}
+    11180    0.009    0.000   53.715    0.005 {method 'readline' of '_io.BufferedReader' objects}
+      509    0.008    0.000   52.808    0.104 adapters.py:434(send)
+      509    0.013    0.000   52.604    0.103 connectionpool.py:534(urlopen)
+      509    0.012    0.000   52.420    0.103 connectionpool.py:379(_make_request)
+      509    0.003    0.000   51.809    0.102 client.py:1346(getresponse)
+      509    0.009    0.000   51.795    0.102 client.py:318(begin)
+      509    0.009    0.000   51.629    0.101 client.py:285(_read_status)
+      504    0.013    0.000   18.724    0.037 fibStrategy.py:22(calculate_indicators)
+      504    0.003    0.000   18.664    0.037 frame.py:9411(apply)
+      504    0.059    0.000   18.656    0.037 apply.py:731(apply)
+      502    0.002    0.000   18.594    0.037 apply.py:890(apply_standard)
+      504    0.279    0.001   15.120    0.030 strategy.py:385(_screen_single_ticker)
+      502    0.156    0.000   13.537    0.027 apply.py:896(apply_series_generator)
+   297645    0.331    0.000   11.825    0.000 indexing.py:1059(__getitem__)
+   294779    0.658    0.000   10.726    0.000 indexing.py:1592(_getitem_axis)
+    78294    0.114    0.000   10.311    0.000 fibStrategy.py:23(apply_candle_body_outside_range)
+    26516    0.027    0.000   10.178    0.000 strategy.py:409(<listcomp>)
+    53032    0.089    0.000   10.151    0.000 _base.py:36(evaluate_rules)
+354465/351502    0.888    0.000    9.489    0.000 series.py:342(__init__)
+    92751    0.324    0.000    7.958    0.000 frame.py:3703(_ixs)
+     2529    0.003    0.000    7.558    0.003 models.py:887(content)
+     5602    0.007    0.000    7.556    0.001 {method 'join' of 'bytes' objects}
+     1926    0.003    0.000    7.549    0.004 models.py:812(generate)
+     1926    0.002    0.000    7.546    0.004 response.py:607(stream)
+     1913    0.012    0.000    7.543    0.004 response.py:789(read_chunked)
+    14825    0.044    0.000    7.155    0.000 frame.py:609(__init__)
+     3075    0.034    0.000    6.816    0.002 construction.py:423(dict_to_mgr)
+     3520    0.011    0.000    5.613    0.002 construction.py:100(arrays_to_mgr)
+     1914    0.004    0.000    5.247    0.003 response.py:767(_handle_chunk)
+     2937    0.004    0.000    5.243    0.002 client.py:631(_safe_read)
+     3630    0.008    0.000    5.241    0.001 {method 'read' of '_io.BufferedReader' objects}
+    53032    0.112    0.000    5.142    0.000 _base.py:51(_evaluate_bullish_rules)
+      502    0.003    0.000    5.056    0.010 apply.py:915(wrap_results)
+      502    0.001    0.000    5.046    0.010 apply.py:1050(wrap_results_for_axis)

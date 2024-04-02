@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 
 from stockMarket.yfinance._common import get_daily_candle_range
+from .enums import TradeStatus, TradeOutcome
 
 
 def calc_highest_body_price(candle):
@@ -10,52 +11,6 @@ def calc_highest_body_price(candle):
 
 def calc_lowest_body_price(candle):
     return min(candle.open, candle.close)
-
-
-def find_daily_candle(ticker,
-                      pricing: pd.DataFrame,
-                      candle_index: int,
-                      target_price: float,
-                      mode=np.greater_equal,
-                      min_date=None,
-                      ):
-
-    start_date = pricing.index[candle_index].date()
-    if candle_index == len(pricing)-1:
-        end_date = None
-    else:
-        # end date can be set to the next candle date for all intervals
-        # e.g if interval is weekly than end date is the next week but
-        # yf will not include the first day of the next week
-        end_date = pricing.index[candle_index + 1].date()
-        end_date = str(end_date)
-
-    min_date = min_date if min_date is not None and min_date > start_date else start_date
-
-    if end_date is not None and min_date == end_date:
-        return None, None
-
-    pricing_daily = get_daily_candle_range(ticker, min_date, end_date)
-
-    candle = None
-
-    for i in range(len(pricing_daily)):
-        candle = pricing_daily.iloc[i]
-
-        check_price = candle.high if mode == np.greater_equal else candle.low
-
-        if mode(candle.open, target_price):
-            target_price = candle.open
-            break
-        elif mode(check_price, target_price):
-            break
-
-        candle = None
-
-    if candle is None:
-        return None, None
-    else:
-        return candle, target_price
 
 
 def find_last_high(

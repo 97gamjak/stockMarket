@@ -40,6 +40,44 @@ class Strategy:
                  init_from_json: bool = False,
                  **kwargs
                  ) -> None:
+        """
+        The strategy class is used to screen a list of tickers for trades based on a list of strategy objects. The strategy objects are used to evaluate the rules for each ticker and the trades are executed based on the outcome of the rules. The trades are stored in a dictionary with the ticker as the key and a list of trades as the value. The trades are then written to an xlsx file.
+
+        In general, the strategy class can be initialized in two ways:
+        1. By providing all the necessary parameters to the __init__ method.
+        2. By providing the dir_path to the directory where the json files are stored. The json files are used to initialize the strategy class. (This setting is useful when the screening was already performed and the trades are to be analyzed or the screening is to be continued.)
+
+        Parameters
+        ----------
+        strategy_objects : List[StrategyObject]
+            A list of strategy objects that are used to evaluate the rules for each ticker.
+        start_date : str
+            The start date for the screening in the format "dd.mm.yyyy".
+        end_date : str
+            The end date for the screening in the format "dd.mm.yyyy".
+        rule_enums : List[RuleEnum], optional
+            A list of rule enums that are used to evaluate the rules for each ticker, by default [RuleEnum.BULLISH]
+        num_batches : int, optional
+            The number of batches to split the screening into, by default 1
+        batch_size : Optional[pd.Timedelta], optional
+            The size of each batch, by default None
+            If None, the batch size is calculated based on the number of batches and the start and end date. If both num_batches and batch_size are provided, num_batches will be ignored.
+        trade_settings : Optional[TradeSettings], optional
+            The trade settings that are used to execute the trades, by default None
+        candle_period : str | Period | None, optional
+            The candle period for the pricing data, by default None (daily candle period is used)
+        use_earnings_dates : bool, optional
+            A boolean indicating whether the earnings dates should be used to filter the trades, by default False
+        finalize_commands : Optional[List[str]], optional
+            A list of shell commands that are executed after the screening is finished, by default None
+        init_from_json : bool, optional
+            A boolean indicating whether the strategy class should be initialized from a json file, by default False
+
+        Raises
+        ------
+        ValueError
+            init_from_json is True and neither dir_path nor the combination of dir_name and base_path is provided in kwargs.
+        """
 
         if not init_from_json:
             self.__clean_init__(
@@ -79,6 +117,33 @@ class Strategy:
                        finalize_commands: Optional[List[str]] = None,
                        **kwargs
                        ) -> None:
+        """
+        Initialize the strategy class by providing all the necessary parameters.
+
+        Parameters
+        ----------
+        strategy_objects : List[StrategyObject]
+            A list of strategy objects that are used to evaluate the rules for each ticker.
+        start_date : str
+            The start date for the screening in the format "dd.mm.yyyy".
+        end_date : str
+            The end date for the screening in the format "dd.mm.yyyy".
+        rule_enums : List[RuleEnum], optional
+            A list of rule enums that are used to evaluate the rules for each ticker, by default [RuleEnum.BULLISH]
+        num_batches : int, optional
+            The number of batches to split the screening into, by default 1
+        batch_size : Optional[pd.Timedelta], optional
+            The size of each batch, by default None
+            If None, the batch size is calculated based on the number of batches and the start and end date. If both num_batches and batch_size are provided, num_batches will be ignored.
+        trade_settings : Optional[TradeSettings], optional
+            The trade settings that are used to execute the trades, by default None
+        candle_period : str | Period | None, optional
+            The candle period for the pricing data, by default None (daily candle period is used)
+        use_earnings_dates : bool, optional
+            A boolean indicating whether the earnings dates should be used to filter the trades, by default False
+        finalize_commands : Optional[List[str]], optional
+            A list of shell commands that are executed after the screening is finished, by default None
+        """
 
         self.strategy_objects = strategy_objects
         self.rule_enums = rule_enums
@@ -89,6 +154,8 @@ class Strategy:
         self.earnings_calendar: Dict[str, List[dt.date]] = {}
         self.file_settings = None
 
+        # setup files including creating the directory
+        # all input parameters used for the setup have to be given as kwargs
         self.setup_files(
             self.strategy_objects,
             self.rule_enums,
@@ -128,7 +195,15 @@ class Strategy:
             dir_path=self.dir_path,
         )
 
-    def init_from_json(self, dir_path: Path):
+    def __init_from_json__(self, dir_path: Path):
+        """
+        Initialize the strategy class from a json file.
+
+        Parameters
+        ----------
+        dir_path : Path
+            The directory path where the json file(s) is/are stored.
+        """
         StrategyJSON.read(dir_path)
 
         self.file_settings = StrategyJSON.file_settings
@@ -180,6 +255,26 @@ class Strategy:
                     num_batches: int,
                     batch_size: Optional[pd.Timedelta] = None,
                     ):
+        """
+        Setup the dates for the screening.
+
+        Parameters
+        ----------
+        start_date : str
+            start date in the format "dd.mm.yyyy"
+        end_date : str
+            end date in the format "dd.mm.yyyy"
+        candle_period : str | Period | None
+            candle period for the pricing data, by default None (daily candle period is used)
+        num_batches : int
+            number of batches to split the screening into
+        batch_size : Optional[pd.Timedelta], optional
+            size of each batch, by default None (calculated based on the number of batches and the start and end date). If both num_batches and batch_size are provided, num_batches will be ignored.
+
+        Warnings
+        --------
+        If both num_batches and batch_size are set, num_batches will be ignored.
+        """
         if candle_period is None:
             self.candle_period = Period('daily')
         else:
@@ -198,6 +293,14 @@ class Strategy:
                     "Both num_batches and batch_size are set. num_batches will be ignored")
 
     def setup_trade_settings(self, trade_settings: Optional[TradeSettings] = None):
+        """
+        Setup the trade settings for the trades.
+
+        Parameters
+        ----------
+        trade_settings : Optional[TradeSettings], optional
+            trade settings for the trades, by default None
+        """
         self.trade_settings = trade_settings if trade_settings is not None else TradeSettings()
 
     def get_earnings_dates(self):
