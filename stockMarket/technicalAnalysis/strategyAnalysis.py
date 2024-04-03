@@ -72,16 +72,25 @@ def select_end_date(func, *args, **kwargs):
         end_date = kwargs.get('end_date', None)
         kwargs['end_date'] = end_date if end_date is not None else self.end_date
 
+    print(args)
+    print(kwargs)
+
     return func(*args, **kwargs)
 
 
-def select_date_range(func):
+def func_decorator(func):
+    return decorate(func, select_date_range, kwsyntax=True)
+
+
+def select_date_range(func, *args, **kwargs):
+    print(kwargs)
+
     @select_start_date(kwsyntax=True)
     @select_end_date(kwsyntax=True)
     def wrapper(*args, **kwargs):
         return func(*args, **kwargs)
 
-    return wrapper
+    return wrapper(*args, **kwargs)
 
 
 def class_decorator(cls):
@@ -91,8 +100,7 @@ def class_decorator(cls):
         if name.startswith("__") or name.endswith("__"):
             continue
 
-        setattr(cls, name, lambda method: decorate(
-            method, select_date_range, kwsyntax=True))
+        setattr(cls, name, func_decorator(method))
     return cls
 
 
