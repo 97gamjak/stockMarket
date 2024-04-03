@@ -328,22 +328,38 @@ class StrategyXLSXWriter:
 
     def write_analysis_to_xlsx(self,
                                trade_analysis: StrategyAnalysis,
+                               start_date: pd.Timestamp = None,
+                               end_date: pd.Timestamp = None,
                                ) -> None:
 
-        xlsx_sheet = self.xlsx_file["overview"]
+        sheet_name = "overview"
+        xlsx_sheet = self.xlsx_file[sheet_name]
 
-        xlsx_sheet.cell(row=14, column=9).value = trade_analysis.number_of_wins
-        xlsx_sheet.cell(
-            row=15, column=9).value = trade_analysis.number_of_losses
-        xlsx_sheet.cell(row=16, column=9).value = trade_analysis.win_rate
-        xlsx_sheet.cell(row=17, column=9).value = trade_analysis.average_PL
-        xlsx_sheet.cell(row=18, column=9).value = trade_analysis.average_R_PL
+        headers = list(pd.read_excel(
+            self.template_xlsx_filename, sheet_name=sheet_name).columns)
+        column_to_start = header_index(headers, "Trade Volume") + 1
 
-        print(trade_analysis.number_of_wins)
-        print(trade_analysis.number_of_losses)
-        print(trade_analysis.win_rate)
-        print(trade_analysis.average_PL)
-        print(trade_analysis.average_R_PL)
+        trade_analysis.start_date = start_date
+        trade_analysis.end_date = end_date
+
+        #fmt: off
+        xlsx_sheet.cell(row=5, column=column_to_start + 4).value = trade_analysis.predicted_outcome().sum()
+        xlsx_sheet.cell(row=5, column=column_to_start + 5).value = trade_analysis.predicted_outcome().mean()
+        xlsx_sheet.cell(row=5, column=column_to_start + 6).value = trade_analysis.predicted_outcome().max()
+        xlsx_sheet.cell(row=5, column=column_to_start + 7).value = trade_analysis.predicted_outcome().min()
+
+        xlsx_sheet.cell(row=6, column=column_to_start + 4).value = trade_analysis.outcome().sum()
+        xlsx_sheet.cell(row=6, column=column_to_start + 5).value = trade_analysis.outcome().mean()
+        xlsx_sheet.cell(row=6, column=column_to_start + 6).value = trade_analysis.outcome().max()
+        xlsx_sheet.cell(row=6, column=column_to_start + 7).value = trade_analysis.outcome().min()
+
+        xlsx_sheet.cell(row=14, column=column_to_start).value = trade_analysis.number_of_wins()
+        xlsx_sheet.cell(row=15, column=column_to_start).value = trade_analysis.number_of_losses()
+        xlsx_sheet.cell(row=16, column=column_to_start).value = trade_analysis.win_loss_ratio()
+        xlsx_sheet.cell(row=17, column=column_to_start).value = trade_analysis.win_rate()
+        xlsx_sheet.cell(row=18, column=column_to_start).value = trade_analysis.average_PL()
+        xlsx_sheet.cell(row=19, column=column_to_start).value = trade_analysis.average_R_PL()
+        #fmt: on
 
     def write_trade_settings_to_xlsx(self,
                                      start_date: pd.Timestamp = None,
@@ -374,7 +390,13 @@ class StrategyXLSXWriter:
 
 
 def header_index(headers: List[str], header: str):
-    headers = [header.lower().strip() for header in headers]
+
+    headers = [
+        header.lower().strip()
+        if isinstance(header, str) else str(header)
+        for header in headers
+    ]
+
     return headers.index(header.lower()) + 1
 
 
