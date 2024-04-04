@@ -4,7 +4,7 @@ from openpyxl import load_workbook
 from beartype.typing import Dict, List, Optional
 
 from .trade import TradeOutcome, TradeSettings
-from .strategyAnalysis import StrategyAnalysis
+from .analysis.strategyAnalysis import StrategyAnalysis
 from stockMarket.utils.period import Period
 
 
@@ -88,9 +88,10 @@ class StrategyXLSXWriter:
             end_date
         )
 
-        # TODO: make this compatible with batch strategy
         self.write_analysis_to_xlsx(
-            trade_analysis
+            trade_analysis,
+            start_date,
+            end_date
         )
 
         if filename is None:
@@ -343,22 +344,36 @@ class StrategyXLSXWriter:
         trade_analysis.end_date = end_date
 
         #fmt: off
-        xlsx_sheet.cell(row=5, column=column_to_start + 4).value = trade_analysis.predicted_outcome().sum()
-        xlsx_sheet.cell(row=5, column=column_to_start + 5).value = trade_analysis.predicted_outcome().mean()
-        xlsx_sheet.cell(row=5, column=column_to_start + 6).value = trade_analysis.predicted_outcome().max()
-        xlsx_sheet.cell(row=5, column=column_to_start + 7).value = trade_analysis.predicted_outcome().min()
+        cell_dict = {
+            "Predicted Outcome": 5,
+            "Outcome": 5,
+            "W": 1,
+            "L": 1,
+            "W/L": 1,
+            "Probability of W": 1,
+            "Average P/L": 1,
+            "Average P/L Real": 1,
+        }
 
-        xlsx_sheet.cell(row=6, column=column_to_start + 4).value = trade_analysis.outcome().sum()
-        xlsx_sheet.cell(row=6, column=column_to_start + 5).value = trade_analysis.outcome().mean()
-        xlsx_sheet.cell(row=6, column=column_to_start + 6).value = trade_analysis.outcome().max()
-        xlsx_sheet.cell(row=6, column=column_to_start + 7).value = trade_analysis.outcome().min()
+        for key, value in cell_dict.items():
+            cell_dict[key] = find_row_index(xlsx_sheet, key).offset(0, value)
 
-        xlsx_sheet.cell(row=14, column=column_to_start).value = trade_analysis.number_of_wins()
-        xlsx_sheet.cell(row=15, column=column_to_start).value = trade_analysis.number_of_losses()
-        xlsx_sheet.cell(row=16, column=column_to_start).value = trade_analysis.win_loss_ratio()
-        xlsx_sheet.cell(row=17, column=column_to_start).value = trade_analysis.win_rate()
-        xlsx_sheet.cell(row=18, column=column_to_start).value = trade_analysis.average_PL()
-        xlsx_sheet.cell(row=19, column=column_to_start).value = trade_analysis.average_R_PL()
+        cell_dict["Predicted Outcome"].value = trade_analysis.predicted_outcome().sum()
+        cell_dict["Predicted Outcome"].offset(0, 1).value = trade_analysis.predicted_outcome().mean()
+        cell_dict["Predicted Outcome"].offset(0, 2).value = trade_analysis.predicted_outcome().max()
+        cell_dict["Predicted Outcome"].offset(0, 3).value = trade_analysis.predicted_outcome().min()
+
+        cell_dict["Outcome"].value = trade_analysis.outcome().sum()
+        cell_dict["Outcome"].offset(0, 1).value = trade_analysis.outcome().mean()
+        cell_dict["Outcome"].offset(0, 2).value = trade_analysis.outcome().max()
+        cell_dict["Outcome"].offset(0, 3).value = trade_analysis.outcome().min()
+
+        cell_dict["W"].value = trade_analysis.number_of_wins()
+        cell_dict["L"].value = trade_analysis.number_of_losses()
+        cell_dict["W/L"].value = trade_analysis.win_loss_ratio()
+        cell_dict["Probability of W"].value = trade_analysis.probability_of_win()
+        cell_dict["Average P/L"].value = trade_analysis.average_PL()
+        cell_dict["Average P/L Real"].value = trade_analysis.average_R_PL()
         #fmt: on
 
     def write_trade_settings_to_xlsx(self,
@@ -398,6 +413,15 @@ def header_index(headers: List[str], header: str):
     ]
 
     return headers.index(header.lower()) + 1
+
+
+def find_row_index(sheet, key: str):
+    for row in sheet.iter_rows():
+        for cell in row:
+            if str(cell.value).strip().lower() == key.lower():
+                return cell
+
+    raise ValueError(f"Key {key} not found in sheet")
 
 
 def date_to_string(date: pd.Timestamp):
