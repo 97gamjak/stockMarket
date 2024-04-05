@@ -36,7 +36,7 @@ class StrategyXLSXWriter:
         while True:
             end_date = start_date + self.batch_size
 
-            # this way no only one fotal screening file is created
+            # this way no only one total screening file is created
             if start_date == self.start_date and end_date > self.end_date:
                 break
 
@@ -336,10 +336,6 @@ class StrategyXLSXWriter:
         sheet_name = "overview"
         xlsx_sheet = self.xlsx_file[sheet_name]
 
-        headers = list(pd.read_excel(
-            self.template_xlsx_filename, sheet_name=sheet_name).columns)
-        column_to_start = header_index(headers, "Trade Volume") + 1
-
         trade_analysis.start_date = start_date
         trade_analysis.end_date = end_date
 
@@ -347,33 +343,57 @@ class StrategyXLSXWriter:
         cell_dict = {
             "Predicted Outcome": 5,
             "Outcome": 5,
+            "Win Outcome": 5,
+            "Loss Outcome": 5,
+            "Capital Required": 5,
+            "Investment": 5,
+            "Days/Trade": 1,
+            "P/L": 1,
+            "P/L Real": 1,
+
             "W": 1,
             "L": 1,
             "W/L": 1,
             "Probability of W": 1,
             "Average P/L": 1,
             "Average P/L Real": 1,
+
+            "Predicted Yield": 1,
+            "Real Yield": 1,
         }
 
         for key, value in cell_dict.items():
             cell_dict[key] = find_row_index(xlsx_sheet, key).offset(0, value)
 
-        cell_dict["Predicted Outcome"].value = trade_analysis.predicted_outcome().sum()
-        cell_dict["Predicted Outcome"].offset(0, 1).value = trade_analysis.predicted_outcome().mean()
-        cell_dict["Predicted Outcome"].offset(0, 2).value = trade_analysis.predicted_outcome().max()
-        cell_dict["Predicted Outcome"].offset(0, 3).value = trade_analysis.predicted_outcome().min()
+        def write_data_stats_to_cell(key, data, include_total=True):
+            if include_total:
+                cell_dict[key].value = data.sum()
+            cell_dict[key].offset(0, 1).value = data.mean()
+            cell_dict[key].offset(0, 2).value = data.max()
+            cell_dict[key].offset(0, 3).value = data.min()
 
-        cell_dict["Outcome"].value = trade_analysis.outcome().sum()
-        cell_dict["Outcome"].offset(0, 1).value = trade_analysis.outcome().mean()
-        cell_dict["Outcome"].offset(0, 2).value = trade_analysis.outcome().max()
-        cell_dict["Outcome"].offset(0, 3).value = trade_analysis.outcome().min()
+        write_data_stats_to_cell("Predicted Outcome", trade_analysis.predicted_outcome())
+        write_data_stats_to_cell("Outcome", trade_analysis.outcome())
+        write_data_stats_to_cell("Win Outcome", trade_analysis.win_outcome())
+        write_data_stats_to_cell("Loss Outcome", trade_analysis.loss_outcome())
+        write_data_stats_to_cell("Capital Required", trade_analysis.required_capital(), include_total=False)
+        write_data_stats_to_cell("Investment", trade_analysis.investment(), include_total=False)
+        write_data_stats_to_cell("Days/Trade", trade_analysis.total_days(), include_total=False)
+        write_data_stats_to_cell("P/L", trade_analysis.PL(), include_total=False)
+        write_data_stats_to_cell("P/L Real", trade_analysis.R_PL(), include_total=False)
 
         cell_dict["W"].value = trade_analysis.number_of_wins()
         cell_dict["L"].value = trade_analysis.number_of_losses()
         cell_dict["W/L"].value = trade_analysis.win_loss_ratio()
         cell_dict["Probability of W"].value = trade_analysis.probability_of_win()
-        cell_dict["Average P/L"].value = trade_analysis.average_PL()
-        cell_dict["Average P/L Real"].value = trade_analysis.average_R_PL()
+        cell_dict["Average P/L"].value = trade_analysis.PL().mean()
+        cell_dict["Average P/L Real"].value = trade_analysis.R_PL().mean()
+
+        start_date = start_date if start_date is not None else self.start_date
+        end_date = end_date if end_date is not None else self.end_date
+
+        cell_dict["Predicted Yield"].value = trade_analysis.predicted_yield(start_date, end_date)
+        cell_dict["Real Yield"].value = trade_analysis.real_yield(start_date, end_date)
         #fmt: on
 
     def write_trade_settings_to_xlsx(self,

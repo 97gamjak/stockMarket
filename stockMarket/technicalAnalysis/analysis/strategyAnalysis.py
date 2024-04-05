@@ -9,6 +9,8 @@ from ._pipe import (
     filter_wins,
     filter_losses,
     filter_date_range,
+    filter_open_on_day,
+    filter_trade_executed,
 )
 
 
@@ -20,24 +22,6 @@ class StrategyAnalysis(metaclass=MetaDecorator):
         self.trades = trades
         self._start_date = None
         self._end_date = None
-
-    def average_PL(self,
-                   start_date: Optional[pd.Timestamp] = None,
-                   end_date: Optional[pd.Timestamp] = None,
-                   ) -> float:
-
-        return (self.trades.pipe(filter_date_range, start_date, end_date)
-                           .pipe(filter_closed_trades)
-                           .PL.mean())
-
-    def average_R_PL(self,
-                     start_date: Optional[pd.Timestamp] = None,
-                     end_date: Optional[pd.Timestamp] = None,
-                     ) -> float:
-
-        return (self.trades.pipe(filter_date_range, start_date, end_date)
-                           .pipe(filter_closed_trades)
-                           .R_PL.mean())
 
     def win_loss_ratio(self,
                        start_date: Optional[pd.Timestamp] = None,
@@ -57,8 +41,7 @@ class StrategyAnalysis(metaclass=MetaDecorator):
                            end_date: Optional[pd.Timestamp] = None,
                            ) -> Optional[float]:
 
-        trades = (self.trades.pipe(filter_date_range, start_date, end_date)
-                             .pipe(filter_closed_trades))
+        trades = self.trades.pipe(filter_closed_trades, start_date, end_date)
 
         if len(trades) == 0:
             return None
@@ -70,8 +53,7 @@ class StrategyAnalysis(metaclass=MetaDecorator):
                        end_date: Optional[pd.Timestamp] = None,
                        ) -> int:
 
-        return len(self.trades.pipe(filter_date_range, start_date, end_date)
-                              .pipe(filter_closed_trades)
+        return len(self.trades.pipe(filter_closed_trades, start_date, end_date)
                               .pipe(filter_wins))
 
     def number_of_losses(self,
@@ -79,8 +61,7 @@ class StrategyAnalysis(metaclass=MetaDecorator):
                          end_date: Optional[pd.Timestamp] = None,
                          ) -> int:
 
-        return len(self.trades.pipe(filter_date_range, start_date, end_date)
-                              .pipe(filter_closed_trades)
+        return len(self.trades.pipe(filter_closed_trades, start_date, end_date)
                               .pipe(filter_losses))
 
     def predicted_outcome(self,
@@ -88,18 +69,142 @@ class StrategyAnalysis(metaclass=MetaDecorator):
                           end_date: Optional[pd.Timestamp] = None,
                           ):
 
-        return (self.trades.pipe(filter_date_range, start_date, end_date)
-                           .pipe(filter_closed_trades)
-                           .PRED_OUTCOME)
+        return self.trades.pipe(filter_closed_trades, start_date, end_date).PRED_OUTCOME
+
+    def win_outcome(self,
+                    start_date: Optional[pd.Timestamp] = None,
+                    end_date: Optional[pd.Timestamp] = None,
+                    ):
+
+        return (self.trades.pipe(filter_closed_trades, start_date, end_date)
+                           .pipe(filter_wins)
+                           .OUTCOME)
+
+    def loss_outcome(self,
+                     start_date: Optional[pd.Timestamp] = None,
+                     end_date: Optional[pd.Timestamp] = None,
+                     ):
+
+        return (self.trades.pipe(filter_closed_trades, start_date, end_date)
+                           .pipe(filter_losses)
+                           .OUTCOME)
 
     def outcome(self,
                 start_date: Optional[pd.Timestamp] = None,
                 end_date: Optional[pd.Timestamp] = None,
                 ):
 
-        return (self.trades.pipe(filter_date_range, start_date, end_date)
-                           .pipe(filter_closed_trades)
-                           .OUTCOME)
+        return self.trades.pipe(filter_closed_trades, start_date, end_date).OUTCOME
+
+    def required_capital(self,
+                         start_date: Optional[pd.Timestamp] = None,
+                         end_date: Optional[pd.Timestamp] = None,
+                         ):
+
+        return self.trades.pipe(filter_closed_trades, start_date, end_date).REQ_CAPITAL
+
+    def investment(self,
+                   start_date: Optional[pd.Timestamp] = None,
+                   end_date: Optional[pd.Timestamp] = None,
+                   ):
+
+        return self.trades.pipe(filter_closed_trades, start_date, end_date).INVESTMENT
+
+    def total_days(self,
+                   start_date: Optional[pd.Timestamp] = None,
+                   end_date: Optional[pd.Timestamp] = None,
+                   ):
+
+        return self.trades.pipe(filter_closed_trades, start_date, end_date).TOTAL_DAYS
+
+    def PL(self,
+           start_date: Optional[pd.Timestamp] = None,
+           end_date: Optional[pd.Timestamp] = None,
+           ):
+
+        return self.trades.pipe(filter_closed_trades, start_date, end_date).PL
+
+    def R_PL(self,
+             start_date: Optional[pd.Timestamp] = None,
+             end_date: Optional[pd.Timestamp] = None,
+             ):
+
+        return self.trades.pipe(filter_closed_trades, start_date, end_date).PL
+
+    def positive_expectancy(self,
+                            start_date: Optional[pd.Timestamp] = None,
+                            end_date: Optional[pd.Timestamp] = None,
+                            ) -> Optional[float]:
+
+        PL = self.PL(start_date, end_date).mean()
+        probability_of_win = self.probability_of_win(start_date, end_date)
+
+        return self._positive_expectancy(PL, probability_of_win)
+
+    def R_positive_expectancy(self,
+                              start_date: Optional[pd.Timestamp] = None,
+                              end_date: Optional[pd.Timestamp] = None,
+                              ) -> Optional[float]:
+
+        R_PL = self.R_PL(start_date, end_date).mean()
+        probability_of_win = self.probability_of_win(start_date, end_date)
+
+        return self._positive_expectancy(R_PL, probability_of_win)
+
+    def _positive_expectancy(self,
+                             PL: float,
+                             probability_of_win: float,
+                             ) -> Optional[float]:
+
+        return (1 + PL)*probability_of_win - 1
+
+    def predicted_yield(self,
+                        start_date: Optional[pd.Timestamp],
+                        end_date: Optional[pd.Timestamp],
+                        ) -> Optional[float]:
+
+        return self._yield("PRED_OUTCOME", start_date, end_date)
+
+    def real_yield(self,
+                   start_date: Optional[pd.Timestamp],
+                   end_date: Optional[pd.Timestamp],
+                   ) -> Optional[float]:
+
+        return self._yield("OUTCOME", start_date, end_date)
+
+    def _yield(self,
+               key: "str",
+               start_date: Optional[pd.Timestamp],
+               end_date: Optional[pd.Timestamp],
+               ) -> Optional[float]:
+
+        trades = (self.trades.pipe(filter_date_range, start_date, end_date)
+                             .pipe(filter_closed_trades))
+
+        outcome = trades[key].sum()
+        max_investment = max(
+            self._date_investment_dictionary(
+                start_date,
+                end_date
+            ).values()
+        )
+
+        return 1
+
+    def _date_investment_dictionary(self,
+                                    start_date: Optional[pd.Timestamp] = None,
+                                    end_date: Optional[pd.Timestamp] = None,
+                                    ):
+
+        trades = self.trades.pipe(filter_trade_executed, start_date, end_date)
+
+        date_range = pd.date_range(
+            start_date,
+            end_date,
+            freq='D'
+        )
+
+        return {day: trades.pipe(filter_open_on_day, day).INVESTMENT.sum() for day in date_range}
 
     @property
     def start_date(self) -> Optional[pd.Timestamp]:

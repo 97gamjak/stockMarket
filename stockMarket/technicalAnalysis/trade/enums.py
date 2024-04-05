@@ -72,6 +72,10 @@ class TradeStatus(StringEnum):
             raise NotImplementedError(
                 f"{value} is not a valid trade status for possible behaviors are {cls.member_repr()} or {cls.value_repr()}")
 
+    @classmethod
+    def trade_executed(cls, trade_status: "TradeStatus") -> bool:
+        return trade_status in [cls.OPEN, cls.CLOSED, cls.AMBIGUOUS_EXIT_DATE]
+
 
 DESCRIPTION_DICT = {
     TradeStatus.UNKNOWN.value: r"""
