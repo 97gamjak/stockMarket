@@ -32,7 +32,7 @@ class StrategyFileSettings:
         if self.template_xlsx_path is not None:
             self.template_xlsx_path = Path(self.template_xlsx_path)
         else:
-            self.template_xlsx_path = Path(__file__).parent / "templates"
+            self.template_xlsx_path = Path(__file__).parent.parent / "templates"
 
         self.template_xlsx_file = str(
             self.template_xlsx_path / self.template_xlsx_file
