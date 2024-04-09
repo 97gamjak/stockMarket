@@ -19,8 +19,8 @@ from .trade import (
 )
 from ._json import StrategyJSON
 from ._common import finalize
-from .strategyFileSettings import StrategyFileSettings
-from .strategyXLSXWriter import StrategyXLSXWriter
+from .io.strategyFileSettings import StrategyFileSettings
+from .io.strategyXLSXWriter import StrategyXLSXWriter
 from .analysis.strategyAnalysis import StrategyAnalysis
 from stockMarket.utils import Period
 from stockMarket.yfinance._common import get_weekly_candle_range, get_daily_candle_range

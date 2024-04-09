@@ -11,7 +11,7 @@ from beartype.typing import Optional, Dict, List, Any
 
 from .trade import Trade, TradeSettings
 from .strategyObjects import StrategyObject, RuleEnum
-from .strategyFileSettings import StrategyFileSettings
+from .io.strategyFileSettings import StrategyFileSettings
 from stockMarket.utils.period import Period
 
 

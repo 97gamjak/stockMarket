@@ -4,8 +4,8 @@ import shutil
 from pathlib import Path
 from beartype.typing import Optional, List
 
-from .strategyObjects import StrategyObject, RuleEnum
-from .enums import StrategyStoringBehavior
+from ..strategyObjects import StrategyObject, RuleEnum
+from ..enums import StrategyStoringBehavior
 
 
 class StrategyFileSettings:

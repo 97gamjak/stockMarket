@@ -3,8 +3,8 @@ import pandas as pd
 from openpyxl import load_workbook
 from beartype.typing import Dict, List, Optional
 
-from .trade import TradeOutcome, TradeSettings
-from .analysis.strategyAnalysis import StrategyAnalysis
+from ..trade import TradeOutcome, TradeSettings
+from ..analysis.strategyAnalysis import StrategyAnalysis
 from stockMarket.utils.period import Period
 
 
