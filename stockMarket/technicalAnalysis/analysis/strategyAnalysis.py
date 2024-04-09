@@ -3,6 +3,9 @@ import pandas as pd
 from decorator import decorator
 from beartype.typing import Optional
 
+import stockMarket.technicalAnalysis.io.customLogger as customLogger
+
+from ._meta import MetaDecorator
 from ._pipe import (
     filter_date_range,
     filter_closed_trades,
@@ -13,7 +16,7 @@ from ._pipe import (
 )
 
 
-class StrategyAnalysis:
+class StrategyAnalysis(metaclass=MetaDecorator):
     def __init__(self,
                  trades: pd.DataFrame
                  ) -> None:

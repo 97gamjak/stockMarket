@@ -11,5 +11,5 @@ def timeit(func, *args, **kwargs):
     result = func(*args, **kwargs)
     end_time = time.time()
     customLogger.time_logger.info(
-        f'{func.__name__} took {end_time - start_time} seconds to run')
+        f'{func.__name__} took {end_time - start_time:.2f} seconds to run')
     return result

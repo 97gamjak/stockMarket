@@ -1,10 +1,13 @@
 import inspect
 
-from decorator import decorator, decorate
+import stockMarket.technicalAnalysis.io.customLogger as customLogger
+import stockMarket.technicalAnalysis.io.decorators as decorators
+
+from decorator import decorate
 
 
 class MetaDecorator(type):
-    def __new__(cls, cls_name, bases, attrs):
+    def __init__(cls, cls_name, bases, attrs):
         for name, method in inspect.getmembers(cls):
             if (not inspect.ismethod(method) and not inspect.isfunction(method)) or inspect.isbuiltin(method):
                 continue
@@ -12,67 +15,10 @@ class MetaDecorator(type):
             if name.startswith("__") or name.endswith("__"):
                 continue
 
-            signature = inspect.signature(method)
-            _kwargs = {
-                name: param.default
-                for name, param in signature.parameters.items()
-                if param.default != inspect.Parameter.empty
-            }
+            if name != "real_yield" and name != "predicted_yield":
+                continue
 
-            if {'start_date', 'end_date'}.issubset(_kwargs):
-                setattr(cls, name, decorate(
-                    method, select_date_range, kwsyntax=True))
+            if customLogger.time_logger.getEffectiveLevel() <= 20:
+                setattr(cls, name, decorators.timeit(method))
 
-        return super().__new__(cls, cls_name, bases, attrs)
-
-
-def select_date_range(func, *args, **kwargs):
-
-    @select_start_date(kwsyntax=True)
-    @select_end_date(kwsyntax=True)
-    def wrapper(*args, **kwargs):
-        return func(*args, **kwargs)
-
-    return wrapper(*args, **kwargs)
-
-
-@decorator
-def select_start_date(func, *args, **kwargs):
-    return select_date(func, 'start_date', *args, **kwargs)
-
-
-@decorator
-def select_end_date(func, *args, **kwargs):
-    return select_date(func, 'end_date', *args, **kwargs)
-
-
-def select_date(func, date_str, *args, **kwargs):
-    self = args[0]
-
-    # _kwargs = get_kwargs_from_signature(func)
-
-    date = kwargs.get(date_str, None)
-    date = date if date is not None else getattr(self, date_str)
-    kwargs[date_str] = date
-
-    return func(*args, **kwargs)
-
-
-def get_kwargs_from_signature(func):
-    signature = inspect.signature(func)
-    _kwargs = {
-        name: param.default
-        for name, param in signature.parameters.items()
-        if param.default != inspect.Parameter.empty
-    }
-
-    return _kwargs
-
-
-def update_args(func, args, key, value):
-    args = list(args)
-    signature = inspect.signature(func)
-    keys = [param.name for param in signature.parameters.values()]
-    args_dict = dict(zip(keys, args))
-    args_dict[key] = value
-    return tuple(args_dict.values())
+        return super().__init__(cls_name, bases, attrs)
