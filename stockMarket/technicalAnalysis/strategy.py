@@ -10,6 +10,8 @@ from tqdm import tqdm
 from finance_calendars import finance_calendars as fc
 from pathlib import Path
 
+import stockMarket.technicalAnalysis.io.decorators as decorators
+
 from .strategyObjects import StrategyObject, RuleEnum
 from .trade import (
     Trade,
@@ -330,6 +332,7 @@ class Strategy:
             earnings_calendar=self.earnings_calendar
         )
 
+    @decorators.timeit
     @finalize
     def screen(self, tickers: List[str] | str) -> None:
 

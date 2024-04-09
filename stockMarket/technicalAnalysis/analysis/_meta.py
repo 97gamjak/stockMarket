@@ -1,10 +1,10 @@
 import inspect
 
-from decorator import decorator
+from decorator import decorator, decorate
 
 
 class MetaDecorator(type):
-    def __init__(cls, cls_name, bases, attrs):
+    def __new__(cls, cls_name, bases, attrs):
         for name, method in inspect.getmembers(cls):
             if (not inspect.ismethod(method) and not inspect.isfunction(method)) or inspect.isbuiltin(method):
                 continue
@@ -20,19 +20,20 @@ class MetaDecorator(type):
             }
 
             if {'start_date', 'end_date'}.issubset(_kwargs):
-                setattr(cls, name, select_date_range(method))
+                setattr(cls, name, decorate(
+                    method, select_date_range, kwsyntax=True))
 
-        return super().__init__(cls_name, bases, attrs)
+        return super().__new__(cls, cls_name, bases, attrs)
 
 
-def select_date_range(func):
+def select_date_range(func, *args, **kwargs):
 
-    @select_start_date
-    @select_end_date
+    @select_start_date(kwsyntax=True)
+    @select_end_date(kwsyntax=True)
     def wrapper(*args, **kwargs):
         return func(*args, **kwargs)
 
-    return wrapper
+    return wrapper(*args, **kwargs)
 
 
 @decorator
@@ -48,11 +49,11 @@ def select_end_date(func, *args, **kwargs):
 def select_date(func, date_str, *args, **kwargs):
     self = args[0]
 
-    _kwargs = get_kwargs_from_signature(func)
+    # _kwargs = get_kwargs_from_signature(func)
 
-    date = _kwargs.get(date_str, None)
+    date = kwargs.get(date_str, None)
     date = date if date is not None else getattr(self, date_str)
-    args = update_args(func, args, date_str, date)
+    kwargs[date_str] = date
 
     return func(*args, **kwargs)
 
