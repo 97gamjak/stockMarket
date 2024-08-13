@@ -2,8 +2,8 @@
 requires = ["setuptools>=42", "setuptools_scm>=8"]
 build-backend = "setuptools.build_meta"
 
-[tool.setuptools]
-py-modules = ["stockMarket"]
+[tool.setuptools.packages.find]
+exclude = ["notebooks"]
 
 [project]
 name = "stockMarket"
@@ -40,6 +40,7 @@ dependencies = [
     "sec-cik-mapper",
     "xlrd",
     "openpyxl",
+    "tvDatafeed @ git+https://github.com/rongardF/tvdatafeed.git",
 ]
 
 [project.optional-dependencies]
